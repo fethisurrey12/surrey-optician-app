@@ -1,0 +1,48 @@
+{
+  "summary": "Frontend-only smoke + acceptance test of the Surrey Opticians mock-only Expo app on mobile web preview (390x844). All acceptance criteria from the review request pass: welcome->phone (validation via disabled Continue button on invalid input)->verify (demo code shown in verify-demo-code, wrong code shows 'did not match' error, correct code auto-advances)->biometric enable/skip->home tabs. Home shows 8/10 ring, '2 points to your next £10 reward', NHS note, reward-ready card, tiles, See all. Rewards wallet shows the available voucher (voucher-v-7f3k92qx), tapping opens the full-screen sheet with QR and code, 'Simulate the till scan' marks the voucher used, a 'Voucher applied at the till' toast appears, wallet moves the voucher to Used and the empty state renders. Activity filter chips (all/earned/rewards) all present and clickable; NHS label present. Account has link-details/link-branches/link-settings and 'Loyalty data only' notice. Your details form editable with details-save-button working. Branches page shows Coulsdon, Wallington and Banstead with hours, tap-to-call phone numbers and Directions buttons. Settings has biometric toggle, Lock now, notification toggles, Scheme terms and Privacy notice. Lock now navigates to lock-screen and auto-unlocks (~1.4s on web) returning to the tabs. Tab bar shows Rewards badge count '1'. Sign out button present. Minor: two console warnings only (react-native-web deprecations - pointerEvents, shadow*). No red screen / no runtime errors / no failed integrations.",
+  "backend_issues": {
+    "critical": [],
+    "minor": []
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [],
+    "react_native_issues": [
+      {"component": "GrainOverlay / any View using pointerEvents prop", "issue": "Console warning: 'props.pointerEvents is deprecated. Use style.pointerEvents' - non-blocking, but should migrate to style-based pointerEvents for RN Web >= 0.19."},
+      {"component": "Card / QRCode wrap / any View using shadowColor/shadowOpacity/shadowRadius/shadowOffset", "issue": "Console warning: '\"shadow*\" style props are deprecated. Use \"boxShadow\"' on web. Native still uses shadow*; use Platform.select or add boxShadow for web builds."}
+    ]
+  },
+  "test_report_links": [
+    "/tmp/01_welcome.png",
+    "/tmp/03_home.png",
+    "/tmp/04_rewards.png",
+    "/tmp/05_voucher_sheet.png",
+    "/tmp/06_after_redeem.png",
+    "/tmp/07_activity.png",
+    "/tmp/08_account.png",
+    "/tmp/09_details.png",
+    "/tmp/branches.png",
+    "/tmp/settings.png",
+    "/tmp/lock.png"
+  ],
+  "action_items": [
+    "Optional: silence react-native-web deprecations by migrating pointerEvents to style.pointerEvents and shadow* to boxShadow via Platform.select so console stays clean on web preview.",
+    "No functional fixes required; all acceptance items pass on first test pass."
+  ],
+  "critical_code_review_comments": [
+    "Mock layer /app/frontend/src/api/mock.ts is clean, four async fns as specified (loadAccount, loadVouchers, loadActivity, markVoucherUsed). State kept in module memory only (no localStorage) matches the brief.",
+    "phone.tsx: GoldButton is disabled when regex /^7\\d{9}$/ fails, so an invalid press does nothing (no toast/error). This is by design; the Field's helper 'note' communicates the format. Consider still surfacing an inline error if a user presses when disabled, but not required.",
+    "_layout.tsx route guard is well-factored (segments-based redirect), and useRouteGuard cleanly handles signedOut / locked / needsBiometricPrompt.",
+    "verify.tsx onComplete relies on verify() returning boolean; wrong code correctly triggers tapWarn and reset. Good UX.",
+    "rewards.tsx correctly guards against selected=null and disables 'Simulate' via markUsed.isPending. Toast fires only on onSuccess.",
+    "No deprecated Expo packages found in package.json (no expo-av / expo-barcode-scanner / expo-background-fetch)."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "N/A (skipped per request)", "frontend": "100% (all reviewed acceptance items pass)"},
+  "seed_data_creation": "None. Mock data in /app/frontend/src/api/data.ts is used as-is (Sarah Whitfield, 8 points, 1 available voucher v-7f3k92qx, 1 used voucher).",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "State is in-memory only; every page reload resets to signed-out. Auth path: welcome-signin-button -> phone-input (enter 7712045589) -> phone-continue-button -> verify-demo-code (regex-parse 6 digits) -> type into code-box-0 with keyboard.type (accepts the whole code and distributes) -> biometric-enable-button (enable to test Lock now) -> tabs. Simulate till scan verified moves voucher to Used and shows empty-state Available card. Rewards tab badge = available voucher count. On web, Lock screen auto-unlocks after ~1.4s (simulated biometric).",
+  "rca_of_issue": "N/A - no bugs to root-cause. Two RN Web deprecation console warnings are cosmetic and originate from third-party/legacy style props (pointerEvents, shadow*)."
+}
