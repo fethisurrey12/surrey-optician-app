@@ -43,6 +43,14 @@ the app never self-redeems — a "Simulate the till scan" control stands in for 
 - Motion: staggered entrances, ring draw, single reward-card sweep; all gated by
   prefers-reduced-motion. QR is a deterministic hash placeholder (comment to swap a real
   encoder at build time).
+- **Wallet Pass (2026-06)**: "Add to Apple Wallet" / "Add to Google Wallet" badges on the
+  voucher sheet. Backend `backend/wallet.py` signs a PassKit coupon `.pkpass` (PKCS#7 via
+  `cryptography`, generated icon/logo PNGs) and a Save-to-Google-Wallet RS256 JWT link;
+  `/api/wallet/status` reports configuration. Until the practice supplies signing material
+  (env: APPLE_PASS_TYPE_ID, APPLE_TEAM_ID, APPLE_CERT_PATH, APPLE_KEY_PATH, APPLE_WWDR_PATH,
+  GOOGLE_SERVICE_ACCOUNT_JSON, GOOGLE_ISSUER_ID) the app shows a faithful pass preview with a
+  prototype "Simulate adding to Wallet" control; the voucher card then shows an "In … Wallet"
+  chip. Real Wallet hand-off must be verified on a device build, not Expo Go/web.
 
 ## Personas
 - **Member (Sarah Whitfield)**: collects points in shop, checks balance/vouchers one-handed,
@@ -50,5 +58,6 @@ the app never self-redeems — a "Simulate the till scan" control stands in for 
 - **Colleague (till)**: scans the code, applies £10 in the practice system, marks it used.
 
 ## Backlog (not built)
-- P1: real backend wiring (swap mock.ts bodies for fetch), real SMS gateway, real QR encoder.
-- P2: Apple/Google Wallet pass, points expiry reminders, referral/share.
+- P1: real backend wiring (swap mock.ts bodies for fetch), real SMS gateway, real QR encoder,
+  wallet signing credentials from the practice (Apple Pass Type ID cert, Google issuer).
+- P2: points expiry reminders, referral/share.

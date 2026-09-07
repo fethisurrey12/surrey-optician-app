@@ -39,6 +39,14 @@ export function VoucherCard({ voucher, onPress }: { voucher: Voucher; onPress?: 
         ) : (
           <Txt variant="caption">Expires {dayMonthYear(voucher.expires)}</Txt>
         )}
+        {!used && voucher.wallet ? (
+          <View style={styles.walletChip} testID={`voucher-${voucher.id}-wallet-chip`}>
+            <Icon name="wallet" size={13} color={colors.lightGold} />
+            <Txt variant="caption" tone="gold">
+              In {voucher.wallet === "apple" ? "Apple" : "Google"} Wallet
+            </Txt>
+          </View>
+        ) : null}
       </View>
 
       {used ? (
@@ -72,6 +80,19 @@ const useStyles = makeStyles((colors) => ({
   figure: { fontFamily: font.serifThin, fontSize: 46, letterSpacing: -1.5, lineHeight: 50 },
   figureUsed: { fontFamily: font.serifThin, fontSize: 46, letterSpacing: -1.5, lineHeight: 50, color: colors.dimSage },
   code: { letterSpacing: 1, marginTop: 2 },
+  walletChip: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+    alignSelf: "flex-start",
+    marginTop: spacing.xs,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: 3,
+    borderRadius: 999,
+    borderWidth: 1,
+    borderColor: colors.borderStrong,
+    backgroundColor: colors.surfaceTertiary,
+  },
   qr: { alignItems: "center", gap: spacing.xs },
   tap: {},
   usedMark: {

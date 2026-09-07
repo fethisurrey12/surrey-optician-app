@@ -33,7 +33,10 @@ export type Voucher = {
   status: "available" | "used";
   usedAt?: string; // ISO
   usedBranchId?: string;
+  wallet?: WalletProvider; // set once the member has added it to their phone wallet
 };
+
+export type WalletProvider = "apple" | "google";
 
 export type Txn = {
   id: string;

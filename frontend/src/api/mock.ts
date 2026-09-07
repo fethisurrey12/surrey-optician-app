@@ -3,7 +3,7 @@
 //
 // State is held in module memory only — no browser localStorage, per brief.
 
-import { ACCOUNT, Account, Txn, TXNS, Voucher, VOUCHERS } from "./data";
+import { ACCOUNT, Account, Txn, TXNS, Voucher, VOUCHERS, WalletProvider } from "./data";
 
 // Mutable working copies so redemption persists for the session.
 let vouchers: Voucher[] = VOUCHERS.map((v) => ({ ...v }));
@@ -44,6 +44,16 @@ export async function markVoucherUsed(
         }
       : v,
   );
+  const updated = vouchers.find((v) => v.id === id);
+  if (!updated) throw new Error("Voucher not found");
+  return { ...updated };
+}
+
+// Records that the member has added a voucher to Apple or Google Wallet so the
+// app can show its "in wallet" state. The pass itself is produced server-side.
+export async function markVoucherInWallet(id: string, provider: WalletProvider): Promise<Voucher> {
+  await delay(500);
+  vouchers = vouchers.map((v) => (v.id === id ? { ...v, wallet: provider } : v));
   const updated = vouchers.find((v) => v.id === id);
   if (!updated) throw new Error("Voucher not found");
   return { ...updated };

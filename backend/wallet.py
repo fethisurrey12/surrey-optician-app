@@ -1,0 +1,236 @@
+"""Apple Wallet (.pkpass) and Google Wallet (save link) generation for £10 reward vouchers.
+
+Signing material never leaves the server. When the certificates / service account
+are not configured, /wallet/status reports so and the pass endpoints return 503 —
+the app then falls back to its prototype pass preview.
+
+Env (backend/.env):
+  APPLE_PASS_TYPE_ID, APPLE_TEAM_ID, APPLE_CERT_PATH, APPLE_KEY_PATH, APPLE_WWDR_PATH, APPLE_KEY_PASSWORD
+  GOOGLE_SERVICE_ACCOUNT_JSON (path), GOOGLE_ISSUER_ID
+"""
+
+import hashlib
+import io
+import json
+import os
+import time
+import zipfile
+from datetime import datetime
+from pathlib import Path
+
+import jwt
+from cryptography import x509
+from cryptography.hazmat.primitives import hashes, serialization
+from cryptography.hazmat.primitives.serialization import Encoding, pkcs7
+from fastapi import APIRouter, HTTPException, Query
+from fastapi.responses import Response
+from PIL import Image, ImageDraw, ImageFont
+
+router = APIRouter(prefix="/wallet", tags=["wallet"])
+
+ASSETS = Path(__file__).parent / "wallet_assets"
+
+ORG = "Surrey Opticians"
+INK = (12, 36, 25)
+CREAM = (244, 241, 233)
+GOLD = (201, 162, 39)
+
+APPLE_VARS = ("APPLE_PASS_TYPE_ID", "APPLE_TEAM_ID", "APPLE_CERT_PATH", "APPLE_KEY_PATH", "APPLE_WWDR_PATH")
+GOOGLE_VARS = ("GOOGLE_SERVICE_ACCOUNT_JSON", "GOOGLE_ISSUER_ID")
+
+
+def _configured(vars_: tuple[str, ...]) -> bool:
+    return all(os.environ.get(v) for v in vars_)
+
+
+def _path_ok(var: str) -> bool:
+    p = os.environ.get(var)
+    return bool(p) and Path(p).exists()
+
+
+def apple_ready() -> bool:
+    return _configured(APPLE_VARS) and all(_path_ok(v) for v in ("APPLE_CERT_PATH", "APPLE_KEY_PATH", "APPLE_WWDR_PATH"))
+
+
+def google_ready() -> bool:
+    return _configured(GOOGLE_VARS) and _path_ok("GOOGLE_SERVICE_ACCOUNT_JSON")
+
+
+# ---------------------------------------------------------------- assets ----
+def _font(size: int):
+    try:
+        return ImageFont.load_default(size=size)
+    except TypeError:  # very old Pillow
+        return ImageFont.load_default()
+
+
+def _ensure_assets() -> dict[str, bytes]:
+    """Generate the branded PNGs Apple expects (icon + logo, 1x/2x/3x) once."""
+    ASSETS.mkdir(exist_ok=True)
+    specs = {
+        "icon.png": (29, 29),
+        "icon@2x.png": (58, 58),
+        "icon@3x.png": (87, 87),
+        "logo.png": (160, 50),
+        "logo@2x.png": (320, 100),
+        "logo@3x.png": (480, 150),
+    }
+    out: dict[str, bytes] = {}
+    for name, (w, h) in specs.items():
+        file = ASSETS / name
+        if not file.exists():
+            img = Image.new("RGBA", (w, h), INK + (255,) if name.startswith("icon") else (0, 0, 0, 0))
+            d = ImageDraw.Draw(img)
+            if name.startswith("icon"):
+                r = w * 0.34
+                d.ellipse((w / 2 - r, h / 2 - r, w / 2 + r, h / 2 + r), outline=GOLD, width=max(1, w // 14))
+            else:
+                d.text((0, h * 0.18), ORG, fill=CREAM, font=_font(int(h * 0.5)))
+            img.save(file, "PNG")
+        out[name] = file.read_bytes()
+    return out
+
+
+# ------------------------------------------------------------------ apple ----
+def build_pkpass(code: str, value: int, expires: str, member: str, branch: str) -> bytes:
+    files = _ensure_assets()
+    pass_json = {
+        "formatVersion": 1,
+        "passTypeIdentifier": os.environ["APPLE_PASS_TYPE_ID"],
+        "serialNumber": code,
+        "teamIdentifier": os.environ["APPLE_TEAM_ID"],
+        "organizationName": ORG,
+        "description": f"{ORG} £{value} reward voucher",
+        "logoText": ORG,
+        "backgroundColor": "rgb(%d,%d,%d)" % INK,
+        "foregroundColor": "rgb(%d,%d,%d)" % CREAM,
+        "labelColor": "rgb(%d,%d,%d)" % GOLD,
+        "expirationDate": f"{expires}T23:59:59Z",
+        "coupon": {
+            "primaryFields": [{"key": "value", "label": "REWARD", "value": f"£{value} off"}],
+            "secondaryFields": [
+                {"key": "member", "label": "MEMBER", "value": member},
+                {"key": "expires", "label": "EXPIRES", "value": _pretty_date(expires)},
+            ],
+            "auxiliaryFields": [
+                {"key": "code", "label": "VOUCHER CODE", "value": code},
+                {"key": "branch", "label": "HOME BRANCH", "value": branch},
+            ],
+            "backFields": [
+                {
+                    "key": "how",
+                    "label": "How to use",
+                    "value": "Show this pass at the till in any Surrey Opticians branch. A colleague scans it, "
+                    "applies £10 to your private purchase and marks it used.",
+                },
+                {"key": "terms", "label": "Terms", "value": "One voucher per transaction. Not valid against NHS-funded amounts. Expires 18 months after issue."},
+                {"key": "branches", "label": "Branches", "value": "Coulsdon · Wallington · Banstead"},
+            ],
+        },
+        "barcodes": [{"format": "PKBarcodeFormatQR", "message": code, "messageEncoding": "iso-8859-1", "altText": code}],
+    }
+    files["pass.json"] = json.dumps(pass_json, ensure_ascii=False, separators=(",", ":")).encode("utf-8")
+
+    manifest = {name: hashlib.sha1(data).hexdigest() for name, data in files.items()}
+    manifest_bytes = json.dumps(manifest, separators=(",", ":")).encode()
+
+    cert = x509.load_pem_x509_certificate(Path(os.environ["APPLE_CERT_PATH"]).read_bytes())
+    wwdr = x509.load_pem_x509_certificate(Path(os.environ["APPLE_WWDR_PATH"]).read_bytes())
+    password = os.environ.get("APPLE_KEY_PASSWORD", "").encode() or None
+    key = serialization.load_pem_private_key(Path(os.environ["APPLE_KEY_PATH"]).read_bytes(), password=password)
+    signature = (
+        pkcs7.PKCS7SignatureBuilder()
+        .set_data(manifest_bytes)
+        .add_signer(cert, key, hashes.SHA256())
+        .add_certificate(wwdr)
+        .sign(Encoding.DER, [pkcs7.PKCS7Options.DetachedSignature, pkcs7.PKCS7Options.Binary])
+    )
+
+    files["manifest.json"] = manifest_bytes
+    files["signature"] = signature
+    buf = io.BytesIO()
+    with zipfile.ZipFile(buf, "w", zipfile.ZIP_DEFLATED) as z:
+        for name, data in files.items():
+            z.writestr(name, data)
+    return buf.getvalue()
+
+
+# ----------------------------------------------------------------- google ----
+def build_google_save_url(code: str, value: int, expires: str, member: str, branch: str) -> str:
+    service = json.loads(Path(os.environ["GOOGLE_SERVICE_ACCOUNT_JSON"]).read_text())
+    issuer = os.environ["GOOGLE_ISSUER_ID"]
+    class_id = f"{issuer}.surrey_opticians_reward"
+    object_id = f"{issuer}.{code.replace('-', '_')}"
+
+    generic_class = {"id": class_id}
+    generic_object = {
+        "id": object_id,
+        "classId": class_id,
+        "state": "ACTIVE",
+        "hexBackgroundColor": "#%02x%02x%02x" % INK,
+        "cardTitle": {"defaultValue": {"language": "en-GB", "value": ORG}},
+        "header": {"defaultValue": {"language": "en-GB", "value": f"£{value} reward voucher"}},
+        "subheader": {"defaultValue": {"language": "en-GB", "value": member}},
+        "barcode": {"type": "QR_CODE", "value": code, "alternateText": code},
+        "textModulesData": [
+            {"id": "code", "header": "Voucher code", "body": code},
+            {"id": "expires", "header": "Expires", "body": _pretty_date(expires)},
+            {"id": "branch", "header": "Home branch", "body": branch},
+            {"id": "how", "header": "How to use", "body": "Show at the till in any Surrey Opticians branch. A colleague scans it and applies £10 to your private purchase."},
+        ],
+        "validTimeInterval": {"end": {"date": f"{expires}T23:59:59Z"}},
+    }
+    claims = {
+        "iss": service["client_email"],
+        "aud": "google",
+        "typ": "savetowallet",
+        "iat": int(time.time()),
+        "origins": [o for o in os.environ.get("PUBLIC_ORIGIN", "").split(",") if o],
+        "payload": {"genericClasses": [generic_class], "genericObjects": [generic_object]},
+    }
+    token = jwt.encode(claims, service["private_key"], algorithm="RS256")
+    return "https://pay.google.com/gp/v/save/" + token
+
+
+def _pretty_date(iso: str) -> str:
+    try:
+        return datetime.strptime(iso, "%Y-%m-%d").strftime("%-d %b %Y")
+    except ValueError:
+        return iso
+
+
+# ----------------------------------------------------------------- routes ----
+@router.get("/status")
+async def wallet_status():
+    return {"apple": apple_ready(), "google": google_ready()}
+
+
+@router.get("/apple/{code}.pkpass")
+async def apple_pass(
+    code: str,
+    value: int = Query(10, ge=1),
+    expires: str = Query(...),
+    member: str = Query("Member"),
+    branch: str = Query(""),
+):
+    if not apple_ready():
+        raise HTTPException(503, "Apple Wallet signing certificate not configured")
+    data = build_pkpass(code, value, expires, member, branch)
+    return Response(
+        content=data,
+        media_type="application/vnd.apple.pkpass",
+        headers={"Content-Disposition": f'attachment; filename="{code}.pkpass"', "Cache-Control": "no-store"},
+    )
+
+
+@router.get("/google/{code}")
+async def google_pass(
+    code: str,
+    value: int = Query(10, ge=1),
+    expires: str = Query(...),
+    member: str = Query("Member"),
+    branch: str = Query(""),
+):
+    if not google_ready():
+        raise HTTPException(503, "Google Wallet issuer not configured")
+    return {"url": build_google_save_url(code, value, expires, member, branch)}

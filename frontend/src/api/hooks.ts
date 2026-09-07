@@ -2,7 +2,8 @@
 // redemption refresh every dependent view.
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
-import { loadAccount, loadActivity, loadVouchers, markVoucherUsed } from "./mock";
+import { type WalletProvider } from "./data";
+import { loadAccount, loadActivity, loadVouchers, markVoucherInWallet, markVoucherUsed } from "./mock";
 
 export const keys = {
   account: ["account"] as const,
@@ -32,5 +33,14 @@ export function useMarkVoucherUsed() {
       qc.invalidateQueries({ queryKey: keys.vouchers });
       qc.invalidateQueries({ queryKey: keys.account });
     },
+  });
+}
+
+export function useAddToWallet() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, provider }: { id: string; provider: WalletProvider }) =>
+      markVoucherInWallet(id, provider),
+    onSuccess: () => qc.invalidateQueries({ queryKey: keys.vouchers }),
   });
 }
