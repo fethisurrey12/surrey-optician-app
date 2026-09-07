@@ -51,6 +51,21 @@ the app never self-redeems — a "Simulate the till scan" control stands in for 
   GOOGLE_SERVICE_ACCOUNT_JSON, GOOGLE_ISSUER_ID) the app shows a faithful pass preview with a
   prototype "Simulate adding to Wallet" control; the voucher card then shows an "In … Wallet"
   chip. Real Wallet hand-off must be verified on a device build, not Expo Go/web.
+- **Wallet Keys wiring (2026-06)**: backend accepts a raw `.p12` export (APPLE_P12_PATH +
+  APPLE_P12_PASSWORD) or PEM pair, WWDR as .cer or .pem, Google service account as a file path
+  or inline JSON; paths resolve relative to `backend/`; `/api/wallet/status` lists exactly what
+  is `missing`. Step-by-step guide in `backend/WALLET_SETUP.md`; drop files in `backend/secrets/`.
+  Awaiting the practice's actual credentials.
+- **Expiry Reminders (2026-06)**: 60-day window (`EXPIRY_WARN_DAYS`). Home nudge banner
+  (`ExpiryNudge`) → Rewards; voucher card shows "Expires in N days · date" in light gold; voucher
+  sheet shows "expires in N days" + "Use it before …" note. Sample voucher SO-9K2T-08MW is always
+  41 days from today (dates computed at load).
+- **Refer A Friend (2026-06)**: `/refer` screen — personal code `SARAH-5589`, native Share
+  (message + link `https://surreyopticians.co.uk/join?ref=CODE`), Copy code (expo-clipboard),
+  how-it-works, invites list with statuses (invited/joined/rewarded). Entry points: Home card and
+  Account row. Both parties earn 1 bonus point (REFERRAL_BONUS_POINTS). Mocked `loadReferrals`.
+- **Real QR codes (2026-06)**: `qrcode` package encodes the voucher code (EC level M, 4-module
+  quiet zone); verified decodable from a screenshot with OpenCV. Used on card, sheet, wallet preview.
 
 ## Personas
 - **Member (Sarah Whitfield)**: collects points in shop, checks balance/vouchers one-handed,
@@ -58,6 +73,7 @@ the app never self-redeems — a "Simulate the till scan" control stands in for 
 - **Colleague (till)**: scans the code, applies £10 in the practice system, marks it used.
 
 ## Backlog (not built)
-- P1: real backend wiring (swap mock.ts bodies for fetch), real SMS gateway, real QR encoder,
-  wallet signing credentials from the practice (Apple Pass Type ID cert, Google issuer).
-- P2: points expiry reminders, referral/share.
+- P1: real backend wiring (swap mock.ts bodies for fetch), real SMS gateway, wallet signing
+  credentials from the practice (Apple Pass Type ID cert, Google issuer) — see WALLET_SETUP.md.
+- P2: referral redemption at the till (staff enters friend's code), join link landing page,
+  RN Web deprecation clean-up (pointerEvents / shadow props).

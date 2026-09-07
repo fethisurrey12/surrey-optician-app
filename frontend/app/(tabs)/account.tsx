@@ -71,6 +71,8 @@ export default function Account() {
         <Card contentStyle={styles.links}>
           <Row icon="user" title="Your details" subtitle="Name, email and home branch" onPress={() => router.push("/details")} testID="link-details" />
           <Divider inset={54} />
+          <Row icon="users" title="Refer a friend" subtitle={`Your code · ${a.referralCode}`} onPress={() => router.push("/refer")} testID="link-refer" />
+          <Divider inset={54} />
           <Row icon="pin" title="Branches and contact" subtitle="Coulsdon, Wallington, Banstead" onPress={() => router.push("/branches")} testID="link-branches" />
           <Divider inset={54} />
           <Row icon="sliders" title="Settings" subtitle="Unlock, notifications and terms" onPress={() => router.push("/settings")} testID="link-settings" />

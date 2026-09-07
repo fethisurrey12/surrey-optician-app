@@ -7,7 +7,7 @@ import { Icon } from "@/src/ui/Icon";
 import { PressScale } from "@/src/ui/PressScale";
 import { QRCode } from "@/src/ui/QRCode";
 import { Txt } from "@/src/ui/Txt";
-import { dayMonthYear } from "@/src/lib/points";
+import { dayMonthYear, expiresInText, expiresSoon } from "@/src/lib/points";
 import { font, spacing } from "@/src/tokens";
 import { makeStyles, useTheme } from "@/src/theme";
 
@@ -36,6 +36,13 @@ export function VoucherCard({ voucher, onPress }: { voucher: Voucher; onPress?: 
           <Txt variant="caption">
             {branchName(voucher.usedBranchId)} · {dayMonthYear(voucher.usedAt ?? voucher.issued)}
           </Txt>
+        ) : expiresSoon(voucher.expires) ? (
+          <View style={styles.soon} testID={`voucher-${voucher.id}-expiring`}>
+            <Icon name="clock" size={13} color={colors.lightGold} />
+            <Txt variant="caption" tone="lightGold">
+              {expiresInText(voucher.expires).replace(/^e/, "E")} · {dayMonthYear(voucher.expires)}
+            </Txt>
+          </View>
         ) : (
           <Txt variant="caption">Expires {dayMonthYear(voucher.expires)}</Txt>
         )}
@@ -80,6 +87,7 @@ const useStyles = makeStyles((colors) => ({
   figure: { fontFamily: font.serifThin, fontSize: 46, letterSpacing: -1.5, lineHeight: 50 },
   figureUsed: { fontFamily: font.serifThin, fontSize: 46, letterSpacing: -1.5, lineHeight: 50, color: colors.dimSage },
   code: { letterSpacing: 1, marginTop: 2 },
+  soon: { flexDirection: "row", alignItems: "center", gap: 5 },
   walletChip: {
     flexDirection: "row",
     alignItems: "center",

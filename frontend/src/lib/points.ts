@@ -20,6 +20,30 @@ export function ringProgress(points: number): number {
   return within / POINTS_PER_REWARD;
 }
 
+// Vouchers within this many days of expiry get a gentle nudge.
+export const EXPIRY_WARN_DAYS = 60;
+
+// Whole days from today until the calendar date (negative once passed).
+export function daysUntil(iso: string): number {
+  const target = parse(iso);
+  const now = new Date();
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  return Math.round((target.getTime() - today.getTime()) / 86_400_000);
+}
+
+export function expiresSoon(iso: string): boolean {
+  const d = daysUntil(iso);
+  return d >= 0 && d <= EXPIRY_WARN_DAYS;
+}
+
+// "expires in 41 days" / "expires tomorrow" / "expires today"
+export function expiresInText(iso: string): string {
+  const d = daysUntil(iso);
+  if (d <= 0) return "expires today";
+  if (d === 1) return "expires tomorrow";
+  return `expires in ${d} days`;
+}
+
 // £ formatting — no pence when whole, two places otherwise.
 export function money(n: number): string {
   return Number.isInteger(n) ? `£${n}` : `£${n.toFixed(2)}`;

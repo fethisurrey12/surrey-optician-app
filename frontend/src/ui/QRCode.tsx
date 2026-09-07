@@ -1,22 +1,23 @@
 import { View } from "react-native";
 import Svg, { Rect } from "react-native-svg";
 
-import { codeMatrix, QR_SIZE } from "@/src/lib/qr";
+import { codeMatrix } from "@/src/lib/qr";
 import { radius } from "@/src/tokens";
 import { useTheme } from "@/src/theme";
 
-// Renders the placeholder module matrix on a cream tile. Swap codeMatrix for a
-// real encoder at build time — this component takes any boolean matrix.
+// Renders a genuine, scannable QR symbol on a cream tile. Modules are drawn as
+// crisp squares with a 4-module quiet zone, as the QR spec requires for readers.
 export function QRCode({ code, size = 200 }: { code: string; size?: number }) {
   const { colors } = useTheme();
-  const quiet = 2; // modules of margin
-  const total = QR_SIZE + quiet * 2;
-  const cell = size / total;
   const matrix = codeMatrix(code);
+  const n = matrix.length;
+  const quiet = 4;
+  const total = n + quiet * 2;
+  const cell = size / total;
 
   const rects: React.ReactNode[] = [];
-  for (let r = 0; r < QR_SIZE; r++) {
-    for (let c = 0; c < QR_SIZE; c++) {
+  for (let r = 0; r < n; r++) {
+    for (let c = 0; c < n; c++) {
       if (!matrix[r][c]) continue;
       rects.push(
         <Rect
@@ -25,7 +26,6 @@ export function QRCode({ code, size = 200 }: { code: string; size?: number }) {
           y={(r + quiet) * cell}
           width={cell}
           height={cell}
-          rx={cell * 0.18}
           fill={colors.ink}
         />,
       );
@@ -41,6 +41,7 @@ export function QRCode({ code, size = 200 }: { code: string; size?: number }) {
         backgroundColor: colors.cream,
         overflow: "hidden",
       }}
+      accessibilityLabel={`QR code ${code}`}
     >
       <Svg width={size} height={size}>
         {rects}

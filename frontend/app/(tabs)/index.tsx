@@ -3,9 +3,11 @@ import { useState } from "react";
 import { ActivityIndicator, View } from "react-native";
 
 import { useAccount, useActivity, useVouchers } from "@/src/api/hooks";
+import { ExpiryNudge } from "@/src/components/ExpiryNudge";
+import { ReferCard } from "@/src/components/ReferCard";
 import { RewardReadyCard } from "@/src/components/RewardReadyCard";
 import { TxnRow } from "@/src/components/TxnRow";
-import { ringProgress, pointsToNextReward } from "@/src/lib/points";
+import { expiresSoon, ringProgress, pointsToNextReward } from "@/src/lib/points";
 import { font, spacing } from "@/src/tokens";
 import { makeStyles, useTheme } from "@/src/theme";
 import { Divider } from "@/src/ui/Divider";
@@ -52,6 +54,7 @@ export default function Home() {
   const waiting = (vouchers.data ?? []).filter((v) => v.status === "available");
   const toNext = pointsToNextReward(a.points);
   const recent = (activity.data ?? []).slice(0, 3);
+  const expiring = waiting.filter((v) => expiresSoon(v.expires));
 
   return (
     <Screen
@@ -90,6 +93,12 @@ export default function Home() {
         </Txt>
       </StaggerItem>
 
+      {expiring.length > 0 ? (
+        <StaggerItem index={1} style={styles.nudge}>
+          <ExpiryNudge vouchers={expiring} onPress={() => router.push("/(tabs)/rewards")} />
+        </StaggerItem>
+      ) : null}
+
       {waiting.length > 0 ? (
         <StaggerItem index={1} style={styles.block}>
           <RewardReadyCard onOpen={() => router.push("/(tabs)/rewards")} />
@@ -114,7 +123,11 @@ export default function Home() {
         />
       </StaggerItem>
 
-      <StaggerItem index={3} style={styles.block}>
+      <StaggerItem index={3} style={styles.referBlock}>
+        <ReferCard onPress={() => router.push("/refer")} />
+      </StaggerItem>
+
+      <StaggerItem index={4} style={styles.block}>
         <SectionHeader
           title="Recent activity"
           actionLabel="See all"
@@ -143,6 +156,8 @@ const useStyles = makeStyles(() => ({
   toNext: { textAlign: "center" },
   scheme: { textAlign: "center", maxWidth: 300 },
   block: { marginTop: spacing.xl },
+  nudge: { marginTop: spacing.sm },
+  referBlock: { marginTop: spacing.md },
   tiles: { flexDirection: "row", gap: spacing.md, marginTop: spacing.xl },
   tile: { flex: 1 },
 }));

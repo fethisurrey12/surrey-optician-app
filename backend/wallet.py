@@ -1,12 +1,15 @@
 """Apple Wallet (.pkpass) and Google Wallet (save link) generation for £10 reward vouchers.
 
 Signing material never leaves the server. When the certificates / service account
-are not configured, /wallet/status reports so and the pass endpoints return 503 —
-the app then falls back to its prototype pass preview.
+are not configured, /wallet/status reports what is missing and the pass endpoints
+return 503 — the app then falls back to its prototype pass preview.
 
-Env (backend/.env):
-  APPLE_PASS_TYPE_ID, APPLE_TEAM_ID, APPLE_CERT_PATH, APPLE_KEY_PATH, APPLE_WWDR_PATH, APPLE_KEY_PASSWORD
-  GOOGLE_SERVICE_ACCOUNT_JSON (path), GOOGLE_ISSUER_ID
+Env (backend/.env) — see WALLET_SETUP.md:
+  APPLE_PASS_TYPE_ID, APPLE_TEAM_ID, APPLE_WWDR_PATH (.cer or .pem)
+  either APPLE_P12_PATH (+ APPLE_P12_PASSWORD)  — the raw export from Keychain Access
+  or     APPLE_CERT_PATH + APPLE_KEY_PATH (+ APPLE_KEY_PASSWORD)
+  GOOGLE_SERVICE_ACCOUNT_JSON (file path or the JSON itself), GOOGLE_ISSUER_ID
+  PUBLIC_ORIGIN (comma-separated origins allowed to host the Google save button)
 """
 
 import hashlib
@@ -35,25 +38,78 @@ INK = (12, 36, 25)
 CREAM = (244, 241, 233)
 GOLD = (201, 162, 39)
 
-APPLE_VARS = ("APPLE_PASS_TYPE_ID", "APPLE_TEAM_ID", "APPLE_CERT_PATH", "APPLE_KEY_PATH", "APPLE_WWDR_PATH")
+APPLE_IDS = ("APPLE_PASS_TYPE_ID", "APPLE_TEAM_ID")
+APPLE_PEM = ("APPLE_CERT_PATH", "APPLE_KEY_PATH")
 GOOGLE_VARS = ("GOOGLE_SERVICE_ACCOUNT_JSON", "GOOGLE_ISSUER_ID")
 
 
-def _configured(vars_: tuple[str, ...]) -> bool:
-    return all(os.environ.get(v) for v in vars_)
+def _env(name: str) -> str:
+    return os.environ.get(name, "").strip()
+
+
+def _file(var: str) -> Path:
+    """Env paths may be relative to the backend directory (e.g. secrets/apple_pass.p12)."""
+    p = Path(_env(var))
+    return p if p.is_absolute() else Path(__file__).parent / p
 
 
 def _path_ok(var: str) -> bool:
-    p = os.environ.get(var)
-    return bool(p) and Path(p).exists()
+    return bool(_env(var)) and _file(var).exists()
+
+
+def apple_missing() -> list[str]:
+    """Human-readable list of what still needs supplying for Apple Wallet."""
+    missing = [v for v in APPLE_IDS if not _env(v)]
+    has_p12 = _path_ok("APPLE_P12_PATH")
+    has_pem = all(_path_ok(v) for v in APPLE_PEM)
+    if not (has_p12 or has_pem):
+        missing.append("APPLE_P12_PATH (or APPLE_CERT_PATH + APPLE_KEY_PATH)")
+    if not _path_ok("APPLE_WWDR_PATH"):
+        missing.append("APPLE_WWDR_PATH")
+    return missing
+
+
+def google_missing() -> list[str]:
+    missing = [v for v in GOOGLE_VARS if not _env(v)]
+    sa = _env("GOOGLE_SERVICE_ACCOUNT_JSON")
+    if sa and not (sa.startswith("{") or _file("GOOGLE_SERVICE_ACCOUNT_JSON").exists()):
+        missing.append("GOOGLE_SERVICE_ACCOUNT_JSON (file not found)")
+    return missing
 
 
 def apple_ready() -> bool:
-    return _configured(APPLE_VARS) and all(_path_ok(v) for v in ("APPLE_CERT_PATH", "APPLE_KEY_PATH", "APPLE_WWDR_PATH"))
+    return not apple_missing()
 
 
 def google_ready() -> bool:
-    return _configured(GOOGLE_VARS) and _path_ok("GOOGLE_SERVICE_ACCOUNT_JSON")
+    return not google_missing()
+
+
+def _apple_identity():
+    """Certificate + private key, from a .p12 export or PEM pair."""
+    if _path_ok("APPLE_P12_PATH"):
+        from cryptography.hazmat.primitives.serialization import pkcs12
+
+        pw = _env("APPLE_P12_PASSWORD").encode() or None
+        key, cert, _extra = pkcs12.load_key_and_certificates(_file("APPLE_P12_PATH").read_bytes(), pw)
+        return cert, key
+    cert = x509.load_pem_x509_certificate(_file("APPLE_CERT_PATH").read_bytes())
+    pw = _env("APPLE_KEY_PASSWORD").encode() or None
+    key = serialization.load_pem_private_key(_file("APPLE_KEY_PATH").read_bytes(), password=pw)
+    return cert, key
+
+
+def _load_wwdr():
+    raw = _file("APPLE_WWDR_PATH").read_bytes()
+    try:
+        return x509.load_pem_x509_certificate(raw)
+    except ValueError:  # Apple ships the intermediate as DER (.cer)
+        return x509.load_der_x509_certificate(raw)
+
+
+def _google_service_account() -> dict:
+    sa = _env("GOOGLE_SERVICE_ACCOUNT_JSON")
+    return json.loads(sa if sa.startswith("{") else _file("GOOGLE_SERVICE_ACCOUNT_JSON").read_text())
 
 
 # ---------------------------------------------------------------- assets ----
@@ -134,10 +190,8 @@ def build_pkpass(code: str, value: int, expires: str, member: str, branch: str) 
     manifest = {name: hashlib.sha1(data).hexdigest() for name, data in files.items()}
     manifest_bytes = json.dumps(manifest, separators=(",", ":")).encode()
 
-    cert = x509.load_pem_x509_certificate(Path(os.environ["APPLE_CERT_PATH"]).read_bytes())
-    wwdr = x509.load_pem_x509_certificate(Path(os.environ["APPLE_WWDR_PATH"]).read_bytes())
-    password = os.environ.get("APPLE_KEY_PASSWORD", "").encode() or None
-    key = serialization.load_pem_private_key(Path(os.environ["APPLE_KEY_PATH"]).read_bytes(), password=password)
+    cert, key = _apple_identity()
+    wwdr = _load_wwdr()
     signature = (
         pkcs7.PKCS7SignatureBuilder()
         .set_data(manifest_bytes)
@@ -157,7 +211,7 @@ def build_pkpass(code: str, value: int, expires: str, member: str, branch: str) 
 
 # ----------------------------------------------------------------- google ----
 def build_google_save_url(code: str, value: int, expires: str, member: str, branch: str) -> str:
-    service = json.loads(Path(os.environ["GOOGLE_SERVICE_ACCOUNT_JSON"]).read_text())
+    service = _google_service_account()
     issuer = os.environ["GOOGLE_ISSUER_ID"]
     class_id = f"{issuer}.surrey_opticians_reward"
     object_id = f"{issuer}.{code.replace('-', '_')}"
@@ -202,7 +256,12 @@ def _pretty_date(iso: str) -> str:
 # ----------------------------------------------------------------- routes ----
 @router.get("/status")
 async def wallet_status():
-    return {"apple": apple_ready(), "google": google_ready()}
+    """Configuration state. `missing` tells whoever is wiring the keys exactly what's left."""
+    return {
+        "apple": apple_ready(),
+        "google": google_ready(),
+        "missing": {"apple": apple_missing(), "google": google_missing()},
+    }
 
 
 @router.get("/apple/{code}.pkpass")

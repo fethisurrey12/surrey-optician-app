@@ -3,13 +3,25 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import { type WalletProvider } from "./data";
-import { loadAccount, loadActivity, loadVouchers, markVoucherInWallet, markVoucherUsed } from "./mock";
+import {
+  loadAccount,
+  loadActivity,
+  loadReferrals,
+  loadVouchers,
+  markVoucherInWallet,
+  markVoucherUsed,
+} from "./mock";
 
 export const keys = {
   account: ["account"] as const,
   vouchers: ["vouchers"] as const,
   activity: ["activity"] as const,
+  referrals: ["referrals"] as const,
 };
+
+export function useReferrals() {
+  return useQuery({ queryKey: keys.referrals, queryFn: loadReferrals });
+}
 
 export function useAccount() {
   return useQuery({ queryKey: keys.account, queryFn: loadAccount });

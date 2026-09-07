@@ -16,7 +16,17 @@ type Variant =
 
 type Tone = keyof Pick<
   ThemeColors,
-  "cream" | "sage" | "dimSage" | "gold" | "muted" | "ink" | "success" | "error" | "onSurface"
+  | "cream"
+  | "sage"
+  | "dimSage"
+  | "gold"
+  | "lightGold"
+  | "warning"
+  | "muted"
+  | "ink"
+  | "success"
+  | "error"
+  | "onSurface"
 >;
 
 const VARIANTS: Record<Variant, TextStyle> = {

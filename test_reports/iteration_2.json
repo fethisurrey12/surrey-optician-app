@@ -1,0 +1,46 @@
+{
+  "summary": "Iteration 2 backend + frontend tests all pass. BACKEND (pytest, 6/6): /api/wallet/status → 200 with {apple:false, google:false, missing:{apple:[...], google:[...]}}; /api/wallet/apple/SO-7F3K-92QX.pkpass?expires=2027-12-15 → 503; /api/wallet/google/SO-7F3K-92QX?expires=2027-12-15 → 503; both endpoints without expires → 422. FRONTEND (390x844 mobile web): sign-in path OK; Home shows expiry-nudge 'Your £10 voucher expires in 41 days'; tapping it lands on Rewards tab; home-refer-card present after scroll and opens /refer. Rewards header shows '2 vouchers ready to use'; voucher-v-9k2t08mw-expiring row shows 'Expires in 41 days · 18 October 2026'; voucher-v-7f3k92qx card shows 'Expires 15 December 2027'. Voucher sheet for expiring voucher: voucher-sheet-expiry-note 'Use it before 18 October 2026 — after that it lapses.' visible; both add-to-apple-wallet and add-to-google-wallet badges present. Tap add-to-apple-wallet → wallet-pass-preview shows 'Surrey Opticians', 'Sarah Whitfield', 'SO-9K2T-08MW'; wallet-preview-back returns to QR. Tap add-to-google-wallet → preview → simulate-wallet-button → toast 'Added to Google Wallet', badge label changes to 'Added to Google Wallet', card shows chip 'In Google Wallet'. Regression: opening voucher-v-7f3k92qx → simulate-till-scan-button → toast 'Voucher applied at the till', voucher moves to Used, header becomes '1 voucher ready to use'. Refer screen: refer-hero shows SARAH-5589; refer-copy-button → toast 'Code copied'; referral-r-01 'Point earned', referral-r-02 'Joined · first visit pending', referral-r-03 'Invite sent'; refer-share-button falls back to 'Couldn't open the share sheet' toast on web (acceptable). Back arrow returns to Account. QR codes render as real square black-on-cream patterns (verified visually in screenshots). No red-screen; no runtime errors; only pre-existing RN Web deprecation warnings from Iteration 1.",
+  "backend_issues": {
+    "critical": [],
+    "minor": []
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [],
+    "react_native_issues": [
+      {"component": "views using pointerEvents prop", "issue": "Pre-existing RN Web deprecation warning (already reported in iteration_1.json): 'props.pointerEvents is deprecated. Use style.pointerEvents'. Non-blocking on web. Reference: iteration_1 report."},
+      {"component": "views using shadowColor/shadowOpacity/shadowRadius/shadowOffset (e.g. rewards.tsx qrWrap, Card)", "issue": "Pre-existing RN Web deprecation warning: '\"shadow*\" style props are deprecated. Use \"boxShadow\"'. Non-blocking. Reference: /app/frontend/app/(tabs)/rewards.tsx:341-350; /app/frontend/src/ui/Card.tsx."}
+    ]
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_wallet.py",
+    "/app/test_reports/pytest/pytest_results.xml",
+    "/tmp/apple_preview.png",
+    "/tmp/rewards_after_redeem.png",
+    "/tmp/refer_done.png"
+  ],
+  "action_items": [
+    "No functional fixes required — all Iteration 2 acceptance criteria pass.",
+    "Optional (carried from iteration 1): silence RN Web deprecations by migrating pointerEvents → style.pointerEvents and shadow* → boxShadow via Platform.select."
+  ],
+  "critical_code_review_comments": [
+    "backend/wallet.py cleanly separates configuration (apple_ready/google_ready + missing lists) from pass building; 503 vs 422 semantics match spec (status still 200 when keys missing, pass endpoints 503; missing required Query(...) surfaces as 422 automatically).",
+    "frontend/src/api/wallet.ts correctly uses process.env.EXPO_PUBLIC_BACKEND_URL (no hardcoded URL) and encodes voucher code with encodeURIComponent.",
+    "rewards.tsx onWallet() gracefully falls back to preview when status[provider] is false; addToWallet.mutate is called on real-link path AND simulate path, so voucher.wallet is set in either case — matches wallet-chip requirement.",
+    "data.ts uses a computed 41-day expiry (`today + 41`) for voucher v-9k2t08mw so the expiring flow is always live in the prototype regardless of today's date — verified: nudge text reads 'expires in 41 days', card row 'Expires in 41 days · 18 October 2026'.",
+    "ExpiryNudge.tsx picks the soonest voucher deterministically and pluralises correctly for >1 vouchers.",
+    "refer.tsx: Share.share fallback path catches errors and toasts 'Couldn't open the share sheet' — matches the web behaviour observed. Clipboard.setStringAsync used properly with await.",
+    "No deprecated Expo packages found (no expo-av/expo-barcode-scanner/expo-background-fetch). QRCode component renders real square patterns via react-native-qrcode-svg (visible in screenshots)."
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_wallet.py (new)",
+    "/app/test_reports/iteration_2.json (this file)"
+  ],
+  "success_rate": {"backend": "100% (6/6)", "frontend": "100% (all acceptance criteria pass)"},
+  "seed_data_creation": "None. Mock data in /app/frontend/src/api/data.ts is used as-is. Voucher v-9k2t08mw expiry is computed dynamically to today+41 days so the expiring flow is always demonstrable.",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "Signing keys for Apple/Google Wallet are intentionally absent in this env — 503 on the pass endpoints and the in-app preview fallback are the CORRECT behaviour, not bugs. State is in-memory only (mock.ts); every reload resets to signed-out. Wallet badges in the voucher sheet sit below the fold on 390x844; use page.dispatch_event('...', 'click') or eval scrollIntoView() rather than page.click() to bypass 'element outside viewport'. To read the demo SMS code, parse verify-demo-code's inner text with re.sub(r'\\D','',text)[-6:]. Refer share on web is expected to toast 'Couldn't open the share sheet'.",
+  "rca_of_issue": "N/A — no bugs found. All acceptance items from the review request verified end-to-end on the public URL."
+}

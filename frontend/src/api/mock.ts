@@ -3,7 +3,7 @@
 //
 // State is held in module memory only — no browser localStorage, per brief.
 
-import { ACCOUNT, Account, Txn, TXNS, Voucher, VOUCHERS, WalletProvider } from "./data";
+import { ACCOUNT, Account, Referral, REFERRALS, Txn, TXNS, Voucher, VOUCHERS, WalletProvider } from "./data";
 
 // Mutable working copies so redemption persists for the session.
 let vouchers: Voucher[] = VOUCHERS.map((v) => ({ ...v }));
@@ -25,6 +25,11 @@ export async function loadVouchers(): Promise<Voucher[]> {
 export async function loadActivity(): Promise<Txn[]> {
   await delay(300);
   return txns.map((t) => ({ ...t }));
+}
+
+export async function loadReferrals(): Promise<Referral[]> {
+  await delay(280);
+  return REFERRALS.map((r) => ({ ...r }));
 }
 
 // Marks a voucher used. In production a colleague triggers this at the till

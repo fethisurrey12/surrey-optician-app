@@ -22,6 +22,17 @@ export type Account = {
   memberSince: string; // ISO
   points: number; // balance toward the next reward (0–9 after conversions)
   totalEarned: number; // lifetime points
+  referralCode: string; // quoted by a friend at their first visit
+};
+
+// A friend the member has invited. Both earn one bonus point when the friend
+// makes their first private purchase.
+export type Referral = {
+  id: string;
+  friendName: string;
+  invited: string; // ISO
+  status: "invited" | "joined" | "rewarded";
+  rewardedAt?: string; // ISO
 };
 
 export type Voucher = {
@@ -94,6 +105,18 @@ export const BRANCHES: Branch[] = [
 
 export const PRACTICE_EMAIL = "hello@surreyopticians.co.uk";
 
+// One sample voucher sits inside the 60-day expiry window whatever today's date
+// is, so the reminder flow is always visible in the prototype. 18-month term.
+function iso(d: Date): string {
+  const mm = String(d.getMonth() + 1).padStart(2, "0");
+  const dd = String(d.getDate()).padStart(2, "0");
+  return `${d.getFullYear()}-${mm}-${dd}`;
+}
+const today = new Date();
+const soonExpires = new Date(today.getFullYear(), today.getMonth(), today.getDate() + 41);
+const soonIssued = new Date(soonExpires.getFullYear(), soonExpires.getMonth() - 18, soonExpires.getDate());
+const DEMO_EXPIRING = { issued: iso(soonIssued), expires: iso(soonExpires) };
+
 export const ACCOUNT: Account = {
   id: "+447712045589",
   mobile: "+447712045589",
@@ -102,10 +125,26 @@ export const ACCOUNT: Account = {
   lastName: "Whitfield",
   email: "sarah.whitfield@gmail.com",
   homeBranchId: "coulsdon",
-  memberSince: "2025-11-04",
+  memberSince: DEMO_EXPIRING.issued,
   points: 8,
-  totalEarned: 46,
+  totalEarned: 88,
+  referralCode: "SARAH-5589",
 };
+
+export const REFERRAL_BONUS_POINTS = 1;
+export const REFERRAL_LINK_BASE = "https://surreyopticians.co.uk/join";
+
+export const REFERRALS: Referral[] = [
+  {
+    id: "r-01",
+    friendName: "Tom Whitfield",
+    invited: "2026-03-12",
+    status: "rewarded",
+    rewardedAt: "2026-04-03",
+  },
+  { id: "r-02", friendName: "Priya Nair", invited: "2026-05-28", status: "joined" },
+  { id: "r-03", friendName: "Invite sent", invited: "2026-06-20", status: "invited" },
+];
 
 export const VOUCHERS: Voucher[] = [
   {
@@ -114,6 +153,14 @@ export const VOUCHERS: Voucher[] = [
     value: 10,
     issued: "2026-06-15",
     expires: "2027-12-15",
+    status: "available",
+  },
+  {
+    id: "v-9k2t08mw",
+    code: "SO-9K2T-08MW",
+    value: 10,
+    issued: DEMO_EXPIRING.issued,
+    expires: DEMO_EXPIRING.expires,
     status: "available",
   },
   {
@@ -128,7 +175,7 @@ export const VOUCHERS: Voucher[] = [
   },
 ];
 
-export const TXNS: Txn[] = [
+export const TXNS: Txn[] = ([
   {
     id: "t-09",
     date: "2026-08-02",
@@ -220,7 +267,27 @@ export const TXNS: Txn[] = [
     total: 190,
     points: 19,
   },
-];
+  {
+    id: "t-00b",
+    date: DEMO_EXPIRING.issued,
+    branchId: "banstead",
+    kind: "reward",
+    title: "£10 reward unlocked",
+    detail: "Added to your wallet",
+    total: 0,
+    points: 0,
+  },
+  {
+    id: "t-00a",
+    date: DEMO_EXPIRING.issued,
+    branchId: "banstead",
+    kind: "spend",
+    title: "Designer frames and lenses",
+    detail: "Thin-index lenses",
+    total: 210,
+    points: 21,
+  },
+] as Txn[]).sort((a, b) => (a.date < b.date ? 1 : a.date > b.date ? -1 : 0));
 
 export function branchName(id: string | undefined): string {
   return BRANCHES.find((b) => b.id === id)?.name ?? "";

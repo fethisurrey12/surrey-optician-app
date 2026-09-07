@@ -101,3 +101,93 @@
 #====================================================================================================
 # Testing Data - Main Agent and testing sub agent both should log testing data below this section
 #====================================================================================================
+user_problem_statement: "Surrey Opticians loyalty app — iteration 2: Wallet Pass (Apple/Google), Expiry Reminders (60 days), Refer A Friend, Real scannable QR codes. Wallet signing keys are NOT configured in this environment (expected), so the app falls back to a pass preview + simulate control."
+
+backend:
+  - task: "GET /api/wallet/status returns apple/google flags + missing lists"
+    implemented: true
+    working: "NA"
+    file: "backend/wallet.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Expect {apple:false, google:false, missing:{...}} since no keys configured."
+  - task: "GET /api/wallet/apple/{code}.pkpass and /api/wallet/google/{code} return 503 when unconfigured"
+    implemented: true
+    working: "NA"
+    file: "backend/wallet.py"
+    stuck_count: 0
+    priority: "medium"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Signing paths verified by main agent with self-signed test keys (PKCS#7 verifies, JWT decodes)."
+
+frontend:
+  - task: "Voucher sheet wallet badges → preview → simulate → 'In … Wallet' chip"
+    implemented: true
+    working: "NA"
+    file: "frontend/app/(tabs)/rewards.tsx, src/ui/WalletBadge.tsx, src/components/WalletPassPreview.tsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "testIDs: add-to-apple-wallet, add-to-google-wallet, wallet-pass-preview, simulate-wallet-button, wallet-preview-back, voucher-<id>-wallet-chip"
+  - task: "Expiry reminders: Home nudge, voucher card 'Expires in N days', sheet note"
+    implemented: true
+    working: "NA"
+    file: "frontend/src/components/ExpiryNudge.tsx, src/components/VoucherCard.tsx, app/(tabs)/index.tsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Voucher SO-9K2T-08MW (v-9k2t08mw) always expires 41 days from today. testIDs: expiry-nudge, voucher-v-9k2t08mw-expiring, voucher-sheet-expiry-note"
+  - task: "Refer a friend screen (/refer) with share, copy code, how-it-works, invites list; entry from Home card and Account row"
+    implemented: true
+    working: "NA"
+    file: "frontend/app/refer.tsx, src/components/ReferCard.tsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "testIDs: home-refer-card, link-refer, refer-share-button, refer-copy-button, referral-r-01..r-03. Share on web may be unsupported (toast fallback)."
+  - task: "Real QR codes (qrcode lib) on card, sheet and wallet preview"
+    implemented: true
+    working: "NA"
+    file: "frontend/src/lib/qr.ts, src/ui/QRCode.tsx"
+    stuck_count: 0
+    priority: "medium"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Main agent decoded the sheet QR from a screenshot with OpenCV → 'SO-9K2T-08MW'."
+
+metadata:
+  created_by: "main_agent"
+  version: "1.1"
+  test_sequence: 2
+
+test_plan:
+  current_focus:
+    - "Wallet badges flow"
+    - "Expiry reminders"
+    - "Refer a friend"
+    - "Wallet status API"
+  stuck_tasks: []
+  test_all: false
+  test_priority: "high_first"
+
+agent_communication:
+  - agent: "main"
+    message: "Iteration 1 (core app) already passed. Please test only the four new features above plus a regression on the till-scan simulation (now a GhostButton, testID simulate-till-scan-button)."

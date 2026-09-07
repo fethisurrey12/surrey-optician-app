@@ -7,7 +7,7 @@ import { appleWalletUrl, googleWalletUrl, walletStatus } from "@/src/api/wallet"
 import { useApp } from "@/src/context/AppContext";
 import { VoucherCard } from "@/src/components/VoucherCard";
 import { WalletPassPreview } from "@/src/components/WalletPassPreview";
-import { dayMonthYear, pointsToNextReward } from "@/src/lib/points";
+import { dayMonthYear, expiresInText, expiresSoon, pointsToNextReward } from "@/src/lib/points";
 import { font, spacing } from "@/src/tokens";
 import { makeStyles, useTheme } from "@/src/theme";
 import { Card } from "@/src/ui/Card";
@@ -248,10 +248,22 @@ export default function Rewards() {
               </Txt>
               <View style={styles.figureRow}>
                 <GradientText style={styles.figure}>£10</GradientText>
-                <Txt variant="body" style={styles.figureNote}>
-                  reward · expires {dayMonthYear(selected.expires)}
+                <Txt
+                  variant="body"
+                  tone={expiresSoon(selected.expires) ? "lightGold" : undefined}
+                  style={styles.figureNote}
+                >
+                  reward ·{" "}
+                  {expiresSoon(selected.expires)
+                    ? expiresInText(selected.expires)
+                    : `expires ${dayMonthYear(selected.expires)}`}
                 </Txt>
               </View>
+              {expiresSoon(selected.expires) ? (
+                <Txt variant="caption" tone="sage" style={styles.center} testID="voucher-sheet-expiry-note">
+                  Use it before {dayMonthYear(selected.expires)} — after that it lapses.
+                </Txt>
+              ) : null}
             </View>
 
             <View style={styles.sheetFoot}>

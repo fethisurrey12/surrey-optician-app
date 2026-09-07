@@ -10,15 +10,17 @@ export function Card({
   children,
   style,
   contentStyle,
+  testID,
 }: {
   children: React.ReactNode;
   style?: StyleProp<ViewStyle>;
   contentStyle?: StyleProp<ViewStyle>;
+  testID?: string;
 }) {
   const styles = useStyles();
   const { colors } = useTheme();
   return (
-    <View style={[styles.shadow, style]}>
+    <View style={[styles.shadow, style]} testID={testID}>
       <LinearGradient
         colors={colors.cardGradient}
         start={{ x: 0.1, y: 0 }}
