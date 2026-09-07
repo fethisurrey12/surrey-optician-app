@@ -1,16 +1,19 @@
 import { useRouter } from "expo-router";
 import { useState } from "react";
-import { ActivityIndicator, View } from "react-native";
+import { ActivityIndicator, Linking, Platform, View } from "react-native";
 
+import { BRANCHES } from "@/src/api/data";
 import { useAccount, useActivity, useVouchers } from "@/src/api/hooks";
 import { ExpiryNudge } from "@/src/components/ExpiryNudge";
 import { EyeTestNudge } from "@/src/components/EyeTestNudge";
+import { LensReorderNudge } from "@/src/components/LensReorderNudge";
 import { ReferCard } from "@/src/components/ReferCard";
 import { RewardReadyCard } from "@/src/components/RewardReadyCard";
 import { TxnRow } from "@/src/components/TxnRow";
 import { useApp } from "@/src/context/AppContext";
 import { eyeTestStatus } from "@/src/lib/eyeTest";
 import { expiresSoon, ringProgress, pointsToNextReward } from "@/src/lib/points";
+import { lensSupplyStatus } from "@/src/lib/supply";
 import { font, spacing } from "@/src/tokens";
 import { makeStyles, useTheme } from "@/src/theme";
 import { Divider } from "@/src/ui/Divider";
@@ -34,7 +37,8 @@ export default function Home() {
   const styles = useStyles();
   const { colors } = useTheme();
   const router = useRouter();
-  const { eyeTestDismissed, dismissEyeTestNudge, toast } = useApp();
+  const { eyeTestDismissed, dismissEyeTestNudge, lensReorderDismissed, dismissLensReorderNudge, toast } =
+    useApp();
   const account = useAccount();
   const vouchers = useVouchers();
   const activity = useActivity();
@@ -60,6 +64,15 @@ export default function Home() {
   const recent = (activity.data ?? []).slice(0, 3);
   const expiring = waiting.filter((v) => expiresSoon(v.expires));
   const eyeTest = eyeTestDismissed ? null : eyeTestStatus(activity.data ?? []);
+  const lenses = lensReorderDismissed ? null : lensSupplyStatus(activity.data ?? []);
+
+  // Reordering is a phone call to the branch the lenses came from; the web
+  // preview can't dial, so it shows the branch details instead.
+  const onReorder = () => {
+    const branch = BRANCHES.find((b) => b.id === lenses?.branchId);
+    if (Platform.OS !== "web" && branch) Linking.openURL(`tel:${branch.phone}`);
+    else router.push("/branches");
+  };
 
   return (
     <Screen
@@ -101,6 +114,19 @@ export default function Home() {
       {expiring.length > 0 ? (
         <StaggerItem index={1} style={styles.nudge}>
           <ExpiryNudge vouchers={expiring} onPress={() => router.push("/(tabs)/rewards")} />
+        </StaggerItem>
+      ) : null}
+
+      {lenses ? (
+        <StaggerItem index={1} style={styles.nudge}>
+          <LensReorderNudge
+            status={lenses}
+            onReorder={onReorder}
+            onDismiss={() => {
+              dismissLensReorderNudge();
+              toast("We’ll remind you next time");
+            }}
+          />
         </StaggerItem>
       ) : null}
 

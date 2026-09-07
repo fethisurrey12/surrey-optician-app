@@ -84,6 +84,12 @@ the app never self-redeems — a "Simulate the till scan" control stands in for 
   minus 20 days ago so the nudge is visible. Account privacy note updated: reminders come from
   purchase history only — no clinical records.
 
+- **Contact Lens Reorder (2026-06)**: `LensReorderNudge` banner on Home, from the most recent Txn
+  with `category: "lenses"` + `supplyMonths` (`src/lib/supply.ts`): prompts from 14 days before
+  the supply runs out until 60 days after. Tap → dials the branch it was bought from (web preview
+  → Branches screen); × dismisses for the session. Sample 3-month supply always runs out in 10 days.
+- **Wallet Keys**: still blocked — no credentials attached (checked get_assets: none).
+
 ## Personas
 - **Member (Sarah Whitfield)**: collects points in shop, checks balance/vouchers one-handed,
   shows a QR at the till.

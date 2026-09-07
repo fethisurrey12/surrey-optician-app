@@ -54,7 +54,8 @@ export type Txn = {
   date: string; // ISO
   branchId: string;
   kind: "spend" | "reward";
-  category?: "exam"; // an eye examination purchase — drives the "time for your eye test" nudge
+  category?: "exam" | "lenses"; // drives the eye-test and contact-lens reorder nudges
+  supplyMonths?: number; // for lenses: how long the purchased supply lasts
   title: string;
   detail?: string;
   total: number; // £ paid at the till
@@ -120,6 +121,8 @@ const DEMO_EXPIRING = { issued: iso(soonIssued), expires: iso(soonExpires) };
 // The sample eye examination was bought just under two years ago, so the
 // recall nudge (due in 20 days) is always visible in the prototype.
 const DEMO_EXAM_DATE = iso(new Date(today.getFullYear() - 2, today.getMonth(), today.getDate() + 20));
+// The sample three-month lens supply runs out in 10 days.
+const DEMO_LENS_DATE = iso(new Date(today.getFullYear(), today.getMonth() - 3, today.getDate() + 10));
 
 export const ACCOUNT: Account = {
   id: "+447712045589",
@@ -225,13 +228,15 @@ export const TXNS: Txn[] = ([
   },
   {
     id: "t-05",
-    date: "2026-03-09",
+    date: DEMO_LENS_DATE,
     branchId: "banstead",
     kind: "spend",
-    title: "Contact lens solution",
-    detail: "Three month supply",
-    total: 27,
-    points: 2,
+    category: "lenses",
+    supplyMonths: 3,
+    title: "Contact lenses",
+    detail: "Three-month supply of monthlies",
+    total: 54,
+    points: 5,
   },
   {
     id: "t-04",
