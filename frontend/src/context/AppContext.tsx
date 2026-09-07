@@ -33,6 +33,7 @@ type AppValue = {
   demoCode: string;
   needsBiometricPrompt: boolean;
   prefs: Prefs;
+  pendingReferral: string | null; // invite code carried from /join into sign-in
 
   startSignIn: (mobile: string) => string;
   verify: (code: string) => boolean;
@@ -40,6 +41,7 @@ type AppValue = {
   enrollBiometric: () => void;
   dismissBiometricPrompt: () => void;
   setBiometricEnrolled: (v: boolean) => void;
+  setPendingReferral: (code: string | null) => void;
   lock: () => void;
   unlock: () => void;
   signOut: () => void;
@@ -63,6 +65,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   const [pendingMobile, setPendingMobile] = useState("");
   const [demoCode, setDemoCode] = useState("");
   const [needsBiometricPrompt, setNeedsBiometricPrompt] = useState(false);
+  const [pendingReferral, setPendingReferral] = useState<string | null>(null);
   const [prefs, setPrefs] = useState<Prefs>({
     notifyRewards: true,
     notifyReminders: true,
@@ -108,6 +111,11 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       setLocked(false);
       const offerBiometric = !!biometricSupport?.available && !biometricEnrolled;
       setNeedsBiometricPrompt(offerBiometric);
+      if (pendingReferral) {
+        // In production the server records the referral against the new account here.
+        toast(`Invite code ${pendingReferral} applied — bonus point after your first purchase`);
+        setPendingReferral(null);
+      }
       return true;
     }
     return false;
@@ -129,6 +137,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     setPendingMobile("");
     setDemoCode("");
     setNeedsBiometricPrompt(false);
+    setPendingReferral(null);
   };
 
   const setPref = (key: keyof Prefs, value: boolean) =>
@@ -151,12 +160,14 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       demoCode,
       needsBiometricPrompt,
       prefs,
+      pendingReferral,
       startSignIn,
       verify,
       resendCode,
       enrollBiometric,
       dismissBiometricPrompt,
       setBiometricEnrolled,
+      setPendingReferral,
       lock,
       unlock,
       signOut,
@@ -165,7 +176,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       toastState,
     }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [status, locked, biometricEnrolled, biometricSupport, pendingMobile, demoCode, needsBiometricPrompt, prefs, toastState],
+    [status, locked, biometricEnrolled, biometricSupport, pendingMobile, demoCode, needsBiometricPrompt, prefs, toastState, pendingReferral],
   );
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;

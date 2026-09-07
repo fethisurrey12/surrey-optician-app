@@ -67,6 +67,16 @@ the app never self-redeems — a "Simulate the till scan" control stands in for 
 - **Real QR codes (2026-06)**: `qrcode` package encodes the voucher code (EC level M, 4-module
   quiet zone); verified decodable from a screenshot with OpenCV. Used on card, sheet, wallet preview.
 
+- **Join Link Page (2026-06)**: `/join?ref=CODE` (app/(auth)/join.tsx) — invite landing page,
+  reachable signed-out. Greets by inviter name parsed from the code (SARAH-5589 → Sarah),
+  pre-fills an editable code field, "Continue with my mobile" stores `pendingReferral` in
+  AppContext → phone screen shows an "Invited by Sarah · CODE" chip → on verify, toast
+  "Invite code … applied" and the code is cleared (server would record it in production).
+  Referral share link now points at the app URL (`EXPO_PUBLIC_BACKEND_URL/join`). App scheme
+  renamed to `surreyopticians` for deep links.
+- **Wallet Keys**: still blocked — user has not supplied Apple/Google signing credentials.
+  Backend is drop-in ready (see WALLET_SETUP.md); nothing further can be done without them.
+
 ## Personas
 - **Member (Sarah Whitfield)**: collects points in shop, checks balance/vouchers one-handed,
   shows a QR at the till.
@@ -75,5 +85,5 @@ the app never self-redeems — a "Simulate the till scan" control stands in for 
 ## Backlog (not built)
 - P1: real backend wiring (swap mock.ts bodies for fetch), real SMS gateway, wallet signing
   credentials from the practice (Apple Pass Type ID cert, Google issuer) — see WALLET_SETUP.md.
-- P2: referral redemption at the till (staff enters friend's code), join link landing page,
+- P2: referral redemption at the till (staff enters friend's code),
   RN Web deprecation clean-up (pointerEvents / shadow props).

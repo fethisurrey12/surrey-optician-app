@@ -132,7 +132,8 @@ export const ACCOUNT: Account = {
 };
 
 export const REFERRAL_BONUS_POINTS = 1;
-export const REFERRAL_LINK_BASE = "https://surreyopticians.co.uk/join";
+// The invite link opens the app's own /join page with the code pre-filled.
+export const REFERRAL_LINK_BASE = `${process.env.EXPO_PUBLIC_BACKEND_URL ?? "https://surreyopticians.co.uk"}/join`;
 
 export const REFERRALS: Referral[] = [
   {

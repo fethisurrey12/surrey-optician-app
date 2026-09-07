@@ -4,19 +4,23 @@ import { View } from "react-native";
 
 import { useApp } from "@/src/context/AppContext";
 import { tapWarn } from "@/src/lib/haptics";
-import { spacing } from "@/src/tokens";
-import { makeStyles } from "@/src/theme";
+import { inviterName } from "@/src/lib/referral";
+import { radius, spacing } from "@/src/tokens";
+import { makeStyles, useTheme } from "@/src/theme";
 import { Field } from "@/src/ui/Field";
 import { GoldButton } from "@/src/ui/GoldButton";
 import { HeaderBar } from "@/src/ui/HeaderBar";
+import { Icon } from "@/src/ui/Icon";
 import { Screen } from "@/src/ui/Screen";
 import { StaggerItem } from "@/src/ui/Stagger";
 import { Txt } from "@/src/ui/Txt";
 
 export default function Phone() {
   const styles = useStyles();
+  const { colors } = useTheme();
   const router = useRouter();
-  const { startSignIn } = useApp();
+  const { startSignIn, pendingReferral } = useApp();
+  const inviter = pendingReferral ? inviterName(pendingReferral) : "";
   const [digits, setDigits] = useState("");
   const [error, setError] = useState<string | null>(null);
 
@@ -42,6 +46,15 @@ export default function Phone() {
             This is how the practice finds your points at the till, so use the number you gave in
             branch.
           </Txt>
+          {pendingReferral ? (
+            <View style={styles.inviteChip} testID="phone-invite-chip">
+              <Icon name="users" size={15} color={colors.gold} />
+              <Txt variant="caption" tone="gold">
+                {inviter ? `Invited by ${inviter} · ` : "Invite code "}
+                {pendingReferral}
+              </Txt>
+            </View>
+          ) : null}
         </StaggerItem>
 
         <StaggerItem index={1}>
@@ -77,9 +90,22 @@ export default function Phone() {
   );
 }
 
-const useStyles = makeStyles(() => ({
+const useStyles = makeStyles((colors) => ({
   body: { gap: spacing.xl, paddingTop: spacing.sm },
   lead: { marginTop: spacing.sm, maxWidth: 360 },
+  inviteChip: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: spacing.sm,
+    alignSelf: "flex-start",
+    marginTop: spacing.md,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
+    borderRadius: radius.pill,
+    borderWidth: 1,
+    borderColor: colors.borderStrong,
+    backgroundColor: colors.surfaceTertiary,
+  },
   error: { marginTop: -spacing.xs },
   actions: { marginTop: spacing.sm },
 }));
