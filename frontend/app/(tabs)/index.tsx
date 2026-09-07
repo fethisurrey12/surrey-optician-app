@@ -4,9 +4,12 @@ import { ActivityIndicator, View } from "react-native";
 
 import { useAccount, useActivity, useVouchers } from "@/src/api/hooks";
 import { ExpiryNudge } from "@/src/components/ExpiryNudge";
+import { EyeTestNudge } from "@/src/components/EyeTestNudge";
 import { ReferCard } from "@/src/components/ReferCard";
 import { RewardReadyCard } from "@/src/components/RewardReadyCard";
 import { TxnRow } from "@/src/components/TxnRow";
+import { useApp } from "@/src/context/AppContext";
+import { eyeTestStatus } from "@/src/lib/eyeTest";
 import { expiresSoon, ringProgress, pointsToNextReward } from "@/src/lib/points";
 import { font, spacing } from "@/src/tokens";
 import { makeStyles, useTheme } from "@/src/theme";
@@ -31,6 +34,7 @@ export default function Home() {
   const styles = useStyles();
   const { colors } = useTheme();
   const router = useRouter();
+  const { eyeTestDismissed, dismissEyeTestNudge, toast } = useApp();
   const account = useAccount();
   const vouchers = useVouchers();
   const activity = useActivity();
@@ -55,6 +59,7 @@ export default function Home() {
   const toNext = pointsToNextReward(a.points);
   const recent = (activity.data ?? []).slice(0, 3);
   const expiring = waiting.filter((v) => expiresSoon(v.expires));
+  const eyeTest = eyeTestDismissed ? null : eyeTestStatus(activity.data ?? []);
 
   return (
     <Screen
@@ -126,6 +131,20 @@ export default function Home() {
       <StaggerItem index={3} style={styles.referBlock}>
         <ReferCard onPress={() => router.push("/refer")} />
       </StaggerItem>
+
+      {eyeTest ? (
+        <StaggerItem index={3} style={styles.block}>
+          <EyeTestNudge
+            status={eyeTest}
+            homeBranchId={a.homeBranchId}
+            onBook={() => router.push("/branches")}
+            onDismiss={() => {
+              dismissEyeTestNudge();
+              toast("We’ll remind you next time");
+            }}
+          />
+        </StaggerItem>
+      ) : null}
 
       <StaggerItem index={4} style={styles.block}>
         <SectionHeader

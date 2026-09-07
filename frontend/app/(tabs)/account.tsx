@@ -89,7 +89,8 @@ export default function Account() {
           </View>
           <Txt variant="body">
             This app holds your name, mobile number, email, points and preferences. It cannot see
-            your prescription, appointments or any clinical records.
+            your prescription, appointments or any clinical records. Reminders, such as your
+            eye-test recall, are worked out from your purchase history alone.
           </Txt>
         </Card>
       </StaggerItem>

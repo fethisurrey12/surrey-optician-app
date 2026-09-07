@@ -34,6 +34,7 @@ type AppValue = {
   needsBiometricPrompt: boolean;
   prefs: Prefs;
   pendingReferral: string | null; // invite code carried from /join into sign-in
+  eyeTestDismissed: boolean; // "Not now" on the recall nudge, for this session
 
   startSignIn: (mobile: string) => string;
   verify: (code: string) => boolean;
@@ -42,6 +43,7 @@ type AppValue = {
   dismissBiometricPrompt: () => void;
   setBiometricEnrolled: (v: boolean) => void;
   setPendingReferral: (code: string | null) => void;
+  dismissEyeTestNudge: () => void;
   lock: () => void;
   unlock: () => void;
   signOut: () => void;
@@ -66,6 +68,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   const [demoCode, setDemoCode] = useState("");
   const [needsBiometricPrompt, setNeedsBiometricPrompt] = useState(false);
   const [pendingReferral, setPendingReferral] = useState<string | null>(null);
+  const [eyeTestDismissed, setEyeTestDismissed] = useState(false);
   const [prefs, setPrefs] = useState<Prefs>({
     notifyRewards: true,
     notifyReminders: true,
@@ -138,6 +141,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     setDemoCode("");
     setNeedsBiometricPrompt(false);
     setPendingReferral(null);
+    setEyeTestDismissed(false);
   };
 
   const setPref = (key: keyof Prefs, value: boolean) =>
@@ -161,6 +165,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       needsBiometricPrompt,
       prefs,
       pendingReferral,
+      eyeTestDismissed,
       startSignIn,
       verify,
       resendCode,
@@ -168,6 +173,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       dismissBiometricPrompt,
       setBiometricEnrolled,
       setPendingReferral,
+      dismissEyeTestNudge: () => setEyeTestDismissed(true),
       lock,
       unlock,
       signOut,
@@ -176,7 +182,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       toastState,
     }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [status, locked, biometricEnrolled, biometricSupport, pendingMobile, demoCode, needsBiometricPrompt, prefs, toastState, pendingReferral],
+    [status, locked, biometricEnrolled, biometricSupport, pendingMobile, demoCode, needsBiometricPrompt, prefs, toastState, pendingReferral, eyeTestDismissed],
   );
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;

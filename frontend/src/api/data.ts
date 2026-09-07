@@ -54,6 +54,7 @@ export type Txn = {
   date: string; // ISO
   branchId: string;
   kind: "spend" | "reward";
+  category?: "exam"; // an eye examination purchase — drives the "time for your eye test" nudge
   title: string;
   detail?: string;
   total: number; // £ paid at the till
@@ -116,6 +117,9 @@ const today = new Date();
 const soonExpires = new Date(today.getFullYear(), today.getMonth(), today.getDate() + 41);
 const soonIssued = new Date(soonExpires.getFullYear(), soonExpires.getMonth() - 18, soonExpires.getDate());
 const DEMO_EXPIRING = { issued: iso(soonIssued), expires: iso(soonExpires) };
+// The sample eye examination was bought just under two years ago, so the
+// recall nudge (due in 20 days) is always visible in the prototype.
+const DEMO_EXAM_DATE = iso(new Date(today.getFullYear() - 2, today.getMonth(), today.getDate() + 20));
 
 export const ACCOUNT: Account = {
   id: "+447712045589",
@@ -209,9 +213,10 @@ export const TXNS: Txn[] = ([
   },
   {
     id: "t-06",
-    date: "2026-04-22",
+    date: DEMO_EXAM_DATE,
     branchId: "coulsdon",
     kind: "spend",
+    category: "exam",
     title: "Eye examination",
     detail: "Part-funded by an NHS optical voucher",
     total: 95,

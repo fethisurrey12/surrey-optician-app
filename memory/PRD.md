@@ -77,6 +77,13 @@ the app never self-redeems — a "Simulate the till scan" control stands in for 
 - **Wallet Keys**: still blocked — user has not supplied Apple/Google signing credentials.
   Backend is drop-in ready (see WALLET_SETUP.md); nothing further can be done without them.
 
+- **Appointment Nudge (2026-06)**: `EyeTestNudge` card on Home. Derived solely from the loyalty
+  ledger — most recent Txn with `category: "exam"` + 24 months (`src/lib/eyeTest.ts`); shows from
+  60 days before due, with overdue wording after. "Book an eye test" → Branches; "Not now" (×)
+  dismisses for the session (AppContext `eyeTestDismissed`). Sample exam date is always 2 years
+  minus 20 days ago so the nudge is visible. Account privacy note updated: reminders come from
+  purchase history only — no clinical records.
+
 ## Personas
 - **Member (Sarah Whitfield)**: collects points in shop, checks balance/vouchers one-handed,
   shows a QR at the till.
