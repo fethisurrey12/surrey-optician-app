@@ -4,6 +4,7 @@ import { BRANCHES, PRACTICE_EMAIL, type Branch } from "@/src/api/data";
 import { spacing } from "@/src/tokens";
 import { makeStyles, useTheme } from "@/src/theme";
 import { Card } from "@/src/ui/Card";
+import { BrandButton } from "@/src/ui/BrandButton";
 import { GhostButton } from "@/src/ui/GhostButton";
 import { HeaderBar } from "@/src/ui/HeaderBar";
 import { Icon } from "@/src/ui/Icon";
@@ -11,6 +12,7 @@ import { PressScale } from "@/src/ui/PressScale";
 import { Screen } from "@/src/ui/Screen";
 import { StaggerItem } from "@/src/ui/Stagger";
 import { Txt } from "@/src/ui/Txt";
+import { openBooking } from "@/src/lib/booking";
 
 function openMaps(query: string) {
   const q = encodeURIComponent(query);
@@ -76,11 +78,30 @@ export default function Branches() {
   return (
     <Screen header={<HeaderBar title="Branches" />} testID="branches-screen">
       <View style={styles.list}>
+        <StaggerItem index={0}>
+          <Card contentStyle={styles.bookCard}>
+            <View style={styles.bookText}>
+              <Txt variant="title" tone="ink">
+                Book an appointment
+              </Txt>
+              <Txt variant="caption">
+                Eye examinations and contact lens checks, at any branch.
+              </Txt>
+            </View>
+            <BrandButton
+              label="Book online"
+              icon="calendar"
+              onPress={() => void openBooking()}
+              testID="branches-book-button"
+            />
+          </Card>
+        </StaggerItem>
+
         {BRANCHES.map((b, i) => (
-          <BranchCard key={b.id} branch={b} index={i} />
+          <BranchCard key={b.id} branch={b} index={i + 1} />
         ))}
 
-        <StaggerItem index={BRANCHES.length}>
+        <StaggerItem index={BRANCHES.length + 1}>
           <Card contentStyle={styles.emailCard}>
             <View style={styles.emailText}>
               <Txt variant="title" tone="ink">
@@ -105,6 +126,8 @@ export default function Branches() {
 
 const useStyles = makeStyles((colors) => ({
   list: { gap: spacing.base, paddingTop: spacing.sm },
+  bookCard: { gap: spacing.md, padding: spacing.lg },
+  bookText: { gap: 4 },
   card: { gap: spacing.md, padding: spacing.lg },
   addr: { gap: 1 },
   hours: { gap: spacing.xs, paddingTop: spacing.xs, borderTopWidth: 1, borderTopColor: colors.divider },

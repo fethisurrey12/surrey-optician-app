@@ -80,6 +80,18 @@ All routes are under `/api`.
 
 Members authenticate with a bearer token; the till presents `X-Staff-Key`.
 
+## Booking
+
+"Book an eye test" on Home and "Book online" on Branches hand the patient to
+the practice's own booking page:
+
+    https://www.surreyopticians.co.uk/book-appointment
+
+It opens in an in-app browser on a phone and a new tab on web. The URL lives in
+`frontend/src/lib/booking.ts`. Because booking happens on that page, the app
+does not hold a diary and does not know which slots are free — whatever runs
+that page owns availability.
+
 ## Before going live
 
 - [ ] Set `JWT_SECRET` — an unset one is regenerated per boot and signs everyone out

@@ -6,6 +6,7 @@ import { BRANCHES } from "@/src/api/data";
 import { useAccount, useActivity, useVouchers } from "@/src/api/hooks";
 import { ExpiryNudge } from "@/src/components/ExpiryNudge";
 import { EyeTestNudge } from "@/src/components/EyeTestNudge";
+import { openBooking } from "@/src/lib/booking";
 import { LensReorderNudge } from "@/src/components/LensReorderNudge";
 import { ReferCard } from "@/src/components/ReferCard";
 import { RewardReadyCard } from "@/src/components/RewardReadyCard";
@@ -176,7 +177,7 @@ export default function Home() {
           <EyeTestNudge
             status={eyeTest}
             homeBranchId={a.homeBranchId}
-            onBook={() => router.push("/branches")}
+            onBook={() => void openBooking()}
             onDismiss={() => {
               dismissEyeTestNudge();
               toast("We’ll remind you next time");

@@ -1,49 +1,53 @@
 import { View, type StyleProp, type ViewStyle } from "react-native";
 
-import { GradientText } from "@/src/ui/GradientText";
 import { Txt } from "@/src/ui/Txt";
 import { font } from "@/src/tokens";
+import { useTheme } from "@/src/theme";
 
-// SURREY in the serif with wide letter-spacing, OPTICIANS beneath it in gold,
-// smaller and wider still.
+// The practice's wordmark: "surrey" and "opticians" set as one lowercase word,
+// navy then turquoise, as it appears on surreyopticians.co.uk.
+//
+// Their artwork uses a rounded geometric sans; Inter stands in for it here.
+// Swapping in the real face is a change to `family` below plus the font files.
 export function Wordmark({
   size = "md",
   align = "center",
+  onDark = false,
   style,
 }: {
   size?: "sm" | "md" | "lg";
   align?: "left" | "center";
+  /** On a navy or turquoise field the whole wordmark reverses to white. */
+  onDark?: boolean;
   style?: StyleProp<ViewStyle>;
 }) {
+  const { colors } = useTheme();
   const s = SIZES[size];
+  const family = font.regular;
+
+  const type = {
+    fontFamily: family,
+    fontSize: s.size,
+    letterSpacing: s.tracking,
+    lineHeight: s.size * 1.16,
+  };
+
   return (
-    <View style={[{ alignItems: align === "center" ? "center" : "flex-start" }, style]}>
-      <Txt
-        style={{
-          fontFamily: font.serifLight,
-          fontSize: s.top,
-          letterSpacing: s.topSpace,
-          lineHeight: s.top * 1.05,
-        }}
-      >
-        SURREY
-      </Txt>
-      <GradientText
-        style={{
-          fontFamily: font.medium,
-          fontSize: s.sub,
-          letterSpacing: s.subSpace,
-          lineHeight: s.sub * 1.2,
-        }}
-      >
-        OPTICIANS
-      </GradientText>
+    <View
+      style={[
+        { flexDirection: "row", alignItems: "baseline" },
+        { justifyContent: align === "center" ? "center" : "flex-start" },
+        style,
+      ]}
+    >
+      <Txt style={[type, { color: onDark ? colors.paper : colors.ink }]}>surrey</Txt>
+      <Txt style={[type, { color: onDark ? colors.paper : colors.lightTeal }]}>opticians</Txt>
     </View>
   );
 }
 
 const SIZES = {
-  sm: { top: 22, topSpace: 6, sub: 10, subSpace: 8 },
-  md: { top: 32, topSpace: 9, sub: 12.5, subSpace: 11 },
-  lg: { top: 44, topSpace: 12, sub: 16, subSpace: 15 },
+  sm: { size: 19, tracking: -0.2 },
+  md: { size: 27, tracking: -0.4 },
+  lg: { size: 37, tracking: -0.6 },
 };

@@ -18,7 +18,7 @@
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
-        "backgroundColor": "#0B6E75"
+        "backgroundColor": "#14AFC1"
       },
       "package": "com.emergent.surreyopticians.xkx2pz"
     },

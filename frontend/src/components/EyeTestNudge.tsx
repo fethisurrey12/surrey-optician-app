@@ -12,7 +12,7 @@ import { PressScale } from "@/src/ui/PressScale";
 import { Txt } from "@/src/ui/Txt";
 
 // A calm recall card: last examination, when the next is due, one action to
-// reach the branch, and a quiet way to put it away.
+// book on the practice's site, and a quiet way to put it away.
 export function EyeTestNudge({
   status,
   homeBranchId,
@@ -62,7 +62,7 @@ export function EyeTestNudge({
         {branchName(homeBranchId)} or any branch — it takes about half an hour.
       </Txt>
 
-      <BrandButton label="Book an eye test" icon="phone" onPress={onBook} testID="eye-test-book-button" />
+      <BrandButton label="Book an eye test" icon="calendar" onPress={onBook} testID="eye-test-book-button" />
 
       <Txt variant="caption" tone="dimSage">
         Based on the date of your last eye examination purchase in this app. We hold no clinical
