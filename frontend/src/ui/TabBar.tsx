@@ -14,7 +14,9 @@ import { makeStyles, useTheme } from "@/src/theme";
 type TabBarProps = {
   state: { index: number; routes: { key: string; name: string }[] };
   navigation: {
-    emit: (e: { type: "tabPress"; target?: string; canPreventDefault: boolean }) => {
+    // canPreventDefault is the literal `true` in the navigator's own signature;
+    // widening it to boolean here makes the real props unassignable.
+    emit: (e: { type: "tabPress"; target?: string; canPreventDefault: true }) => {
       defaultPrevented: boolean;
     };
     navigate: (name: string) => void;

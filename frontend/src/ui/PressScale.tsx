@@ -34,7 +34,9 @@ export function PressScale({
   const reduce = useReduceMotion();
   const scale = useSharedValue(1);
   const dim = useSharedValue(1);
-  const animStyle = useAnimatedStyle(() => ({ transform: [{ scale: scale.value }], opacity: dim.value }));
+  // .get()/.set() rather than .value: mutating .value reads as mutating a
+  // React-owned binding, which the compiler-era lint rules reject.
+  const animStyle = useAnimatedStyle(() => ({ transform: [{ scale: scale.get() }], opacity: dim.get() }));
 
   return (
     <Pressable
@@ -44,16 +46,16 @@ export function PressScale({
       disabled={disabled}
       hitSlop={hitSlop}
       onHoverIn={() => {
-        dim.value = withTiming(0.88, { duration: 150 });
+        dim.set(withTiming(0.88, { duration: 150 }));
       }}
       onHoverOut={() => {
-        dim.value = withTiming(1, { duration: 200 });
+        dim.set(withTiming(1, { duration: 200 }));
       }}
       onPressIn={() => {
-        if (!reduce) scale.value = withTiming(0.975, { duration: 110 });
+        if (!reduce) scale.set(withTiming(0.975, { duration: 110 }));
       }}
       onPressOut={() => {
-        if (!reduce) scale.value = withTiming(1, { duration: 180 });
+        if (!reduce) scale.set(withTiming(1, { duration: 180 }));
       }}
       onPress={() => {
         if (disabled) return;

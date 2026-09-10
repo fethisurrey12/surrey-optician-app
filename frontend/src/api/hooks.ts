@@ -3,6 +3,8 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import { type WalletProvider } from "./data";
+// Resolves to the real API when EXPO_PUBLIC_BACKEND_URL is set, and to the
+// bundled sample data when it is not.
 import {
   loadAccount,
   loadActivity,
@@ -10,7 +12,8 @@ import {
   loadVouchers,
   markVoucherInWallet,
   markVoucherUsed,
-} from "./mock";
+  updateAccount,
+} from "./index";
 
 export const keys = {
   account: ["account"] as const,
@@ -54,5 +57,15 @@ export function useAddToWallet() {
     mutationFn: ({ id, provider }: { id: string; provider: WalletProvider }) =>
       markVoucherInWallet(id, provider),
     onSuccess: () => qc.invalidateQueries({ queryKey: keys.vouchers }),
+  });
+}
+
+// Saving the member's own details. The account query is invalidated so the
+// membership card and greeting pick the change up immediately.
+export function useUpdateAccount() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: updateAccount,
+    onSuccess: () => qc.invalidateQueries({ queryKey: keys.account }),
   });
 }

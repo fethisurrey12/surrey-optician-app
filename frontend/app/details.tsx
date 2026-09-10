@@ -1,10 +1,10 @@
 import { useRouter } from "expo-router";
 import { useState } from "react";
 import { View } from "react-native";
-import { useQueryClient } from "@tanstack/react-query";
 
+import { type Account } from "@/src/api/data";
 import { BRANCHES } from "@/src/api/data";
-import { keys, useAccount } from "@/src/api/hooks";
+import { useAccount, useUpdateAccount } from "@/src/api/hooks";
 import { useApp } from "@/src/context/AppContext";
 import { radius, spacing } from "@/src/tokens";
 import { makeStyles } from "@/src/theme";
@@ -13,26 +13,50 @@ import { GoldButton } from "@/src/ui/GoldButton";
 import { HeaderBar } from "@/src/ui/HeaderBar";
 import { PressScale } from "@/src/ui/PressScale";
 import { Screen } from "@/src/ui/Screen";
+import { Skeleton } from "@/src/ui/Skeleton";
 import { Txt } from "@/src/ui/Txt";
 
 export default function Details() {
+  const { data: account } = useAccount();
+
+  // The form seeds its fields from the account, so it is only mounted once the
+  // account is there. Rendering it early would leave every field blank and let
+  // a save overwrite the member's real details with nothing.
+  if (!account) {
+    return (
+      <Screen header={<HeaderBar title="Your details" />} testID="details-screen">
+        <View style={detailsLoadingStyle}>
+          <Skeleton height={64} />
+          <Skeleton height={64} />
+          <Skeleton height={64} />
+        </View>
+      </Screen>
+    );
+  }
+  return <DetailsForm account={account} />;
+}
+
+const detailsLoadingStyle = { gap: spacing.md, paddingTop: spacing.md } as const;
+
+function DetailsForm({ account: a }: { account: Account }) {
   const styles = useStyles();
   const router = useRouter();
-  const qc = useQueryClient();
   const { toast } = useApp();
-  const { data: a } = useAccount();
+  const save = useUpdateAccount();
 
-  const [firstName, setFirstName] = useState(a?.firstName ?? "");
-  const [lastName, setLastName] = useState(a?.lastName ?? "");
-  const [email, setEmail] = useState(a?.email ?? "");
-  const [branch, setBranch] = useState(a?.homeBranchId ?? "coulsdon");
+  const [firstName, setFirstName] = useState(a.firstName);
+  const [lastName, setLastName] = useState(a.lastName);
+  const [email, setEmail] = useState(a.email);
+  const [branch, setBranch] = useState(a.homeBranchId);
 
-  const onSave = () => {
-    if (a) {
-      qc.setQueryData(keys.account, { ...a, firstName, lastName, email, homeBranchId: branch });
+  const onSave = async () => {
+    try {
+      await save.mutateAsync({ firstName, lastName, email, homeBranchId: branch });
+      toast("Your details are saved");
+      router.back();
+    } catch (e) {
+      toast(e instanceof Error ? e.message : "We could not save your details.");
     }
-    toast("Your details are saved");
-    router.back();
   };
 
   return (
@@ -72,13 +96,19 @@ export default function Details() {
 
         <Field
           label="Mobile number"
-          value={a?.mobileDisplay ?? ""}
+          value={a.mobileDisplay}
           editable={false}
           note="Your mobile changes in branch with ID. It is the key used to find your points at the till."
           testID="details-mobile"
         />
 
-        <GoldButton label="Save changes" onPress={onSave} testID="details-save-button" style={styles.save} />
+        <GoldButton
+          label={save.isPending ? "Saving…" : "Save changes"}
+          onPress={onSave}
+          disabled={save.isPending}
+          testID="details-save-button"
+          style={styles.save}
+        />
       </View>
     </Screen>
   );

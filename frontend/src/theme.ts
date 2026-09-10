@@ -99,15 +99,19 @@ export const defaultScheme = "light" satisfies ColorScheme;
 
 export const themes: { light: ThemeColors; dark?: ThemeColors } = { light };
 
-export function setColorScheme(scheme: ColorScheme | null) {
+// React Native spells "follow the device" as "unspecified", not null.
+export function setColorScheme(scheme: ColorScheme | "unspecified") {
   Appearance.setColorScheme?.(scheme);
 }
 
-setColorScheme?.(themes.dark ? null : defaultScheme);
+// The app ships one palette, so it pins the scheme rather than following the
+// device. Adding a `dark` entry to `themes` is all it takes to hand control back.
+setColorScheme?.(themes.dark ? "unspecified" : defaultScheme);
 
 export function useTheme(): { scheme: ColorScheme; colors: ThemeColors } {
   const system = useColorScheme();
-  const scheme: ColorScheme = system && themes[system] ? system : defaultScheme;
+  const scheme: ColorScheme =
+    system !== "unspecified" && themes[system] ? system : defaultScheme;
   return { scheme, colors: themes[scheme] ?? themes.light };
 }
 

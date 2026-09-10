@@ -63,3 +63,13 @@ export async function markVoucherInWallet(id: string, provider: WalletProvider):
   if (!updated) throw new Error("Voucher not found");
   return { ...updated };
 }
+
+// Offline counterpart to the server's PATCH /api/me/account. The sample account
+// lives in module memory, so the edit lasts for the session only.
+export async function updateAccount(
+  changes: Partial<Pick<Account, "firstName" | "lastName" | "email" | "homeBranchId">>,
+): Promise<Account> {
+  await delay(400);
+  Object.assign(account, changes);
+  return { ...account };
+}

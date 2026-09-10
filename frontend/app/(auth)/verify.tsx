@@ -22,7 +22,7 @@ function formatMobile(m: string): string {
 
 export default function Verify() {
   const styles = useStyles();
-  const { pendingMobile, demoCode, verify, resendCode } = useApp();
+  const { pendingMobile, demoCode, verify, resendCode, authBusy } = useApp();
   const [error, setError] = useState<string | null>(null);
   const [resetKey, setResetKey] = useState(0);
   const [seconds, setSeconds] = useState(30);
@@ -33,18 +33,23 @@ export default function Verify() {
     return () => clearTimeout(t);
   }, [seconds]);
 
-  const onComplete = (code: string) => {
-    if (verify(code)) return; // guard redirects onward
+  const onComplete = async (code: string) => {
+    if (await verify(code)) return; // guard redirects onward
     setError("That code did not match. Try again.");
     tapWarn();
     setResetKey((k) => k + 1);
   };
 
-  const onResend = () => {
-    resendCode();
+  const onResend = async () => {
     setSeconds(30);
     setError(null);
     setResetKey((k) => k + 1);
+    try {
+      await resendCode();
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "We could not resend your code.");
+      tapWarn();
+    }
   };
 
   return (
@@ -71,15 +76,16 @@ export default function Verify() {
             {seconds > 0 ? (
               <Txt variant="caption">Resend code in 0:{String(seconds).padStart(2, "0")}</Txt>
             ) : (
-              <PressScale onPress={onResend} testID="verify-resend" hitSlop={12}>
+              <PressScale onPress={onResend} disabled={authBusy} testID="verify-resend" hitSlop={12}>
                 <Txt variant="bodyStrong" tone="gold">
-                  Resend code
+                  {authBusy ? "Sending…" : "Resend code"}
                 </Txt>
               </PressScale>
             )}
           </View>
         </StaggerItem>
 
+        {demoCode ? (
         <StaggerItem index={3}>
           <View style={styles.protoCard} testID="verify-demo-code">
             <Txt variant="label" tone="dimSage">
@@ -91,6 +97,7 @@ export default function Verify() {
             <Txt variant="caption">Use this code to sign in.</Txt>
           </View>
         </StaggerItem>
+        ) : null}
       </View>
     </Screen>
   );

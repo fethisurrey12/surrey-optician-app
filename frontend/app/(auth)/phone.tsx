@@ -19,22 +19,29 @@ export default function Phone() {
   const styles = useStyles();
   const { colors } = useTheme();
   const router = useRouter();
-  const { startSignIn, pendingReferral } = useApp();
+  const { startSignIn, pendingReferral, authBusy } = useApp();
   const inviter = pendingReferral ? inviterName(pendingReferral) : "";
   const [digits, setDigits] = useState("");
   const [error, setError] = useState<string | null>(null);
 
   const valid = /^7\d{9}$/.test(digits);
 
-  const onContinue = () => {
+  const onContinue = async () => {
     if (!valid) {
       setError("Enter a UK mobile number, starting 7.");
       tapWarn();
       return;
     }
     setError(null);
-    startSignIn(`+44${digits}`);
-    router.push("/(auth)/verify");
+    try {
+      await startSignIn(`+44${digits}`);
+      router.push("/(auth)/verify");
+    } catch (e) {
+      // Rate limited, offline, or the gateway refused — stay put and say why,
+      // rather than sending the member to a code screen with no code coming.
+      setError(e instanceof Error ? e.message : "We could not send your code. Please try again.");
+      tapWarn();
+    }
   };
 
   return (
@@ -83,7 +90,12 @@ export default function Phone() {
         </StaggerItem>
 
         <StaggerItem index={2} style={styles.actions}>
-          <GoldButton label="Continue" onPress={onContinue} disabled={!valid} testID="phone-continue-button" />
+          <GoldButton
+            label={authBusy ? "Sending…" : "Continue"}
+            onPress={onContinue}
+            disabled={!valid || authBusy}
+            testID="phone-continue-button"
+          />
         </StaggerItem>
       </View>
     </Screen>

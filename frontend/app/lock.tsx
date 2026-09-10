@@ -39,15 +39,14 @@ export default function Lock() {
   const pulse = useSharedValue(1);
   useEffect(() => {
     if (reduce) return;
-    pulse.value = withRepeat(withTiming(1.18, { duration: 1100, easing: Easing.inOut(Easing.ease) }), -1, true);
+    pulse.set(withRepeat(withTiming(1.18, { duration: 1100, easing: Easing.inOut(Easing.ease) }), -1, true));
   }, [reduce, pulse]);
-  const ringStyle = useAnimatedStyle(() => ({
-    transform: [{ scale: pulse.value }],
-    opacity: 2 - pulse.value,
-  }));
+  const ringStyle = useAnimatedStyle(() => {
+    const p = pulse.get();
+    return { transform: [{ scale: p }], opacity: 2 - p };
+  });
 
   const runAuth = useCallback(async () => {
-    setMode("scanning");
     const ok = await authenticate(`Unlock Surrey Opticians with ${label}`);
     if (ok) {
       tapSuccess();
@@ -59,9 +58,19 @@ export default function Lock() {
   }, [label, unlock]);
 
   useEffect(() => {
-    runAuth();
+    // Raise the biometric prompt as soon as the lock screen appears. `mode`
+    // already starts as "scanning", and runAuth touches state only after
+    // `await authenticate(...)` resolves — a callback from an external system,
+    // not a synchronous update. The rule cannot see through the await.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    void runAuth();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  const retryAuth = useCallback(() => {
+    setMode("scanning");
+    void runAuth();
+  }, [runAuth]);
 
   const onCode = (code: string) => {
     if (code === demoCode || (!demoCode && code.length === 6)) {
@@ -97,7 +106,7 @@ export default function Lock() {
                 Prototype code: {demoCode}
               </Txt>
             ) : null}
-            <PressScale onPress={runAuth} hitSlop={12} testID="lock-use-biometric">
+            <PressScale onPress={retryAuth} hitSlop={12} testID="lock-use-biometric">
               <Txt variant="bodyStrong" tone="gold" style={styles.center}>
                 Use {label} instead
               </Txt>
@@ -133,7 +142,7 @@ export default function Lock() {
 
       {mode === "failed" ? (
         <View style={styles.actions}>
-          <GoldButton label="Try again" icon="faceid" onPress={runAuth} testID="lock-retry-button" />
+          <GoldButton label="Try again" icon="faceid" onPress={retryAuth} testID="lock-retry-button" />
           <GhostButton label="Enter code instead" onPress={() => setMode("code")} testID="lock-code-button" />
         </View>
       ) : null}
