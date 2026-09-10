@@ -346,8 +346,9 @@ async def test_a_new_member_gets_one_welcome_voucher(client):
 
     welcome = [v for v in vouchers if v["kind"] == "signup"]
     assert len(welcome) == 1
-    assert welcome[0]["percentOff"] == 20
-    assert welcome[0]["value"] is None
+    assert welcome[0]["value"] == 25
+    assert welcome[0]["percentOff"] is None
+    assert welcome[0]["appliesTo"] == "glasses"
     assert welcome[0]["status"] == "available"
 
 
@@ -465,6 +466,20 @@ async def test_check_in_needs_the_staff_key(client):
     code = (await client.get("/api/me/account", headers=headers)).json()["memberCode"]
     r = await client.post("/api/staff/check-in", json={"code": code, "branchId": "coulsdon"})
     assert r.status_code == 401
+
+
+async def test_the_welcome_voucher_is_restricted_to_glasses(client):
+    headers, _ = await sign_in(client, MOBILE)
+    vouchers = (await client.get("/api/me/vouchers", headers=headers)).json()
+
+    welcome = next(v for v in vouchers if v["kind"] == "signup")
+    assert welcome["appliesTo"] == "glasses"
+
+    # An earned reward carries no such restriction.
+    await purchase(client, total=100)
+    vouchers = (await client.get("/api/me/vouchers", headers=headers)).json()
+    reward = next(v for v in vouchers if v["kind"] == "reward")
+    assert reward["appliesTo"] == "any"
 
 
 async def test_the_desk_sees_a_waiting_reward(client):

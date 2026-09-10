@@ -1,4 +1,4 @@
-"""Apple Wallet (.pkpass) and Google Wallet (save link) generation for £10 reward vouchers.
+"""Apple Wallet (.pkpass) and Google Wallet (save link) generation for reward vouchers.
 
 Signing material never leaves the server. When the certificates / service account
 are not configured, /wallet/status reports what is missing and the pass endpoints
@@ -177,7 +177,7 @@ def build_pkpass(code: str, value: int, expires: str, member: str, branch: str) 
                     "key": "how",
                     "label": "How to use",
                     "value": "Show this pass at the till in any Surrey Opticians branch. A colleague scans it, "
-                    "applies £10 to your private purchase and marks it used.",
+                    f"applies £{value} to your private purchase and marks it used.",
                 },
                 {"key": "terms", "label": "Terms", "value": "One voucher per transaction. Not valid against NHS-funded amounts. Expires one year after issue."},
                 {"key": "branches", "label": "Branches", "value": "Coulsdon · Wallington · Banstead"},
@@ -230,7 +230,7 @@ def build_google_save_url(code: str, value: int, expires: str, member: str, bran
             {"id": "code", "header": "Voucher code", "body": code},
             {"id": "expires", "header": "Expires", "body": _pretty_date(expires)},
             {"id": "branch", "header": "Home branch", "body": branch},
-            {"id": "how", "header": "How to use", "body": "Show at the till in any Surrey Opticians branch. A colleague scans it and applies £10 to your private purchase."},
+            {"id": "how", "header": "How to use", "body": f"Show at the till in any Surrey Opticians branch. A colleague scans it and applies £{value} to your private purchase."},
         ],
         "validTimeInterval": {"end": {"date": f"{expires}T23:59:59Z"}},
     }

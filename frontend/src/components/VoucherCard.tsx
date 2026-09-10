@@ -7,7 +7,13 @@ import { Icon } from "@/src/ui/Icon";
 import { PressScale } from "@/src/ui/PressScale";
 import { QRCode } from "@/src/ui/QRCode";
 import { Txt } from "@/src/ui/Txt";
-import { dayMonthYear, expiresInText, expiresSoon, voucherLabel } from "@/src/lib/points";
+import {
+  dayMonthYear,
+  expiresInText,
+  expiresSoon,
+  voucherLabel,
+  voucherRestriction,
+} from "@/src/lib/points";
 import { font, spacing } from "@/src/tokens";
 import { makeStyles, useTheme } from "@/src/theme";
 
@@ -35,6 +41,11 @@ export function VoucherCard({ voucher, onPress }: { voucher: Voucher; onPress?: 
         <Txt variant="caption" tabular tone={used ? "dimSage" : "sage"} style={styles.code}>
           {voucher.code}
         </Txt>
+        {voucherRestriction(voucher) ? (
+          <Txt variant="caption" tone={used ? "dimSage" : "teal"}>
+            {voucherRestriction(voucher)}
+          </Txt>
+        ) : null}
         {expired ? (
           <Txt variant="caption">Expired {dayMonthYear(voucher.expires)}</Txt>
         ) : spent ? (

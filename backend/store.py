@@ -22,9 +22,10 @@ from pymongo.errors import DuplicateKeyError
 from config import (
     POINTS_PER_REWARD,
     REFERRAL_BONUS_POINTS,
+    SIGNUP_VOUCHER_APPLIES_TO,
     SIGNUP_VOUCHER_ENABLED,
-    SIGNUP_VOUCHER_PERCENT,
     SIGNUP_VOUCHER_TTL_MONTHS,
+    SIGNUP_VOUCHER_VALUE_PENCE,
     VOUCHER_VALUE_PENCE,
 )
 from db import get_db
@@ -207,6 +208,7 @@ async def issue_voucher(
     percent_off: Optional[int] = None,
     value_pence: Optional[int] = VOUCHER_VALUE_PENCE,
     ttl_months: Optional[int] = None,
+    applies_to: str = "any",
 ) -> dict:
     """Mint one voucher. Retries on the astronomically unlikely code clash.
 
@@ -228,6 +230,9 @@ async def issue_voucher(
             "kind": kind,
             "valuePence": None if percent_off else value_pence,
             "percentOff": percent_off,
+            # What the voucher may be spent against — "any", or a category the
+            # till must check, such as "glasses".
+            "appliesTo": applies_to,
             "issued": iso_date(issued_date),
             "expires": iso_date(expires),
             "status": "available",
@@ -251,7 +256,7 @@ async def issue_signup_voucher(member_id: str) -> Optional[dict]:
     Guarded by a lookup rather than a flag on the member, so the rule holds
     even if two sign-ins race each other.
     """
-    if not SIGNUP_VOUCHER_ENABLED or SIGNUP_VOUCHER_PERCENT <= 0:
+    if not SIGNUP_VOUCHER_ENABLED or SIGNUP_VOUCHER_VALUE_PENCE <= 0:
         return None
 
     db = get_db()
@@ -261,9 +266,9 @@ async def issue_signup_voucher(member_id: str) -> Optional[dict]:
     return await issue_voucher(
         member_id,
         kind="signup",
-        percent_off=SIGNUP_VOUCHER_PERCENT,
-        value_pence=None,
+        value_pence=SIGNUP_VOUCHER_VALUE_PENCE,
         ttl_months=SIGNUP_VOUCHER_TTL_MONTHS,
+        applies_to=SIGNUP_VOUCHER_APPLIES_TO,
     )
 
 

@@ -58,31 +58,39 @@ def monogram(size: int, bg, fg) -> Image.Image:
 
 
 def tile(width: int, height: int) -> Image.Image:
-    """The turquoise tile with the white interlocking-lens motif.
+    """The turquoise tile with the white lens motif.
 
-    Traced by eye from the logo on surreyopticians.co.uk — close in form and
-    colour, but not the practice's actual artwork. Replace
-    assets/images/logo-mark.png with the real file when it is to hand.
+    Traced by eye from the logo on surreyopticians.co.uk: two overlapping lens
+    rings, the right one larger, with a stroke sweeping away to the lower left.
+    Close in form, colour and proportion — but it is a trace, not the
+    practice's artwork. Replace assets/images/logo-mark.png with the real file.
     """
-    img = Image.new("RGBA", (width, height), TURQUOISE)
+    # Drawn at 4x and downsampled, so the curves come out smooth rather than
+    # stair-stepped at the size the header actually shows them.
+    S = 4
+    w, h = width * S, height * S
+    img = Image.new("RGBA", (w, h), TURQUOISE)
     d = ImageDraw.Draw(img)
-    stroke = max(2, int(height * 0.055))
+    stroke = max(2, int(h * 0.085))
 
-    # Two lenses: a larger ring to the right, a smaller one overlapping left.
-    big_r = height * 0.30
-    big_c = (width * 0.575, height * 0.42)
-    small_r = height * 0.205
-    small_c = (width * 0.415, height * 0.55)
-
-    for (cx, cy), r in ((big_c, big_r), (small_c, small_r)):
+    def ring(cx, cy, r):
         d.ellipse([cx - r, cy - r, cx + r, cy + r], outline=PAPER, width=stroke)
 
-    # The sweep that runs off the lower-left, as on the practice's mark.
+    # The right-hand lens, the larger of the two.
+    big_r = h * 0.335
+    ring(w * 0.560, h * 0.430, big_r)
+
+    # The left lens, smaller and dropped, overlapping the first.
+    small_r = h * 0.235
+    ring(w * 0.395, h * 0.590, small_r)
+
+    # The stroke that sweeps out of the left lens and away to the lower left.
     d.arc(
-        [width * 0.235, height * 0.42, width * 0.445, height * 0.98],
-        start=200, end=20, fill=PAPER, width=stroke,
+        [w * 0.175, h * 0.330, w * 0.435, h * 0.900],
+        start=150, end=310, fill=PAPER, width=stroke,
     )
-    return img
+
+    return img.resize((width, height), Image.LANCZOS)
 
 
 def wordmark(width: int, height: int, on_dark: bool = False) -> Image.Image:

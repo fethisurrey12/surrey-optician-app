@@ -1,4 +1,4 @@
-# Surrey Opticians — Loyalty App (PRD)
+# Surrey People — Surrey Opticians loyalty app (PRD)
 
 ## Original problem statement
 Polished, production-quality mobile-first customer loyalty app for Surrey Opticians, an
@@ -106,7 +106,7 @@ the app never self-redeems — a "Simulate the till scan" control stands in for 
   https://www.surreyopticians.co.uk/book-appointment. The practice's own page owns availability.
 - **Voucher term (2026-09)**: 12 months, not 18 — no voucher outlives a year. Expiry is derived
   on read, so an out-of-term voucher is never offered and cannot be redeemed.
-- **Welcome offer (2026-09)**: one 20% voucher, issued the first time a patient signs in, one per
+- **Welcome offer (2026-09)**: one £25-towards-glasses voucher, issued the first time a patient signs in, one per
   member ever. Issued on sign-in rather than record creation, so a long-standing customer the
   till already knows still gets theirs the day they sign up.
 - **Desk check-in (2026-09)**: every member has an `SM-` code behind a QR on `/checkin`. The desk

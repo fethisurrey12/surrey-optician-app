@@ -113,3 +113,12 @@ export function voucherHeadline(v: { value?: number; percentOff?: number }): str
   if (v.percentOff) return `${v.percentOff}% off`;
   return `${money(v.value ?? 0)} reward`;
 }
+
+
+// "Towards glasses" for a restricted voucher, empty for one that can be spent
+// on anything. Kept beside voucherLabel so the wording stays in one place.
+export function voucherRestriction(v: { appliesTo?: string }): string {
+  const to = (v.appliesTo ?? "any").toLowerCase();
+  if (!to || to === "any") return "";
+  return `Towards ${to}`;
+}

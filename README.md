@@ -1,4 +1,4 @@
-# Surrey Opticians — loyalty app
+# Surrey People — the Surrey Opticians loyalty app
 
 A customer loyalty app for Surrey Opticians, an independent optometry practice
 with branches in Coulsdon, Wallington and Banstead. Members earn a point for
@@ -19,7 +19,7 @@ till.
 | Redemption | Manual, at the till — the app never redeems itself |
 | Expiry | Derived from the date on read; an expired voucher is never offered and cannot be redeemed |
 | Referrals | Both parties earn a bonus point on the friend's first purchase |
-| Welcome offer | One voucher, 20% off, issued the first time a patient signs in — one per member, ever |
+| Welcome offer | One voucher, £25 towards glasses, issued the first time a patient signs in — one per member, ever |
 
 The maths lives in `backend/scheme.py`, which is the authority; the app keeps a
 matching copy in `frontend/src/lib/points.ts` for display only.
@@ -90,7 +90,7 @@ confuse them:
 
 | Prefix | What it is | Where it is scanned |
 |---|---|---|
-| `SO-` | A voucher — £10 reward, or the 20% welcome offer | The till, to apply the discount |
+| `SO-` | A voucher — a £10 reward, or the £25 welcome offer | The till, to apply the discount |
 | `SM-` | The patient's membership code | The desk, to check them in on arrival |
 
 Checking in records the arrival and tells the colleague who has arrived. It

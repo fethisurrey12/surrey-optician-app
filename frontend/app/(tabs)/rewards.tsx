@@ -8,7 +8,14 @@ import { appleWalletUrl, googleWalletUrl, walletStatus } from "@/src/api/wallet"
 import { useApp } from "@/src/context/AppContext";
 import { VoucherCard } from "@/src/components/VoucherCard";
 import { WalletPassPreview } from "@/src/components/WalletPassPreview";
-import { dayMonthYear, expiresInText, expiresSoon, pointsToNextReward, voucherLabel } from "@/src/lib/points";
+import {
+  dayMonthYear,
+  expiresInText,
+  expiresSoon,
+  pointsToNextReward,
+  voucherLabel,
+  voucherRestriction,
+} from "@/src/lib/points";
 import { font, spacing } from "@/src/tokens";
 import { makeStyles, useTheme } from "@/src/theme";
 import { EmptyState } from "@/src/ui/EmptyState";
@@ -267,7 +274,12 @@ export default function Rewards() {
                   tone={expiresSoon(selected.expires) ? "warning" : undefined}
                   style={[styles.figureNote, styles.center]}
                 >
-                  {selected.kind === "signup" ? "welcome offer" : "reward"} ·{" "}
+                  {voucherRestriction(selected)
+                    ? voucherRestriction(selected).toLowerCase()
+                    : selected.kind === "signup"
+                      ? "welcome offer"
+                      : "reward"}{" "}
+                  ·{" "}
                   {expiresSoon(selected.expires)
                     ? expiresInText(selected.expires)
                     : `expires ${dayMonthYear(selected.expires)}`}

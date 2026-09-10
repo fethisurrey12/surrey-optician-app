@@ -47,7 +47,7 @@ export default function Lock() {
   });
 
   const runAuth = useCallback(async () => {
-    const ok = await authenticate(`Unlock Surrey Opticians with ${label}`);
+    const ok = await authenticate(`Unlock Surrey People with ${label}`);
     if (ok) {
       tapSuccess();
       unlock();

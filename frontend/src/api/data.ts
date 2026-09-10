@@ -45,7 +45,9 @@ export type Voucher = {
   // gets when they first sign up takes a percentage off instead.
   kind: VoucherKind;
   value?: number; // £, on reward vouchers
-  percentOff?: number; // %, on the welcome voucher
+  percentOff?: number; // %, if an offer is ever a percentage
+  // "any", or a category the voucher is restricted to, such as "glasses".
+  appliesTo?: string;
   issued: string; // ISO
   expires: string; // ISO (one year from issue)
   // "expired" is derived by the server from the date — a voucher past its
@@ -166,10 +168,22 @@ export const REFERRALS: Referral[] = [
 
 export const VOUCHERS: Voucher[] = [
   {
+    // The welcome voucher, issued when the member first signed in.
+    id: "v-w1elc0me",
+    code: "SO-4KD2-8NQV",
+    kind: "signup",
+    value: 25,
+    appliesTo: "glasses",
+    issued: DEMO_EXPIRING.issued,
+    expires: DEMO_EXPIRING.expires,
+    status: "available",
+  },
+  {
     id: "v-7f3k92qx",
     code: "SO-7F3K-92QX",
     kind: "reward",
     value: 10,
+    appliesTo: "any",
     issued: "2026-06-15",
     expires: "2027-06-15",
     status: "available",
@@ -179,6 +193,7 @@ export const VOUCHERS: Voucher[] = [
     code: "SO-9K2T-08MW",
     kind: "reward",
     value: 10,
+    appliesTo: "any",
     issued: DEMO_EXPIRING.issued,
     expires: DEMO_EXPIRING.expires,
     status: "available",
@@ -188,6 +203,7 @@ export const VOUCHERS: Voucher[] = [
     code: "SO-2M8D-41LP",
     kind: "reward",
     value: 10,
+    appliesTo: "any",
     issued: "2025-11-04",
     expires: "2026-11-04",
     status: "used",

@@ -146,6 +146,8 @@ class Voucher(BaseModel):
     # percentage off instead. Exactly one of the two is set.
     value: Optional[float] = None
     percentOff: Optional[int] = None
+    # "any", or a category the voucher is restricted to, such as "glasses".
+    appliesTo: str = "any"
     issued: str
     expires: str
     status: VoucherStatus
@@ -169,6 +171,7 @@ class Voucher(BaseModel):
             kind=doc.get("kind", "reward"),
             value=pence_to_pounds(value_pence) if value_pence is not None else None,
             percentOff=doc.get("percentOff"),
+            appliesTo=doc.get("appliesTo", "any"),
             issued=doc["issued"],
             expires=doc["expires"],
             status=status,

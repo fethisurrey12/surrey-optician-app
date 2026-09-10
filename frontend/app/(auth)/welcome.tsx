@@ -7,22 +7,25 @@ import { BrandButton } from "@/src/ui/BrandButton";
 import { Screen } from "@/src/ui/Screen";
 import { StaggerItem } from "@/src/ui/Stagger";
 import { Txt } from "@/src/ui/Txt";
+import { LogoMark } from "@/src/ui/LogoMark";
 import { Wordmark } from "@/src/ui/Wordmark";
 
 export default function Welcome() {
   const styles = useStyles();
   const router = useRouter();
   const { width } = useWindowDimensions();
-  const lens = Math.max(200, Math.min(260, width - 80));
+  // The logo tile, sized to the screen but never so large it crowds the copy.
+  const mark = Math.max(74, Math.min(104, (width - 96) / 2.2));
 
   return (
     <Screen scroll={false} testID="welcome-screen">
       <View style={styles.body}>
         <View style={styles.hero}>
           <StaggerItem index={0}>
-            <View style={[styles.lens, { width: lens, height: lens, borderRadius: lens / 2 }]}>
-              <View style={[styles.lensInner, { width: lens - 50, height: lens - 50, borderRadius: (lens - 50) / 2 }]} />
-              <Wordmark size={lens < 240 ? "md" : "lg"} />
+            {/* The practice's lockup: the tile above, the wordmark beneath. */}
+            <View style={styles.lockup}>
+              <LogoMark height={mark} />
+              <Wordmark size={mark < 90 ? "md" : "lg"} />
             </View>
           </StaggerItem>
         </View>
@@ -59,23 +62,7 @@ export default function Welcome() {
 const useStyles = makeStyles((colors) => ({
   body: { flex: 1, justifyContent: "center", gap: spacing.huge },
   hero: { alignItems: "center" },
-  lens: {
-    width: 260,
-    height: 260,
-    borderRadius: 130,
-    borderWidth: 1,
-    borderColor: colors.accentBorder,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  lensInner: {
-    position: "absolute",
-    width: 210,
-    height: 210,
-    borderRadius: 105,
-    borderWidth: 1,
-    borderColor: colors.border,
-  },
+  lockup: { alignItems: "center", gap: spacing.base },
   copy: { gap: spacing.md },
   headline: { textAlign: "left" },
   sentence: { maxWidth: 340 },

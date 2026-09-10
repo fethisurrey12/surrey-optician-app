@@ -68,7 +68,9 @@ REFERRAL_BONUS_POINTS = _int("REFERRAL_BONUS_POINTS", 1)
 # A welcome offer, issued once when a member first signs up. One per member,
 # ever — re-signing in on a new phone does not mint another.
 SIGNUP_VOUCHER_ENABLED = _bool("SIGNUP_VOUCHER_ENABLED", True)
-SIGNUP_VOUCHER_PERCENT = _int("SIGNUP_VOUCHER_PERCENT", 20)
+SIGNUP_VOUCHER_VALUE_PENCE = _int("SIGNUP_VOUCHER_VALUE_PENCE", 2500)   # £25
+# What the welcome voucher may be spent against. "glasses" or "any".
+SIGNUP_VOUCHER_APPLIES_TO = os.environ.get("SIGNUP_VOUCHER_APPLIES_TO", "glasses").strip().lower()
 SIGNUP_VOUCHER_TTL_MONTHS = _int("SIGNUP_VOUCHER_TTL_MONTHS", 12)
 
 # --- Staff / till ---------------------------------------------------------
