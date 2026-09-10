@@ -88,3 +88,6 @@ backend/secrets/*
 credentials.json
 *.key
 .credentials
+
+# Keep the configuration template (the real .env stays ignored above)
+!backend/.env.example
