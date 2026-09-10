@@ -30,19 +30,6 @@ export default function Welcome() {
           </StaggerItem>
         </View>
 
-        <View style={styles.copy}>
-          <StaggerItem index={1}>
-            <Txt variant="h1" style={styles.headline}>
-              A quieter kind of reward
-            </Txt>
-          </StaggerItem>
-          <StaggerItem index={2}>
-            <Txt variant="body" style={styles.sentence}>
-              Earn a point for every £10 you spend, and ten points become a £10 voucher for your
-              next visit.
-            </Txt>
-          </StaggerItem>
-        </View>
       </View>
 
       <StaggerItem index={3} style={styles.actions}>
@@ -60,12 +47,9 @@ export default function Welcome() {
 }
 
 const useStyles = makeStyles((colors) => ({
-  body: { flex: 1, justifyContent: "center", gap: spacing.huge },
+  body: { flex: 1, justifyContent: "center" },
   hero: { alignItems: "center" },
   lockup: { alignItems: "center", gap: spacing.base },
-  copy: { gap: spacing.md },
-  headline: { textAlign: "left" },
-  sentence: { maxWidth: 340 },
   actions: { gap: spacing.base, paddingBottom: spacing.sm },
   note: { textAlign: "center" },
 }));

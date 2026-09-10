@@ -46,9 +46,11 @@ type AppValue = {
   prefs: Prefs;
   pendingReferral: string | null; // invite code carried from /join into sign-in
   authBusy: boolean; // a sign-in request is in flight
+  needsName: boolean; // we do not have this member's name yet
   eyeTestDismissed: boolean; // "Not now" on the recall nudge, for this session
   lensReorderDismissed: boolean;
 
+  finishNameStep: () => void;
   startSignIn: (mobile: string) => Promise<string>;
   verify: (code: string) => Promise<boolean>;
   resendCode: () => Promise<string>;
@@ -93,6 +95,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   });
   const [toastState, setToastState] = useState<ToastState>(null);
   const [authBusy, setAuthBusy] = useState(false);
+  const [needsName, setNeedsName] = useState(false);
   const [sessionChecked, setSessionChecked] = useState(false);
   const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -183,6 +186,9 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     try {
       const session = await verifyOtp(pendingMobile, code, pendingReferral);
       await setToken(session.token);
+      // Ask for a name when we do not have one — whether they joined just now
+      // or the till created their record before they ever opened the app.
+      setNeedsName(!session.account.firstName.trim());
       finishSignIn();
       if (session.referralApplied && pendingReferral) {
         toast(`Invite code ${pendingReferral} applied — bonus point after your first purchase`);
@@ -217,6 +223,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     setDemoCode("");
     setNeedsBiometricPrompt(false);
     setPendingReferral(null);
+    setNeedsName(false);
     setEyeTestDismissed(false);
     setLensReorderDismissed(false);
   };
@@ -243,6 +250,8 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       prefs,
       pendingReferral,
       authBusy,
+      needsName,
+      finishNameStep: () => setNeedsName(false),
       eyeTestDismissed,
       lensReorderDismissed,
       startSignIn,
@@ -262,7 +271,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       toastState,
     }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [status, locked, biometricEnrolled, biometricSupport, pendingMobile, demoCode, needsBiometricPrompt, prefs, toastState, pendingReferral, authBusy, sessionChecked, eyeTestDismissed, lensReorderDismissed],
+    [status, locked, biometricEnrolled, biometricSupport, pendingMobile, demoCode, needsBiometricPrompt, prefs, toastState, pendingReferral, authBusy, needsName, sessionChecked, eyeTestDismissed, lensReorderDismissed],
   );
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;

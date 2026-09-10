@@ -45,7 +45,12 @@ export default function Phone() {
   };
 
   return (
-    <Screen header={<HeaderBar title="Sign in" />} keyboardAware bottomOffset={90} testID="phone-screen">
+    <Screen
+      header={<HeaderBar title="Sign in" />}
+      keyboardAware
+      bottomOffset={90}
+      testID="phone-screen"
+    >
       <View style={styles.body}>
         <StaggerItem index={0}>
           <Txt variant="h1">Your mobile number</Txt>

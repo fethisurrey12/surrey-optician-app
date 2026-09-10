@@ -22,7 +22,7 @@ SplashScreen.preventAutoHideAsync().catch(() => {});
 // Redirects the user to the right flow: signed out -> auth, locked -> lock,
 // otherwise -> tabs. One place, driven by session state.
 function useRouteGuard() {
-  const { ready, status, locked, needsBiometricPrompt } = useApp();
+  const { ready, status, locked, needsBiometricPrompt, needsName } = useApp();
   const segments = useSegments();
   const router = useRouter();
 
@@ -32,18 +32,21 @@ function useRouteGuard() {
     const inAuth = root === "(auth)";
     const onLock = root === "lock";
     const onBiometric = root === "biometric";
+    const onName = root === "name";
 
     if (status === "signedOut") {
       if (!inAuth) router.replace("/(auth)/welcome");
     } else if (locked) {
       if (!onLock) router.replace("/lock");
+    } else if (needsName) {
+      if (!onName) router.replace("/name");
     } else if (needsBiometricPrompt) {
       if (!onBiometric) router.replace("/biometric");
-    } else if (inAuth || onLock || onBiometric || root === undefined) {
+    } else if (inAuth || onLock || onBiometric || onName || root === undefined) {
       router.replace("/(tabs)");
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [ready, status, locked, needsBiometricPrompt, segments]);
+  }, [ready, status, locked, needsName, needsBiometricPrompt, segments]);
 }
 
 function Navigator() {
