@@ -58,13 +58,13 @@ def monogram(size: int, bg, fg) -> Image.Image:
 
 
 def tile(width: int, height: int) -> Image.Image:
-    """The turquoise tile with the white lens motif.
+    """The turquoise tile with the white SO monogram.
 
-    Traced by eye from the logo on surreyopticians.co.uk. Three linked
-    elements, read left to right: an open arc sweeping in from the tile's left
-    edge, a smaller ring dropped below it, and the largest ring set high to the
-    right. All three share one stroke weight and overlap like links, and the
-    right of the tile is left open.
+    Traced by eye from the logo on surreyopticians.co.uk: the practice's
+    initials drawn as loops — an S built from two bowls, each an arc with its
+    gap facing the other so the eye joins them, beside a closed O. The S sits
+    left and slightly high, the O overlaps its lower right, and the right of
+    the tile is left open.
 
     Still a trace, not the practice's artwork — replace
     assets/images/logo-mark.png with the real file when it is to hand.
@@ -74,24 +74,21 @@ def tile(width: int, height: int) -> Image.Image:
     w, h = width * S, height * S
     img = Image.new("RGBA", (w, h), TURQUOISE)
     d = ImageDraw.Draw(img)
-    stroke = max(2, int(h * 0.072))
-
-    def ring(cx, cy, r):
-        d.ellipse([cx - r, cy - r, cx + r, cy + r], outline=PAPER, width=stroke)
+    stroke = max(2, int(h * 0.070))
 
     def arc(cx, cy, r, start, end):
         d.arc([cx - r, cy - r, cx + r, cy + r], start=start, end=end, fill=PAPER, width=stroke)
 
-    # The open arc, in from the left edge: PIL measures clockwise from 3
-    # o'clock, so 110 to 290 draws the left side and over the top, leaving the
-    # lower right open.
-    arc(w * 0.168, h * 0.440, h * 0.255, 110, 290)
+    # PIL measures clockwise from 3 o'clock: 90 is 6 o'clock, 180 is 9, 270 is 12.
 
-    # The smaller lens, dropped below and overlapping the arc.
-    ring(w * 0.278, h * 0.660, h * 0.215)
+    # The S — upper bowl, open at its lower right.
+    arc(w * 0.205, h * 0.355, h * 0.180, 105, 350)
 
-    # The largest lens, high and to the right.
-    ring(w * 0.408, h * 0.395, h * 0.295)
+    # The S — lower bowl, open at its upper left, so the two read as one letter.
+    arc(w * 0.262, h * 0.660, h * 0.200, 285, 170)
+
+    # The O, closed, overlapping the S's lower right.
+    arc(w * 0.415, h * 0.420, h * 0.285, 0, 360)
 
     return img.resize((width, height), Image.LANCZOS)
 
