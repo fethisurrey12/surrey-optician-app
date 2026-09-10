@@ -77,6 +77,18 @@ async def seed_demo_member() -> None:
         )
 
     fresh = await find_member(DEMO_MOBILE)
+
+    # Spend the oldest voucher so the Rewards tab demonstrates its "used" state
+    # as well as the available one.
+    oldest = await db.vouchers.find_one(
+        {"memberId": fresh["_id"], "status": "available"}, sort=[("issued", 1)]
+    )
+    if oldest:
+        await db.vouchers.update_one(
+            {"_id": oldest["_id"]},
+            {"$set": {"status": "used", "usedAt": _ago(days=300), "usedBranchId": "coulsdon"}},
+        )
+
     vouchers = await db.vouchers.count_documents({"memberId": fresh["_id"]})
     log.info(
         "seeded demo member %s — %s points lifetime, %s vouchers",

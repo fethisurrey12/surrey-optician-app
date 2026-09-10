@@ -62,3 +62,16 @@ async def test_the_eye_test_and_lens_nudges_have_source_transactions(client, dat
 
     lenses = await database.transactions.find_one({"category": "lenses"})
     assert lenses and lenses["supplyMonths"] == 3
+
+
+async def test_the_rewards_tab_has_both_states_to_show(client, database):
+    from seed import seed_demo_member
+
+    await seed_demo_member()
+    member = await database.members.find_one({"mobile": DEMO_MOBILE})
+    vouchers = await database.vouchers.find({"memberId": member["_id"]}).to_list(50)
+
+    statuses = {v["status"] for v in vouchers}
+    assert statuses == {"available", "used"}, "the demo should show both voucher states"
+    used = next(v for v in vouchers if v["status"] == "used")
+    assert used["usedBranchId"] and used["usedAt"]
