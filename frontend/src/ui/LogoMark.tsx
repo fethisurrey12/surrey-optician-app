@@ -9,7 +9,7 @@ import { type StyleProp } from "react-native";
 // the practice's real artwork needs no code change beyond ASPECT below if the
 // new file has different proportions. The current file is a stand-in drawn by
 // scripts/make-brand-assets.py.
-const ASPECT = 880 / 400;
+const ASPECT = 980 / 400;
 
 export function LogoMark({
   height = 34,

@@ -60,34 +60,34 @@ def monogram(size: int, bg, fg) -> Image.Image:
 def tile(width: int, height: int) -> Image.Image:
     """The turquoise tile with the white lens motif.
 
-    Traced by eye from the logo on surreyopticians.co.uk: two overlapping lens
-    rings, the right one larger, with a stroke sweeping away to the lower left.
-    Close in form, colour and proportion — but it is a trace, not the
-    practice's artwork. Replace assets/images/logo-mark.png with the real file.
+    Traced by eye from the logo on surreyopticians.co.uk: a large ring set high
+    and left of centre, a smaller loop dropping below and overlapping it, and a
+    stroke sweeping in from the tile's left edge. The right of the tile is left
+    open, as the practice's own is.
+
+    This is a trace, not the practice's artwork — replace
+    assets/images/logo-mark.png with the real file when it is to hand.
     """
-    # Drawn at 4x and downsampled, so the curves come out smooth rather than
-    # stair-stepped at the size the header actually shows them.
+    # Drawn at 4x and downsampled so the curves are smooth at header size.
     S = 4
     w, h = width * S, height * S
     img = Image.new("RGBA", (w, h), TURQUOISE)
     d = ImageDraw.Draw(img)
-    stroke = max(2, int(h * 0.085))
+    stroke = max(2, int(h * 0.062))
 
     def ring(cx, cy, r):
         d.ellipse([cx - r, cy - r, cx + r, cy + r], outline=PAPER, width=stroke)
 
-    # The right-hand lens, the larger of the two.
-    big_r = h * 0.335
-    ring(w * 0.560, h * 0.430, big_r)
+    # The large lens, high and left of centre.
+    ring(w * 0.335, h * 0.405, h * 0.300)
 
-    # The left lens, smaller and dropped, overlapping the first.
-    small_r = h * 0.235
-    ring(w * 0.395, h * 0.590, small_r)
+    # The smaller loop, dropped below and overlapping it.
+    ring(w * 0.232, h * 0.690, h * 0.213)
 
-    # The stroke that sweeps out of the left lens and away to the lower left.
+    # The stroke that sweeps in from the left edge and over the small loop.
     d.arc(
-        [w * 0.175, h * 0.330, w * 0.435, h * 0.900],
-        start=150, end=310, fill=PAPER, width=stroke,
+        [w * 0.038, h * 0.150, w * 0.300, h * 0.640],
+        start=145, end=305, fill=PAPER, width=stroke,
     )
 
     return img.resize((width, height), Image.LANCZOS)
@@ -132,7 +132,7 @@ def main() -> None:
     # white interlocking-lens motif, in the logo's own landscape proportions.
     # Kept as its own file so the practice's real artwork can replace just this
     # one, without touching the store icon or the splash.
-    tile(880, 400).save(OUT / "logo-mark.png")
+    tile(980, 400).save(OUT / "logo-mark.png")
 
     for n in ("icon.png", "adaptive-icon.png", "splash-image.png", "favicon.png", "logo-mark.png"):
         p = OUT / n
