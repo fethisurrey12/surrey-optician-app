@@ -1,17 +1,14 @@
 import { useRef, useState } from "react";
-import {
-  type NativeSyntheticEvent,
-  type TextInputKeyPressEventData,
-  TextInput,
-  View,
-} from "react-native";
+import { TextInput, View } from "react-native";
 
 import { font, radius, spacing } from "@/src/tokens";
 import { makeStyles, useTheme } from "@/src/theme";
 
 const LEN = 6;
 
-// Six separate digit boxes with auto-advance and backspace navigation.
+// One box for the whole code. A single field is easier to fill from an SMS
+// autofill or a paste than six separate ones, and it cannot be pushed off a
+// narrow screen. The digits are spaced out so the code still reads in pairs.
 export function CodeInput({
   onComplete,
   onChange,
@@ -25,81 +22,69 @@ export function CodeInput({
 }) {
   const styles = useStyles();
   const { colors } = useTheme();
-  const [digits, setDigits] = useState<string[]>(Array(LEN).fill(""));
-  const [focused, setFocused] = useState(0);
-  const refs = useRef<(TextInput | null)[]>([]);
+  const [code, setCode] = useState("");
+  const [focused, setFocused] = useState(false);
+  const submitted = useRef(false);
 
-  const commit = (next: string[]) => {
-    setDigits(next);
-    const code = next.join("");
-    onChange?.(code);
-    if (code.length === LEN && next.every((d) => d !== "")) onComplete?.(code);
-  };
+  const handleChange = (text: string) => {
+    const clean = text.replace(/\D/g, "").slice(0, LEN);
+    setCode(clean);
+    onChange?.(clean);
 
-  const handleChange = (i: number, text: string) => {
-    const clean = text.replace(/\D/g, "");
-    if (clean.length > 1) {
-      // Pasted / fast typed — distribute across boxes.
-      const next = [...digits];
-      for (let k = 0; k < clean.length && i + k < LEN; k++) next[i + k] = clean[k];
-      commit(next);
-      const last = Math.min(i + clean.length, LEN - 1);
-      refs.current[last]?.focus();
-      return;
-    }
-    const next = [...digits];
-    next[i] = clean;
-    commit(next);
-    if (clean && i < LEN - 1) refs.current[i + 1]?.focus();
-  };
-
-  const handleKey = (i: number, e: NativeSyntheticEvent<TextInputKeyPressEventData>) => {
-    if (e.nativeEvent.key === "Backspace" && !digits[i] && i > 0) {
-      const next = [...digits];
-      next[i - 1] = "";
-      commit(next);
-      refs.current[i - 1]?.focus();
+    // Submit once the code is complete, but only once per code: re-rendering
+    // must not fire the check again.
+    if (clean.length === LEN) {
+      if (!submitted.current) {
+        submitted.current = true;
+        onComplete?.(clean);
+      }
+    } else {
+      submitted.current = false;
     }
   };
 
   return (
-    <View style={styles.row}>
-      {digits.map((d, i) => (
-        <TextInput
-          key={i}
-          testID={`${testID}-box-${i}`}
-          ref={(r) => {
-            refs.current[i] = r;
-          }}
-          value={d}
-          onChangeText={(t) => handleChange(i, t)}
-          onKeyPress={(e) => handleKey(i, e)}
-          onFocus={() => setFocused(i)}
-          keyboardType="number-pad"
-          keyboardAppearance="dark"
-          maxLength={i === 0 ? LEN : 1}
-          autoFocus={autoFocus && i === 0}
-          selectionColor={colors.teal}
-          style={[styles.box, focused === i && styles.boxActive, d ? styles.boxFilled : null]}
-        />
-      ))}
+    <View style={styles.wrap}>
+      <TextInput
+        testID={`${testID}-box-0`}
+        value={code}
+        onChangeText={handleChange}
+        onFocus={() => setFocused(true)}
+        onBlur={() => setFocused(false)}
+        keyboardType="number-pad"
+        keyboardAppearance="light"
+        // Lets iOS and Android offer the code straight from the text message.
+        textContentType="oneTimeCode"
+        autoComplete="one-time-code"
+        maxLength={LEN}
+        autoFocus={autoFocus}
+        selectionColor={colors.teal}
+        placeholder="––––––"
+        placeholderTextColor={colors.dimSage}
+        accessibilityLabel="Six-digit code"
+        style={[styles.box, focused && styles.boxActive, code.length === LEN && styles.boxFilled]}
+      />
     </View>
   );
 }
 
 const useStyles = makeStyles((colors) => ({
-  row: { flexDirection: "row", justifyContent: "space-between", gap: spacing.sm },
+  wrap: { width: "100%" },
   box: {
-    flex: 1,
-    height: 62,
+    width: "100%",
+    minWidth: 0,
+    height: 68,
     borderRadius: radius.md,
     borderWidth: 1,
     borderColor: colors.border,
     backgroundColor: colors.surfaceTertiary,
     color: colors.ink,
     fontFamily: font.serifLight,
-    fontSize: 26,
+    fontSize: 32,
+    // Wide tracking so six digits read in groups rather than as one number.
+    letterSpacing: 10,
     textAlign: "center",
+    paddingHorizontal: spacing.sm,
   },
   boxActive: { borderColor: colors.teal, backgroundColor: colors.card },
   boxFilled: { borderColor: colors.borderStrong },
