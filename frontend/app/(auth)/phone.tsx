@@ -8,7 +8,7 @@ import { inviterName } from "@/src/lib/referral";
 import { radius, spacing } from "@/src/tokens";
 import { makeStyles, useTheme } from "@/src/theme";
 import { Field } from "@/src/ui/Field";
-import { GoldButton } from "@/src/ui/GoldButton";
+import { BrandButton } from "@/src/ui/BrandButton";
 import { HeaderBar } from "@/src/ui/HeaderBar";
 import { Icon } from "@/src/ui/Icon";
 import { Screen } from "@/src/ui/Screen";
@@ -55,8 +55,8 @@ export default function Phone() {
           </Txt>
           {pendingReferral ? (
             <View style={styles.inviteChip} testID="phone-invite-chip">
-              <Icon name="users" size={15} color={colors.gold} />
-              <Txt variant="caption" tone="gold">
+              <Icon name="users" size={15} color={colors.teal} />
+              <Txt variant="caption" tone="teal">
                 {inviter ? `Invited by ${inviter} · ` : "Invite code "}
                 {pendingReferral}
               </Txt>
@@ -90,7 +90,7 @@ export default function Phone() {
         </StaggerItem>
 
         <StaggerItem index={2} style={styles.actions}>
-          <GoldButton
+          <BrandButton
             label={authBusy ? "Sending…" : "Continue"}
             onPress={onContinue}
             disabled={!valid || authBusy}

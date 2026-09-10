@@ -16,7 +16,7 @@ import { spacing } from "@/src/tokens";
 import { makeStyles, useTheme } from "@/src/theme";
 import { CodeInput } from "@/src/ui/CodeInput";
 import { GhostButton } from "@/src/ui/GhostButton";
-import { GoldButton } from "@/src/ui/GoldButton";
+import { BrandButton } from "@/src/ui/BrandButton";
 import { Icon } from "@/src/ui/Icon";
 import { PressScale } from "@/src/ui/PressScale";
 import { Screen } from "@/src/ui/Screen";
@@ -107,7 +107,7 @@ export default function Lock() {
               </Txt>
             ) : null}
             <PressScale onPress={retryAuth} hitSlop={12} testID="lock-use-biometric">
-              <Txt variant="bodyStrong" tone="gold" style={styles.center}>
+              <Txt variant="bodyStrong" tone="teal" style={styles.center}>
                 Use {label} instead
               </Txt>
             </PressScale>
@@ -122,7 +122,7 @@ export default function Lock() {
                 <Icon
                   name="faceid"
                   size={56}
-                  color={mode === "failed" ? colors.error : colors.gold}
+                  color={mode === "failed" ? colors.error : colors.teal}
                   strokeWidth={1.4}
                 />
               </View>
@@ -142,7 +142,7 @@ export default function Lock() {
 
       {mode === "failed" ? (
         <View style={styles.actions}>
-          <GoldButton label="Try again" icon="faceid" onPress={retryAuth} testID="lock-retry-button" />
+          <BrandButton label="Try again" icon="faceid" onPress={retryAuth} testID="lock-retry-button" />
           <GhostButton label="Enter code instead" onPress={() => setMode("code")} testID="lock-code-button" />
         </View>
       ) : null}
@@ -161,19 +161,19 @@ const useStyles = makeStyles((colors) => ({
     height: 150,
     borderRadius: 75,
     borderWidth: 1,
-    borderColor: "rgba(201,162,39,0.5)",
+    borderColor: colors.accentBorder,
   },
   ring: {
     width: 132,
     height: 132,
     borderRadius: 66,
     borderWidth: 1,
-    borderColor: "rgba(201,162,39,0.4)",
+    borderColor: colors.accentBorder,
     backgroundColor: colors.surfaceTertiary,
     alignItems: "center",
     justifyContent: "center",
   },
-  ringFailed: { borderColor: "rgba(224,121,107,0.5)" },
+  ringFailed: { borderColor: colors.errorBorder },
   title: { marginBottom: spacing.sm },
   codeWrap: { gap: spacing.lg },
   actions: { gap: spacing.md, paddingBottom: spacing.sm },

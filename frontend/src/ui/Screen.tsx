@@ -102,8 +102,8 @@ export function Screen({
                   <RefreshControl
                     refreshing={!!refreshing}
                     onRefresh={onRefresh}
-                    tintColor={colors.gold}
-                    colors={[colors.gold]}
+                    tintColor={colors.teal}
+                    colors={[colors.teal]}
                   />
                 ) : undefined
               }
@@ -133,7 +133,7 @@ export function Screen({
 }
 
 const useStyles = makeStyles((colors) => ({
-  root: { flex: 1, backgroundColor: colors.ink },
+  root: { flex: 1, backgroundColor: colors.paper },
   column: {
     flex: 1,
     width: "100%",

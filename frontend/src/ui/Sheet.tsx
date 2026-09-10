@@ -34,7 +34,7 @@ export function Sheet({
       statusBarTranslucent
     >
       <View style={styles.root} testID={testID}>
-        <BlurView intensity={22} tint="dark" style={StyleSheet.absoluteFill} />
+        <BlurView intensity={22} tint="light" style={StyleSheet.absoluteFill} />
         <Pressable
           testID="sheet-backdrop"
           style={StyleSheet.absoluteFill}
@@ -70,11 +70,11 @@ const useStyles = makeStyles((colors) => ({
   root: { flex: 1, backgroundColor: colors.overlay, justifyContent: "flex-end" },
   full: {
     flex: 1,
-    backgroundColor: colors.deep,
+    backgroundColor: colors.haze,
     paddingHorizontal: spacing.lg,
   },
   card: {
-    backgroundColor: colors.deep,
+    backgroundColor: colors.haze,
     borderTopLeftRadius: radius.xl,
     borderTopRightRadius: radius.xl,
     borderTopWidth: 1,

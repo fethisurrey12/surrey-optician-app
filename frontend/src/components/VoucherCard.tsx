@@ -21,7 +21,7 @@ export function VoucherCard({ voucher, onPress }: { voucher: Voucher; onPress?: 
   const inner = (
     <Card contentStyle={[styles.content, used && styles.contentUsed]}>
       <View style={styles.left}>
-        <Txt variant="label" tone={used ? "dimSage" : "gold"}>
+        <Txt variant="label" tone={used ? "dimSage" : "teal"}>
           {used ? "Used" : "Reward voucher"}
         </Txt>
         {used ? (
@@ -38,8 +38,8 @@ export function VoucherCard({ voucher, onPress }: { voucher: Voucher; onPress?: 
           </Txt>
         ) : expiresSoon(voucher.expires) ? (
           <View style={styles.soon} testID={`voucher-${voucher.id}-expiring`}>
-            <Icon name="clock" size={13} color={colors.lightGold} />
-            <Txt variant="caption" tone="lightGold">
+            <Icon name="clock" size={13} color={colors.warning} />
+            <Txt variant="caption" tone="warning">
               {expiresInText(voucher.expires).replace(/^e/, "E")} · {dayMonthYear(voucher.expires)}
             </Txt>
           </View>
@@ -48,8 +48,8 @@ export function VoucherCard({ voucher, onPress }: { voucher: Voucher; onPress?: 
         )}
         {!used && voucher.wallet ? (
           <View style={styles.walletChip} testID={`voucher-${voucher.id}-wallet-chip`}>
-            <Icon name="wallet" size={13} color={colors.lightGold} />
-            <Txt variant="caption" tone="gold">
+            <Icon name="wallet" size={13} color={colors.teal} />
+            <Txt variant="caption" tone="teal">
               In {voucher.wallet === "apple" ? "Apple" : "Google"} Wallet
             </Txt>
           </View>
@@ -63,7 +63,7 @@ export function VoucherCard({ voucher, onPress }: { voucher: Voucher; onPress?: 
       ) : (
         <View style={styles.qr}>
           <QRCode code={voucher.code} size={78} />
-          <Txt variant="caption" tone="gold" style={styles.tap}>
+          <Txt variant="caption" tone="teal" style={styles.tap}>
             Tap to show
           </Txt>
         </View>

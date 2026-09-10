@@ -77,7 +77,7 @@ export default function Verify() {
               <Txt variant="caption">Resend code in 0:{String(seconds).padStart(2, "0")}</Txt>
             ) : (
               <PressScale onPress={onResend} disabled={authBusy} testID="verify-resend" hitSlop={12}>
-                <Txt variant="bodyStrong" tone="gold">
+                <Txt variant="bodyStrong" tone="teal">
                   {authBusy ? "Sending…" : "Resend code"}
                 </Txt>
               </PressScale>
@@ -91,7 +91,7 @@ export default function Verify() {
             <Txt variant="label" tone="dimSage">
               Prototype — no SMS gateway
             </Txt>
-            <Txt variant="h3" tabular tone="cream" style={styles.protoCode}>
+            <Txt variant="h3" tabular tone="ink" style={styles.protoCode}>
               {demoCode}
             </Txt>
             <Txt variant="caption">Use this code to sign in.</Txt>

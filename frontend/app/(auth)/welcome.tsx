@@ -3,7 +3,7 @@ import { View, useWindowDimensions } from "react-native";
 
 import { spacing } from "@/src/tokens";
 import { makeStyles } from "@/src/theme";
-import { GoldButton } from "@/src/ui/GoldButton";
+import { BrandButton } from "@/src/ui/BrandButton";
 import { Screen } from "@/src/ui/Screen";
 import { StaggerItem } from "@/src/ui/Stagger";
 import { Txt } from "@/src/ui/Txt";
@@ -43,7 +43,7 @@ export default function Welcome() {
       </View>
 
       <StaggerItem index={3} style={styles.actions}>
-        <GoldButton
+        <BrandButton
           label="Sign in"
           onPress={() => router.push("/(auth)/phone")}
           testID="welcome-signin-button"
@@ -64,7 +64,7 @@ const useStyles = makeStyles((colors) => ({
     height: 260,
     borderRadius: 130,
     borderWidth: 1,
-    borderColor: "rgba(201,162,39,0.4)",
+    borderColor: colors.accentBorder,
     alignItems: "center",
     justifyContent: "center",
   },

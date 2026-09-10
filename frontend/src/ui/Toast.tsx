@@ -30,9 +30,9 @@ export function Toast() {
       >
         <BlurView intensity={30} tint="dark" style={styles.blur}>
           <View style={styles.dot}>
-            <Icon name="check" size={14} color={colors.ink} strokeWidth={2.4} />
+            <Icon name="check" size={14} color={colors.paper} strokeWidth={2.4} />
           </View>
-          <Txt variant="bodyStrong" tone="cream" style={styles.text}>
+          <Txt variant="bodyStrong" tone="ink" style={styles.text}>
             {toastState.message}
           </Txt>
         </BlurView>
@@ -69,7 +69,7 @@ const useStyles = makeStyles((colors) => ({
     width: 22,
     height: 22,
     borderRadius: 11,
-    backgroundColor: colors.gold,
+    backgroundColor: colors.teal,
     alignItems: "center",
     justifyContent: "center",
   },

@@ -10,7 +10,7 @@ export function FoilBadge({ count, testID }: { count: number; testID?: string })
   return (
     <LinearGradient
       testID={testID}
-      colors={colors.goldFoil}
+      colors={colors.tealFoil}
       start={{ x: 0, y: 0 }}
       end={{ x: 1, y: 1 }}
       style={{
@@ -22,7 +22,7 @@ export function FoilBadge({ count, testID }: { count: number; testID?: string })
         justifyContent: "center",
       }}
     >
-      <Txt tabular style={{ fontSize: 11, lineHeight: 14, color: colors.ink, fontWeight: "700" }}>
+      <Txt tabular style={{ fontSize: 11, lineHeight: 14, color: colors.paper, fontWeight: "700" }}>
         {count}
       </Txt>
     </LinearGradient>

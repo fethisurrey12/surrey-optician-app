@@ -51,17 +51,17 @@ export function PointsRing({
       <Svg width={size} height={size}>
         <Defs>
           <LinearGradient id="foil" x1="0" y1="0" x2="1" y2="1">
-            <Stop offset="0" stopColor={colors.deepGold} />
-            <Stop offset="0.4" stopColor={colors.gold} />
-            <Stop offset="0.75" stopColor={colors.lightGold} />
-            <Stop offset="1" stopColor={colors.deepGold} />
+            <Stop offset="0" stopColor={colors.deepTeal} />
+            <Stop offset="0.4" stopColor={colors.teal} />
+            <Stop offset="0.75" stopColor={colors.lightTeal} />
+            <Stop offset="1" stopColor={colors.deepTeal} />
           </LinearGradient>
         </Defs>
         <Circle
           cx={size / 2}
           cy={size / 2}
           r={r}
-          stroke={colors.forest}
+          stroke={colors.mist}
           strokeWidth={strokeWidth}
           fill="none"
         />

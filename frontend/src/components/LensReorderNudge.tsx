@@ -36,10 +36,10 @@ export function LensReorderNudge({
       <View style={styles.mainWrap}>
         <PressScale onPress={onReorder} style={styles.main} testID="lens-reorder-button" accessibilityLabel={title}>
           <View style={styles.icon}>
-            <Icon name="lens" size={18} color={colors.lightGold} />
+            <Icon name="lens" size={18} color={colors.teal} />
           </View>
           <View style={styles.texts}>
-            <Txt variant="bodyStrong" tone="cream">
+            <Txt variant="bodyStrong" tone="ink">
               {title}
             </Txt>
             <Txt variant="caption" tone="sage">
@@ -71,8 +71,8 @@ const useStyles = makeStyles((colors) => ({
     padding: spacing.base,
     borderRadius: radius.lg,
     borderWidth: 1,
-    borderColor: "rgba(201,162,39,0.35)",
-    backgroundColor: "rgba(201,162,39,0.08)",
+    borderColor: colors.accentBorder,
+    backgroundColor: colors.accentWash,
   },
   mainWrap: { flex: 1 },
   main: { flexDirection: "row", alignItems: "center", gap: spacing.md },

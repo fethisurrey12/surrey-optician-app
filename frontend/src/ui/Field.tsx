@@ -70,7 +70,7 @@ export const Field = forwardRef<TextInput, Props>(function Field(
           onSubmitEditing={onSubmitEditing}
           autoFocus={autoFocus}
           keyboardAppearance={keyboardAppearance ?? "dark"}
-          selectionColor={colors.gold}
+          selectionColor={colors.teal}
         />
       </View>
       {note ? (
@@ -98,7 +98,7 @@ const useStyles = makeStyles((colors) => ({
   prefix: { marginRight: spacing.sm },
   input: {
     flex: 1,
-    color: colors.cream,
+    color: colors.ink,
     fontFamily: font.regular,
     fontSize: 16,
     paddingVertical: spacing.md,

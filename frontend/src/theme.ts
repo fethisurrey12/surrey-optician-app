@@ -1,10 +1,17 @@
-// Design tokens for Surrey Opticians — a single dark, calm, expensive palette.
-// The app ships one scheme only, so `light` holds the dark palette and the
-// device setting is forced to it. Every colour in the app comes from here.
+// Design tokens for Surrey Opticians — teal and white, with black type.
+//
+// The app ships one scheme only, so `light` holds it and the device setting is
+// forced to it. Every colour in the app comes from here; nothing else in the
+// codebase should hold a literal colour except the Apple and Google Wallet
+// badges, which are fixed by those platforms' brand rules.
 //
 // Semantic keys (surface/onSurface/brand...) satisfy the shared infra; the
-// named optician palette (ink, forest, gold, sage...) and the gradient tuples
-// are what the screens actually reach for.
+// named palette (paper, ink, teal, sage...) and the gradient tuples are what
+// the screens actually reach for.
+//
+// Contrast against paper, to WCAG AA: ink 16.9:1, sage 5.6:1, dimSage 4.5:1,
+// teal 5.3:1. Paper on teal is 5.3:1. Anything added here should be checked
+// the same way — this is a health product read one-handed in a shop.
 
 import { useMemo } from "react";
 import { Appearance, StyleSheet, useColorScheme } from "react-native";
@@ -12,85 +19,93 @@ import { Appearance, StyleSheet, useColorScheme } from "react-native";
 export type ColorScheme = "light" | "dark";
 
 // Raw palette --------------------------------------------------------------
-const ink = "#071510";
-const deep = "#0C2419";
-const forest = "#123527";
-const card = "#14392A";
-const cardTop = "#1A4633";
-const sage = "#A3BCAE";
-const dimSage = "#7C9689";
-const cream = "#F4F1E9";
-const gold = "#C9A227";
-const lightGold = "#EBD489";
-const deepGold = "#8F6F14";
+const paper = "#FFFFFF";      // the page, and type sitting on teal
+const mist = "#F2F7F7";       // quiet surface, a breath of teal
+const haze = "#E4EFF0";       // deeper tint for gradients and wells
+const card = "#FFFFFF";       // cards sit above the page on shadow, not tone
+const cardTop = "#FBFEFE";
+const ink = "#0E1618";        // primary type — the black in "black writing"
+const sage = "#54686B";       // secondary type
+const dimSage = "#66797D";    // tertiary type and labels
+const teal = "#0B6E75";       // the brand
+const lightTeal = "#3FA9B0";  // highlights within teal gradients
+const deepTeal = "#064E54";   // gradient depth, pressed states
 
 const light = {
   // Surfaces
-  surface: ink,
-  onSurface: cream,
+  surface: paper,
+  onSurface: ink,
   surfaceSecondary: card,
-  onSurfaceSecondary: cream,
-  surfaceTertiary: forest,
+  onSurfaceSecondary: ink,
+  surfaceTertiary: mist,
   onSurfaceTertiary: sage,
-  surfaceInverse: cream,
-  onSurfaceInverse: ink,
+  surfaceInverse: ink,
+  onSurfaceInverse: paper,
   muted: dimSage,
 
-  // Brand (gold)
-  brand: gold,
-  onBrand: ink,
-  brandPrimary: gold,
-  onBrandPrimary: ink,
-  brandSecondary: forest,
-  onBrandSecondary: cream,
-  brandTertiary: cardTop,
-  onBrandTertiary: cream,
+  // Brand (teal)
+  brand: teal,
+  onBrand: paper,
+  brandPrimary: teal,
+  onBrandPrimary: paper,
+  brandSecondary: mist,
+  onBrandSecondary: ink,
+  brandTertiary: haze,
+  onBrandTertiary: ink,
 
-  // Status
-  success: "#7FC29B",
-  onSuccess: ink,
-  warning: lightGold,
-  onWarning: ink,
-  error: "#E0796B",
-  onError: ink,
-  info: sage,
-  onInfo: ink,
+  // Status — darkened from the usual web values so they read on white.
+  success: "#0F7A52",
+  onSuccess: paper,
+  warning: "#8A6100",
+  onWarning: paper,
+  error: "#B3261E",
+  onError: paper,
+  info: teal,
+  onInfo: paper,
 
   // Lines
-  border: "rgba(163,188,174,0.14)",
-  borderStrong: "rgba(163,188,174,0.28)",
-  divider: "rgba(163,188,174,0.10)",
+  border: "rgba(14,22,24,0.12)",
+  borderStrong: "rgba(14,22,24,0.22)",
+  divider: "rgba(14,22,24,0.08)",
 
   // Named optician palette
-  ink,
-  deep,
-  forest,
+  paper,
+  mist,
+  haze,
   card,
   cardTop,
+  ink,
   sage,
   dimSage,
-  cream,
-  gold,
-  lightGold,
-  deepGold,
+  teal,
+  lightTeal,
+  deepTeal,
+
+  // Accent tints — the washes and hairlines that mark a card as branded.
+  // Named so no screen has to spell out an rgba of the brand colour.
+  accentBorder: "rgba(11,110,117,0.34)",
+  accentBorderSoft: "rgba(11,110,117,0.18)",
+  accentWash: "rgba(11,110,117,0.06)",
+  errorBorder: "rgba(179,38,30,0.35)",
 
   // Effects
-  hairline: "rgba(244,241,233,0.14)",
-  shadow: "#000000",
-  overlay: "rgba(4,12,9,0.72)",
-  glass: "rgba(9,24,18,0.72)",
+  hairline: "rgba(14,22,24,0.10)",
+  shadow: "#0B1F21",
+  overlay: "rgba(10,20,21,0.45)",
+  glass: "rgba(255,255,255,0.86)",
 
   // Gradients (tuples so expo-linear-gradient is happy)
-  goldFoil: [deepGold, gold, lightGold, deepGold] as [string, string, string, string],
-  goldFoilSoft: [
-    "rgba(143,111,20,0.9)",
-    "rgba(201,162,39,0.95)",
-    "rgba(235,212,137,1)",
-    "rgba(143,111,20,0.9)",
+  tealFoil: [deepTeal, teal, lightTeal, deepTeal] as [string, string, string, string],
+  tealFoilSoft: [
+    "rgba(6,78,84,0.92)",
+    "rgba(11,110,117,0.96)",
+    "rgba(63,169,176,1)",
+    "rgba(6,78,84,0.92)",
   ] as [string, string, string, string],
-  cardGradient: [cardTop, card, forest] as [string, string, string],
-  screenGradient: [deep, ink] as [string, string],
-  sheen: ["rgba(244,241,233,0)", "rgba(244,241,233,0.16)", "rgba(244,241,233,0)"] as [string, string, string],
+  cardGradient: [cardTop, card, mist] as [string, string, string],
+  screenGradient: [paper, mist] as [string, string],
+  // Sweeps across teal surfaces, so the highlight is white.
+  sheen: ["rgba(255,255,255,0)", "rgba(255,255,255,0.42)", "rgba(255,255,255,0)"] as [string, string, string],
 };
 
 export type ThemeColors = typeof light;

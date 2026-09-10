@@ -30,7 +30,7 @@ export function HeaderBar({
         accessibilityLabel="Go back"
         hitSlop={12}
       >
-        <Icon name="back" size={20} color={colors.cream} />
+        <Icon name="back" size={20} color={colors.ink} />
       </PressScale>
       <Txt variant="h3" numberOfLines={1} style={styles.title}>
         {title}

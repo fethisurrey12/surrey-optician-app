@@ -41,7 +41,7 @@ function BranchCard({ branch, index }: { branch: Branch; index: number }) {
               <Txt variant="caption" tone="sage">
                 {h.days}
               </Txt>
-              <Txt variant="caption" tone="cream" tabular>
+              <Txt variant="caption" tone="ink" tabular>
                 {h.time}
               </Txt>
             </View>
@@ -83,7 +83,7 @@ export default function Branches() {
         <StaggerItem index={BRANCHES.length}>
           <Card contentStyle={styles.emailCard}>
             <View style={styles.emailText}>
-              <Txt variant="title" tone="cream">
+              <Txt variant="title" tone="ink">
                 Email the practice
               </Txt>
               <Txt variant="caption">We reply within a working day.</Txt>
@@ -94,7 +94,7 @@ export default function Branches() {
               testID="branches-email"
               accessibilityLabel="Email the practice"
             >
-              <Icon name="mail" size={20} color={colors.ink} strokeWidth={2} />
+              <Icon name="mail" size={20} color={colors.paper} strokeWidth={2} />
             </PressScale>
           </Card>
         </StaggerItem>
@@ -117,7 +117,7 @@ const useStyles = makeStyles((colors) => ({
     width: 48,
     height: 48,
     borderRadius: 24,
-    backgroundColor: colors.gold,
+    backgroundColor: colors.teal,
     alignItems: "center",
     justifyContent: "center",
   },

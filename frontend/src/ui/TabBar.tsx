@@ -42,12 +42,12 @@ export function TabBar({ state, navigation }: TabBarProps) {
 
   return (
     <View style={[styles.wrap, { height: TAB_BAR_HEIGHT + insets.bottom }]}>
-      <BlurView intensity={36} tint="dark" style={styles.blur}>
+      <BlurView intensity={36} tint="light" style={styles.blur}>
         <View style={[styles.row, { paddingBottom: insets.bottom, maxWidth: Math.min(contentMaxWidth(width), 720) }]}>
           {TABS.map((tab) => {
             const index = state.routes.findIndex((r) => r.name === tab.name);
             const focused = state.index === index;
-            const color = focused ? colors.gold : colors.dimSage;
+            const color = focused ? colors.teal : colors.dimSage;
 
             return (
               <View key={tab.name} style={styles.item}>
@@ -109,7 +109,7 @@ const useStyles = makeStyles((colors) => ({
     borderRadius: 2,
     backgroundColor: "transparent",
   },
-  indicatorOn: { backgroundColor: colors.gold },
+  indicatorOn: { backgroundColor: colors.teal },
   badge: { position: "absolute", top: -6, right: -10 },
   label: { fontSize: 11, lineHeight: 14, fontWeight: "600", letterSpacing: 0.2, textAlign: "center" },
 }));

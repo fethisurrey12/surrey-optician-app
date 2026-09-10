@@ -33,7 +33,7 @@ export function WalletPassPreview({
           <View style={styles.gLogo}>
             <Txt style={styles.gLogoText}>SO</Txt>
           </View>
-          <Txt variant="bodyStrong" tone="cream">
+          <Txt variant="bodyStrong" tone="ink">
             Surrey Opticians
           </Txt>
         </View>
@@ -41,10 +41,10 @@ export function WalletPassPreview({
         <View style={styles.aHeader}>
           <Txt style={styles.wordmark}>Surrey Opticians</Txt>
           <View>
-            <Txt variant="label" tone="gold">
+            <Txt variant="label" tone="teal">
               Reward
             </Txt>
-            <Txt variant="bodyStrong" tone="cream">
+            <Txt variant="bodyStrong" tone="ink">
               £{voucher.value} off
             </Txt>
           </View>
@@ -53,7 +53,7 @@ export function WalletPassPreview({
 
       <View style={styles.primary}>
         {provider === "google" ? (
-          <Txt variant="h3" tone="cream">
+          <Txt variant="h3" tone="ink">
             £{voucher.value} reward voucher
           </Txt>
         ) : (
@@ -66,26 +66,26 @@ export function WalletPassPreview({
 
       <View style={styles.fields}>
         <View style={styles.field}>
-          <Txt variant="label" tone="gold">
+          <Txt variant="label" tone="teal">
             Voucher code
           </Txt>
-          <Txt variant="bodyStrong" tabular tone="cream">
+          <Txt variant="bodyStrong" tabular tone="ink">
             {voucher.code}
           </Txt>
         </View>
         <View style={styles.field}>
-          <Txt variant="label" tone="gold">
+          <Txt variant="label" tone="teal">
             Expires
           </Txt>
-          <Txt variant="bodyStrong" tone="cream">
+          <Txt variant="bodyStrong" tone="ink">
             {dayMonthYear(voucher.expires)}
           </Txt>
         </View>
         <View style={styles.field}>
-          <Txt variant="label" tone="gold">
+          <Txt variant="label" tone="teal">
             Home branch
           </Txt>
-          <Txt variant="bodyStrong" tone="cream">
+          <Txt variant="bodyStrong" tone="ink">
             {branchName(account.homeBranchId)}
           </Txt>
         </View>
@@ -119,23 +119,23 @@ const useStyles = makeStyles((colors) => ({
   },
   fill: { position: "absolute", top: 0, left: 0, right: 0, bottom: 0 },
   aHeader: { flexDirection: "row", justifyContent: "space-between", alignItems: "flex-start" },
-  wordmark: { fontFamily: font.serifLight, fontSize: 20, color: colors.cream },
+  wordmark: { fontFamily: font.serifLight, fontSize: 20, color: colors.ink },
   gHeader: { flexDirection: "row", alignItems: "center", gap: spacing.sm },
   gLogo: {
     width: 32,
     height: 32,
     borderRadius: 16,
     borderWidth: 1,
-    borderColor: colors.gold,
+    borderColor: colors.teal,
     alignItems: "center",
     justifyContent: "center",
   },
-  gLogoText: { fontFamily: font.serifSemi, fontSize: 12, color: colors.gold },
+  gLogoText: { fontFamily: font.serifSemi, fontSize: 12, color: colors.teal },
   primary: { gap: 2 },
   figure: { fontFamily: font.serifLight, fontSize: 56, letterSpacing: -2, lineHeight: 58 },
   fields: { flexDirection: "row", flexWrap: "wrap", gap: spacing.base },
   field: { minWidth: 120, gap: 2 },
   barcode: { alignItems: "center", gap: spacing.sm, paddingTop: spacing.sm },
-  qrPlate: { padding: spacing.md, borderRadius: radius.md, backgroundColor: colors.cream },
+  qrPlate: { padding: spacing.md, borderRadius: radius.md, backgroundColor: colors.paper },
   alt: { letterSpacing: 2 },
 }));

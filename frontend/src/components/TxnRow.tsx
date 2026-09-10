@@ -18,11 +18,11 @@ export function TxnRow({ txn }: { txn: Txn }) {
   return (
     <View style={styles.row} testID={`txn-${txn.id}`}>
       <View style={[styles.iconWrap, isReward && styles.iconReward]}>
-        <Icon name={isReward ? "gift" : "card"} size={18} color={isReward ? colors.gold : colors.sage} />
+        <Icon name={isReward ? "gift" : "card"} size={18} color={isReward ? colors.teal : colors.sage} />
       </View>
 
       <View style={styles.middle}>
-        <Txt variant="bodyStrong" tone="cream" numberOfLines={1}>
+        <Txt variant="bodyStrong" tone="ink" numberOfLines={1}>
           {txn.title}
         </Txt>
         <Txt variant="caption" numberOfLines={1}>
@@ -65,7 +65,7 @@ const useStyles = makeStyles((colors) => ({
     alignItems: "center",
     justifyContent: "center",
   },
-  iconReward: { borderColor: "rgba(201,162,39,0.4)" },
+  iconReward: { borderColor: colors.accentBorder },
   middle: { flex: 1, gap: 3 },
   nhsPill: {
     alignSelf: "flex-start",

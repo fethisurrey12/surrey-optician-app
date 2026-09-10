@@ -11,7 +11,7 @@ import { makeStyles, useTheme } from "@/src/theme";
 import { Card } from "@/src/ui/Card";
 import { Divider } from "@/src/ui/Divider";
 import { GhostButton } from "@/src/ui/GhostButton";
-import { GoldButton } from "@/src/ui/GoldButton";
+import { BrandButton } from "@/src/ui/BrandButton";
 import { GradientText } from "@/src/ui/GradientText";
 import { HeaderBar } from "@/src/ui/HeaderBar";
 import { Icon } from "@/src/ui/Icon";
@@ -21,8 +21,8 @@ import { SkeletonCard, SkeletonRow } from "@/src/ui/Skeleton";
 import { StaggerItem } from "@/src/ui/Stagger";
 import { Txt } from "@/src/ui/Txt";
 
-const STATUS: Record<Referral["status"], { label: string; tone: "gold" | "sage" | "dimSage" }> = {
-  rewarded: { label: "Point earned", tone: "gold" },
+const STATUS: Record<Referral["status"], { label: string; tone: "teal" | "sage" | "dimSage" }> = {
+  rewarded: { label: "Point earned", tone: "teal" },
   joined: { label: "Joined · first visit pending", tone: "sage" },
   invited: { label: "Invite sent", tone: "dimSage" },
 };
@@ -68,7 +68,7 @@ export default function Refer() {
         <Card contentStyle={styles.hero} testID="refer-hero">
           <LinearGradient colors={colors.cardGradient} style={styles.fill} />
           <View style={styles.heroIcon}>
-            <Icon name="users" size={22} color={colors.gold} />
+            <Icon name="users" size={22} color={colors.teal} />
           </View>
           <Txt variant="h2" style={styles.center}>
             Share the practice you trust
@@ -79,7 +79,7 @@ export default function Refer() {
           </Txt>
 
           <View style={styles.codeBlock}>
-            <Txt variant="label" tone="gold">
+            <Txt variant="label" tone="teal">
               Your code
             </Txt>
             <GradientText style={styles.code} tabular>
@@ -87,7 +87,7 @@ export default function Refer() {
             </GradientText>
           </View>
 
-          <GoldButton label="Share your invite" icon="share" onPress={onShare} testID="refer-share-button" />
+          <BrandButton label="Share your invite" icon="share" onPress={onShare} testID="refer-share-button" />
           <GhostButton label="Copy code" icon="copy" onPress={onCopy} testID="refer-copy-button" />
         </Card>
       </StaggerItem>
@@ -102,12 +102,12 @@ export default function Refer() {
           ].map(([title, body], i) => (
             <View key={title} style={styles.step}>
               <View style={styles.stepNum}>
-                <Txt variant="label" tone="ink">
+                <Txt variant="label" tone="paper">
                   {i + 1}
                 </Txt>
               </View>
               <View style={styles.stepTexts}>
-                <Txt variant="bodyStrong" tone="cream">
+                <Txt variant="bodyStrong" tone="ink">
                   {title}
                 </Txt>
                 <Txt variant="caption">{body}</Txt>
@@ -127,7 +127,7 @@ export default function Refer() {
             </>
           ) : referrals.data.length === 0 ? (
             <View style={styles.emptyWrap}>
-              <Txt variant="bodyStrong" tone="cream" style={styles.center}>
+              <Txt variant="bodyStrong" tone="ink" style={styles.center}>
                 No invites yet
               </Txt>
               <Txt variant="body" style={styles.center}>
@@ -139,7 +139,7 @@ export default function Refer() {
               <View key={r.id}>
                 <View style={styles.row} testID={`referral-${r.id}`}>
                   <View style={styles.rowTexts}>
-                    <Txt variant="bodyStrong" tone="cream">
+                    <Txt variant="bodyStrong" tone="ink">
                       {r.friendName}
                     </Txt>
                     <Txt variant="caption">
@@ -200,7 +200,7 @@ const useStyles = makeStyles((colors) => ({
     width: 26,
     height: 26,
     borderRadius: 13,
-    backgroundColor: colors.gold,
+    backgroundColor: colors.teal,
     alignItems: "center",
     justifyContent: "center",
     marginTop: 1,

@@ -53,7 +53,7 @@ function Navigator() {
       screenOptions={{
         headerShown: false,
         animation: "fade",
-        contentStyle: { backgroundColor: themes.light.ink },
+        contentStyle: { backgroundColor: themes.light.paper },
       }}
     />
   );
@@ -79,18 +79,18 @@ export default function RootLayout() {
   if (!loaded) return null;
 
   return (
-    <GestureHandlerRootView style={{ flex: 1, backgroundColor: themes.light.ink }}>
+    <GestureHandlerRootView style={{ flex: 1, backgroundColor: themes.light.paper }}>
       <KeyboardProvider>
         <SafeAreaProvider>
           <ErrorBoundary>
             <QueryClientProvider client={queryClient}>
               <AppProvider>
-                <View style={{ flex: 1, backgroundColor: themes.light.ink }}>
+                <View style={{ flex: 1, backgroundColor: themes.light.paper }}>
                   <Navigator />
                   <GrainOverlay />
                   <Toast />
                 </View>
-                <StatusBar style="light" />
+                <StatusBar style="dark" />
               </AppProvider>
             </QueryClientProvider>
           </ErrorBoundary>

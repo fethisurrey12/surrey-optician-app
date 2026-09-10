@@ -11,7 +11,7 @@ import { makeStyles, useTheme } from "@/src/theme";
 import { Card } from "@/src/ui/Card";
 import { Field } from "@/src/ui/Field";
 import { GhostButton } from "@/src/ui/GhostButton";
-import { GoldButton } from "@/src/ui/GoldButton";
+import { BrandButton } from "@/src/ui/BrandButton";
 import { Icon } from "@/src/ui/Icon";
 import { Screen } from "@/src/ui/Screen";
 import { StaggerItem } from "@/src/ui/Stagger";
@@ -57,7 +57,7 @@ export default function Join() {
         <StaggerItem index={1}>
           <Card contentStyle={styles.hero} testID="join-hero">
             <View style={styles.heroIcon}>
-              <Icon name="gift" size={22} color={colors.gold} />
+              <Icon name="gift" size={22} color={colors.teal} />
             </View>
             <Txt variant="h1">{friend ? `${friend} has invited you` : "You’ve been invited"}</Txt>
             <Txt variant="body">
@@ -96,7 +96,7 @@ export default function Join() {
           ].map((t, i) => (
             <View key={i} style={styles.step}>
               <View style={styles.stepNum}>
-                <Txt variant="label" tone="ink">
+                <Txt variant="label" tone="paper">
                   {i + 1}
                 </Txt>
               </View>
@@ -108,7 +108,7 @@ export default function Join() {
         </StaggerItem>
 
         <StaggerItem index={4} style={styles.actions}>
-          <GoldButton label="Continue with my mobile" onPress={onContinue} testID="join-continue-button" />
+          <BrandButton label="Continue with my mobile" onPress={onContinue} testID="join-continue-button" />
           <GhostButton label="I already have an account" onPress={onSkip} tone="sage" testID="join-skip-button" />
         </StaggerItem>
       </View>
@@ -137,7 +137,7 @@ const useStyles = makeStyles((colors) => ({
     width: 24,
     height: 24,
     borderRadius: 12,
-    backgroundColor: colors.gold,
+    backgroundColor: colors.teal,
     alignItems: "center",
     justifyContent: "center",
     marginTop: 1,

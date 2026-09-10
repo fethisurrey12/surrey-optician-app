@@ -17,7 +17,7 @@ export function ReferCard({ onPress }: { onPress: () => void }) {
     <PressScale onPress={onPress} testID="home-refer-card" accessibilityLabel="Refer a friend">
       <Card contentStyle={styles.content}>
         <View style={styles.icon}>
-          <Icon name="users" size={20} color={colors.gold} />
+          <Icon name="users" size={20} color={colors.teal} />
         </View>
         <View style={styles.texts}>
           <Txt variant="title">Refer a friend</Txt>

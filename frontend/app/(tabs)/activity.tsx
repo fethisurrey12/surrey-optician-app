@@ -126,7 +126,7 @@ const useStyles = makeStyles((colors) => ({
     alignItems: "center",
     justifyContent: "center",
   },
-  chipOn: { backgroundColor: colors.gold, borderColor: colors.gold },
+  chipOn: { backgroundColor: colors.teal, borderColor: colors.teal },
   chipText: {},
   body: { paddingHorizontal: spacing.lg, gap: spacing.lg },
   loading: { paddingVertical: spacing.huge, alignItems: "center" },

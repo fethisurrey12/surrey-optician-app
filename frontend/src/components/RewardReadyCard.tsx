@@ -11,7 +11,7 @@ import Animated, {
 } from "react-native-reanimated";
 
 import { GradientText } from "@/src/ui/GradientText";
-import { GoldButton } from "@/src/ui/GoldButton";
+import { BrandButton } from "@/src/ui/BrandButton";
 import { Icon } from "@/src/ui/Icon";
 import { Txt } from "@/src/ui/Txt";
 import { useReduceMotion } from "@/src/lib/motion";
@@ -57,9 +57,9 @@ export function RewardReadyCard({ onOpen }: { onOpen: () => void }) {
 
         <View style={styles.head}>
           <View style={styles.dot}>
-            <Icon name="sparkle" size={15} color={colors.ink} strokeWidth={1.6} />
+            <Icon name="sparkle" size={15} color={colors.paper} strokeWidth={1.6} />
           </View>
-          <Txt variant="label" tone="gold">
+          <Txt variant="label" tone="teal">
             Reward ready
           </Txt>
         </View>
@@ -75,7 +75,7 @@ export function RewardReadyCard({ onOpen }: { onOpen: () => void }) {
           Show it at the till and a colleague applies it for you.
         </Txt>
 
-        <GoldButton label="Open wallet" icon="wallet" onPress={onOpen} testID="reward-open-wallet-button" />
+        <BrandButton label="Open wallet" icon="wallet" onPress={onOpen} testID="reward-open-wallet-button" />
       </LinearGradient>
     </View>
   );
@@ -85,7 +85,7 @@ const useStyles = makeStyles((colors) => ({
   shadow: {
     borderRadius: radius.lg,
     backgroundColor: colors.card,
-    shadowColor: colors.gold,
+    shadowColor: colors.teal,
     shadowOpacity: 0.28,
     shadowRadius: 26,
     shadowOffset: { width: 0, height: 14 },
@@ -94,7 +94,7 @@ const useStyles = makeStyles((colors) => ({
   surface: {
     borderRadius: radius.lg,
     borderWidth: 1,
-    borderColor: "rgba(201,162,39,0.35)",
+    borderColor: colors.accentBorder,
     overflow: "hidden",
     padding: spacing.lg,
     gap: spacing.md,
@@ -107,7 +107,7 @@ const useStyles = makeStyles((colors) => ({
     width: 24,
     height: 24,
     borderRadius: 12,
-    backgroundColor: colors.gold,
+    backgroundColor: colors.teal,
     alignItems: "center",
     justifyContent: "center",
   },

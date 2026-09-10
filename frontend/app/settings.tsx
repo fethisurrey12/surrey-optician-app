@@ -40,7 +40,7 @@ function ToggleRow({
         <Icon name={icon} size={19} color={colors.sage} />
       </View>
       <View style={styles.toggleText}>
-        <Txt variant="bodyStrong" tone="cream">
+        <Txt variant="bodyStrong" tone="ink">
           {title}
         </Txt>
         {subtitle ? <Txt variant="caption">{subtitle}</Txt> : null}
@@ -49,9 +49,9 @@ function ToggleRow({
         value={value}
         onValueChange={onValueChange}
         disabled={disabled}
-        trackColor={{ false: colors.forest, true: colors.gold }}
-        thumbColor={colors.cream}
-        ios_backgroundColor={colors.forest}
+        trackColor={{ false: colors.mist, true: colors.teal }}
+        thumbColor={colors.paper}
+        ios_backgroundColor={colors.mist}
         testID={testID}
       />
     </View>
@@ -234,7 +234,7 @@ const useStyles = makeStyles((colors) => ({
     height: 52,
     borderRadius: 14,
     borderWidth: 1,
-    borderColor: "rgba(224,121,107,0.35)",
+    borderColor: colors.errorBorder,
     backgroundColor: colors.surfaceTertiary,
   },
   sheetScroll: { maxHeight: 460 },

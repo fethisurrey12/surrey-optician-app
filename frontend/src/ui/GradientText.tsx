@@ -25,7 +25,7 @@ export function GradientText({
       }
     >
       <LinearGradient
-        colors={colors.goldFoil}
+        colors={colors.tealFoil}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
       >
@@ -47,7 +47,7 @@ export function GoldFill({
   return (
     <View style={style}>
       <LinearGradient
-        colors={colors.goldFoil}
+        colors={colors.tealFoil}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
         style={{ ...StyleSheetAbsolute }}

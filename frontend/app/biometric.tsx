@@ -5,7 +5,7 @@ import { tapSuccess } from "@/src/lib/haptics";
 import { spacing } from "@/src/tokens";
 import { makeStyles, useTheme } from "@/src/theme";
 import { GhostButton } from "@/src/ui/GhostButton";
-import { GoldButton } from "@/src/ui/GoldButton";
+import { BrandButton } from "@/src/ui/BrandButton";
 import { Icon } from "@/src/ui/Icon";
 import { Screen } from "@/src/ui/Screen";
 import { StaggerItem } from "@/src/ui/Stagger";
@@ -27,7 +27,7 @@ export default function Biometric() {
       <View style={styles.body}>
         <StaggerItem index={0} style={styles.hero}>
           <View style={styles.ring}>
-            <Icon name="faceid" size={54} color={colors.gold} strokeWidth={1.4} />
+            <Icon name="faceid" size={54} color={colors.teal} strokeWidth={1.4} />
           </View>
         </StaggerItem>
 
@@ -52,7 +52,7 @@ export default function Biometric() {
       </View>
 
       <StaggerItem index={4} style={styles.actions}>
-        <GoldButton label={`Turn on ${label}`} onPress={enable} testID="biometric-enable-button" />
+        <BrandButton label={`Turn on ${label}`} onPress={enable} testID="biometric-enable-button" />
         <GhostButton label="Not now" onPress={dismissBiometricPrompt} testID="biometric-skip-button" />
       </StaggerItem>
     </Screen>
@@ -67,7 +67,7 @@ const useStyles = makeStyles((colors) => ({
     height: 132,
     borderRadius: 66,
     borderWidth: 1,
-    borderColor: "rgba(201,162,39,0.4)",
+    borderColor: colors.accentBorder,
     backgroundColor: colors.surfaceTertiary,
     alignItems: "center",
     justifyContent: "center",

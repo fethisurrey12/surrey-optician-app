@@ -27,10 +27,10 @@ export function ExpiryNudge({ vouchers, onPress }: { vouchers: Voucher[]; onPres
     <PressScale onPress={onPress} testID="expiry-nudge" accessibilityLabel={title}>
       <View style={styles.wrap}>
         <View style={styles.icon}>
-          <Icon name="clock" size={18} color={colors.lightGold} />
+          <Icon name="clock" size={18} color={colors.teal} />
         </View>
         <View style={styles.texts}>
-          <Txt variant="bodyStrong" tone="cream">
+          <Txt variant="bodyStrong" tone="ink">
             {title}
           </Txt>
           <Txt variant="caption" tone="sage">
@@ -51,8 +51,8 @@ const useStyles = makeStyles((colors) => ({
     padding: spacing.base,
     borderRadius: radius.lg,
     borderWidth: 1,
-    borderColor: "rgba(201,162,39,0.35)",
-    backgroundColor: "rgba(201,162,39,0.08)",
+    borderColor: colors.accentBorder,
+    backgroundColor: colors.accentWash,
   },
   icon: {
     width: 36,

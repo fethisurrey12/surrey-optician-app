@@ -38,7 +38,7 @@ export default function Account() {
           <View pointerEvents="none" style={styles.lens} />
           <View style={styles.memberTop}>
             <Wordmark size="sm" align="left" />
-            <Txt variant="label" tone="gold">
+            <Txt variant="label" tone="teal">
               Member
             </Txt>
           </View>
@@ -50,7 +50,7 @@ export default function Account() {
               <Txt variant="caption" tone="dimSage">
                 Mobile
               </Txt>
-              <Txt variant="bodyStrong" tone="cream" tabular>
+              <Txt variant="bodyStrong" tone="ink" tabular>
                 {a.mobileDisplay}
               </Txt>
             </View>
@@ -58,7 +58,7 @@ export default function Account() {
               <Txt variant="caption" tone="dimSage">
                 Member since
               </Txt>
-              <Txt variant="bodyStrong" tone="cream">
+              <Txt variant="bodyStrong" tone="ink">
                 {dayMonthYear(a.memberSince)}
               </Txt>
             </View>
@@ -85,7 +85,7 @@ export default function Account() {
         <Card contentStyle={styles.privacy} testID="privacy-note">
           <View style={styles.privacyHead}>
             <Icon name="shield" size={18} color={colors.sage} />
-            <Txt variant="title" tone="cream">
+            <Txt variant="title" tone="ink">
               Loyalty data only
             </Txt>
           </View>
@@ -110,7 +110,7 @@ const useStyles = makeStyles((colors) => ({
     height: 200,
     borderRadius: 100,
     borderWidth: 1,
-    borderColor: "rgba(201,162,39,0.18)",
+    borderColor: colors.accentBorderSoft,
   },
   memberTop: { flexDirection: "row", alignItems: "flex-start", justifyContent: "space-between" },
   name: { marginTop: spacing.sm },

@@ -38,7 +38,7 @@ export function QRCode({ code, size = 200 }: { code: string; size?: number }) {
         width: size,
         height: size,
         borderRadius: radius.md,
-        backgroundColor: colors.cream,
+        backgroundColor: colors.paper,
         overflow: "hidden",
       }}
       accessibilityLabel={`QR code ${code}`}

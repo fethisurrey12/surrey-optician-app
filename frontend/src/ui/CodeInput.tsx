@@ -79,7 +79,7 @@ export function CodeInput({
           keyboardAppearance="dark"
           maxLength={i === 0 ? LEN : 1}
           autoFocus={autoFocus && i === 0}
-          selectionColor={colors.gold}
+          selectionColor={colors.teal}
           style={[styles.box, focused === i && styles.boxActive, d ? styles.boxFilled : null]}
         />
       ))}
@@ -96,11 +96,11 @@ const useStyles = makeStyles((colors) => ({
     borderWidth: 1,
     borderColor: colors.border,
     backgroundColor: colors.surfaceTertiary,
-    color: colors.cream,
+    color: colors.ink,
     fontFamily: font.serifLight,
     fontSize: 26,
     textAlign: "center",
   },
-  boxActive: { borderColor: colors.gold, backgroundColor: colors.card },
+  boxActive: { borderColor: colors.teal, backgroundColor: colors.card },
   boxFilled: { borderColor: colors.borderStrong },
 }));

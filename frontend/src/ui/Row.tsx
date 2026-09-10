@@ -38,7 +38,7 @@ export function Row({
         </View>
       ) : null}
       <View style={styles.texts}>
-        <Txt variant="bodyStrong" tone="cream">
+        <Txt variant="bodyStrong" tone="ink">
           {title}
         </Txt>
         {subtitle ? (

@@ -6,8 +6,8 @@
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "surreyopticians",
-    "userInterfaceStyle": "dark",
-    "backgroundColor": "#071510",
+    "userInterfaceStyle": "light",
+    "backgroundColor": "#FFFFFF",
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.emergent.surreyopticians.xkx2pz",
@@ -18,7 +18,7 @@
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
-        "backgroundColor": "#071510"
+        "backgroundColor": "#0B6E75"
       },
       "package": "com.emergent.surreyopticians.xkx2pz"
     },
@@ -35,7 +35,7 @@
           "image": "./assets/images/splash-image.png",
           "imageWidth": 200,
           "resizeMode": "contain",
-          "backgroundColor": "#071510"
+          "backgroundColor": "#FFFFFF"
         }
       ],
       "expo-font",

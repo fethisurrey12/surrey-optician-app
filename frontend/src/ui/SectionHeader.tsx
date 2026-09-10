@@ -22,7 +22,7 @@ export function SectionHeader({
       <Txt variant="h3">{title}</Txt>
       {actionLabel && onAction ? (
         <PressScale onPress={onAction} hitSlop={10} testID={testID}>
-          <Txt variant="bodyStrong" tone="gold">
+          <Txt variant="bodyStrong" tone="teal">
             {actionLabel}
           </Txt>
         </PressScale>

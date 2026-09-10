@@ -13,7 +13,7 @@ export function GhostButton({
   icon,
   disabled,
   testID,
-  tone = "cream",
+  tone = "ink",
   style,
 }: {
   label: string;
@@ -21,7 +21,7 @@ export function GhostButton({
   icon?: IconName;
   disabled?: boolean;
   testID?: string;
-  tone?: "cream" | "sage";
+  tone?: "ink" | "sage";
   style?: any;
 }) {
   const styles = useStyles();

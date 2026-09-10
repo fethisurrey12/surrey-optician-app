@@ -9,7 +9,7 @@ import { useApp } from "@/src/context/AppContext";
 import { radius, spacing } from "@/src/tokens";
 import { makeStyles } from "@/src/theme";
 import { Field } from "@/src/ui/Field";
-import { GoldButton } from "@/src/ui/GoldButton";
+import { BrandButton } from "@/src/ui/BrandButton";
 import { HeaderBar } from "@/src/ui/HeaderBar";
 import { PressScale } from "@/src/ui/PressScale";
 import { Screen } from "@/src/ui/Screen";
@@ -102,7 +102,7 @@ function DetailsForm({ account: a }: { account: Account }) {
           testID="details-mobile"
         />
 
-        <GoldButton
+        <BrandButton
           label={save.isPending ? "Saving…" : "Save changes"}
           onPress={onSave}
           disabled={save.isPending}
@@ -128,6 +128,6 @@ const useStyles = makeStyles((colors) => ({
     alignItems: "center",
     justifyContent: "center",
   },
-  branchChipOn: { backgroundColor: colors.gold, borderColor: colors.gold },
+  branchChipOn: { backgroundColor: colors.teal, borderColor: colors.teal },
   save: { marginTop: spacing.sm },
 }));

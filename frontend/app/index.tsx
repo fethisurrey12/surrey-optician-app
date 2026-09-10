@@ -13,7 +13,7 @@ export default function Index() {
     <Screen scroll={false} center testID="splash-screen">
       <View style={{ alignItems: "center", gap: spacing.xxl }}>
         <Wordmark size="lg" />
-        <ActivityIndicator color={colors.gold} />
+        <ActivityIndicator color={colors.teal} />
       </View>
     </Screen>
   );

@@ -15,7 +15,7 @@ export function GradientText({
 }) {
   const { colors } = useTheme();
   const f = (StyleSheet.flatten(style) ?? {}) as TextStyle;
-  const [a, b, c, d] = colors.goldFoil;
+  const [a, b, c, d] = colors.tealFoil;
   return createElement(
     "span",
     {
@@ -52,7 +52,7 @@ export function GoldFill({
   return (
     <View style={style}>
       <LinearGradient
-        colors={colors.goldFoil}
+        colors={colors.tealFoil}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
         style={StyleSheet.absoluteFill}

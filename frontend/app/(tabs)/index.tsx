@@ -116,7 +116,7 @@ export default function Home() {
             </Txt>
           </View>
         </PointsRing>
-        <Txt variant="body" tone="cream" style={styles.toNext}>
+        <Txt variant="body" tone="ink" style={styles.toNext}>
           {toNext} {toNext === 1 ? "point" : "points"} to your next £10 reward
         </Txt>
         <Txt variant="caption" style={styles.scheme}>
@@ -213,8 +213,8 @@ const useStyles = makeStyles((colors) => ({
   glow: {
     position: "absolute",
     top: spacing.lg,
-    backgroundColor: "rgba(201,162,39,0.05)",
-    shadowColor: colors.gold,
+    backgroundColor: colors.accentWash,
+    shadowColor: colors.teal,
     shadowOpacity: 0.28,
     shadowRadius: 48,
     shadowOffset: { width: 0, height: 0 },

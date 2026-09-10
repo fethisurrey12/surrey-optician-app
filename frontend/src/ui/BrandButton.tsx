@@ -8,7 +8,7 @@ import { radius, spacing } from "@/src/tokens";
 import { makeStyles, useTheme } from "@/src/theme";
 
 // Primary action: gold diagonal foil, ink label.
-export function GoldButton({
+export function BrandButton({
   label,
   onPress,
   icon,
@@ -36,17 +36,17 @@ export function GoldButton({
       style={style}
     >
       <LinearGradient
-        colors={colors.goldFoil}
+        colors={colors.tealFoil}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
         style={styles.btn}
       >
         {loading ? (
-          <ActivityIndicator color={colors.ink} />
+          <ActivityIndicator color={colors.paper} />
         ) : (
           <View style={styles.row}>
-            {icon ? <Icon name={icon} size={19} color={colors.ink} strokeWidth={2} /> : null}
-            <Txt variant="title" tone="ink" style={styles.label}>
+            {icon ? <Icon name={icon} size={19} color={colors.paper} strokeWidth={2} /> : null}
+            <Txt variant="title" tone="paper" style={styles.label}>
               {label}
             </Txt>
           </View>
@@ -64,12 +64,12 @@ const useStyles = makeStyles((colors) => ({
     justifyContent: "center",
     paddingHorizontal: spacing.base,
     paddingVertical: spacing.md,
-    shadowColor: colors.gold,
+    shadowColor: colors.teal,
     shadowOpacity: 0.35,
     shadowRadius: 16,
     shadowOffset: { width: 0, height: 8 },
     elevation: 6,
   },
   row: { flexDirection: "row", alignItems: "center", justifyContent: "center", gap: spacing.sm },
-  label: { color: colors.ink, textAlign: "center" },
+  label: { color: colors.paper, textAlign: "center" },
 }));

@@ -6,7 +6,7 @@ import { dayMonthYear, monthYear } from "@/src/lib/points";
 import { radius, spacing } from "@/src/tokens";
 import { makeStyles, useTheme } from "@/src/theme";
 import { Card } from "@/src/ui/Card";
-import { GoldButton } from "@/src/ui/GoldButton";
+import { BrandButton } from "@/src/ui/BrandButton";
 import { Icon } from "@/src/ui/Icon";
 import { PressScale } from "@/src/ui/PressScale";
 import { Txt } from "@/src/ui/Txt";
@@ -38,7 +38,7 @@ export function EyeTestNudge({
     <Card contentStyle={styles.content} testID="eye-test-nudge">
       <View style={styles.head}>
         <View style={styles.icon}>
-          <Icon name="eye" size={20} color={colors.gold} />
+          <Icon name="eye" size={20} color={colors.teal} />
         </View>
         <View style={styles.texts}>
           <Txt variant="title">{overdue ? "Your eye test is overdue" : "Time for your eye test"}</Txt>
@@ -62,7 +62,7 @@ export function EyeTestNudge({
         {branchName(homeBranchId)} or any branch — it takes about half an hour.
       </Txt>
 
-      <GoldButton label="Book an eye test" icon="phone" onPress={onBook} testID="eye-test-book-button" />
+      <BrandButton label="Book an eye test" icon="phone" onPress={onBook} testID="eye-test-book-button" />
 
       <Txt variant="caption" tone="dimSage">
         Based on the date of your last eye examination purchase in this app. We hold no clinical

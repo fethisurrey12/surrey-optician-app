@@ -79,7 +79,7 @@ export function Icon({
   strokeWidth?: number;
 }) {
   const { colors } = useTheme();
-  const stroke = color ?? colors.cream;
+  const stroke = color ?? colors.ink;
   const shape = ICONS[name];
   return (
     <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">

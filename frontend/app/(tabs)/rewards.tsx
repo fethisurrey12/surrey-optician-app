@@ -13,7 +13,7 @@ import { font, spacing } from "@/src/tokens";
 import { makeStyles, useTheme } from "@/src/theme";
 import { EmptyState } from "@/src/ui/EmptyState";
 import { GhostButton } from "@/src/ui/GhostButton";
-import { GoldButton } from "@/src/ui/GoldButton";
+import { BrandButton } from "@/src/ui/BrandButton";
 import { GradientText } from "@/src/ui/GradientText";
 import { Icon } from "@/src/ui/Icon";
 import { PressScale } from "@/src/ui/PressScale";
@@ -184,7 +184,7 @@ export default function Rewards() {
                 accessibilityLabel="Back to voucher"
                 hitSlop={12}
               >
-                <Icon name="back" size={20} color={colors.cream} />
+                <Icon name="back" size={20} color={colors.ink} />
               </PressScale>
               <PressScale
                 onPress={closeSheet}
@@ -193,7 +193,7 @@ export default function Rewards() {
                 accessibilityLabel="Close"
                 hitSlop={12}
               >
-                <Icon name="close" size={20} color={colors.cream} />
+                <Icon name="close" size={20} color={colors.ink} />
               </PressScale>
             </View>
 
@@ -202,7 +202,7 @@ export default function Rewards() {
               contentContainerStyle={styles.previewBody}
               showsVerticalScrollIndicator={false}
             >
-              <Txt variant="label" tone="gold" style={styles.center}>
+              <Txt variant="label" tone="teal" style={styles.center}>
                 {previewProvider === "apple" ? "Apple Wallet pass" : "Google Wallet pass"}
               </Txt>
               <Txt variant="body" style={styles.center}>
@@ -216,7 +216,7 @@ export default function Rewards() {
                 The practice’s wallet signing keys aren’t connected yet, so the pass can’t be issued
                 for real from this preview.
               </Txt>
-              <GoldButton
+              <BrandButton
                 label={`Simulate adding to ${previewProvider === "apple" ? "Apple" : "Google"} Wallet`}
                 icon="wallet"
                 loading={addToWallet.isPending}
@@ -238,7 +238,7 @@ export default function Rewards() {
                 accessibilityLabel="Close"
                 hitSlop={12}
               >
-                <Icon name="close" size={20} color={colors.cream} />
+                <Icon name="close" size={20} color={colors.ink} />
               </PressScale>
             </View>
 
@@ -248,20 +248,20 @@ export default function Rewards() {
               showsVerticalScrollIndicator={false}
             >
             <View style={styles.sheetBody}>
-              <Txt variant="label" tone="gold" style={styles.center}>
+              <Txt variant="label" tone="teal" style={styles.center}>
                 Show this at the till
               </Txt>
               <View style={styles.qrWrap}>
                 <QRCode code={selected.code} size={qrSize} />
               </View>
-              <Txt variant="h3" tabular tone="cream" style={[styles.sheetCode, styles.center]}>
+              <Txt variant="h3" tabular tone="ink" style={[styles.sheetCode, styles.center]}>
                 {selected.code}
               </Txt>
               <View style={styles.figureRow}>
                 <GradientText style={styles.figure}>£10</GradientText>
                 <Txt
                   variant="body"
-                  tone={expiresSoon(selected.expires) ? "lightGold" : undefined}
+                  tone={expiresSoon(selected.expires) ? "warning" : undefined}
                   style={[styles.figureNote, styles.center]}
                 >
                   reward ·{" "}
@@ -342,7 +342,7 @@ const useStyles = makeStyles((colors) => ({
   qrWrap: {
     padding: spacing.base,
     borderRadius: 24,
-    backgroundColor: colors.cream,
+    backgroundColor: colors.paper,
     shadowColor: colors.shadow,
     shadowOpacity: 0.4,
     shadowRadius: 24,

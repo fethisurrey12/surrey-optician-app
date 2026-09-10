@@ -16,14 +16,14 @@ type Variant =
 
 type Tone = keyof Pick<
   ThemeColors,
-  | "cream"
+  | "ink"
   | "sage"
   | "dimSage"
-  | "gold"
-  | "lightGold"
+  | "teal"
+  | "lightTeal"
+  | "paper"
   | "warning"
   | "muted"
-  | "ink"
   | "success"
   | "error"
   | "onSurface"
@@ -42,13 +42,13 @@ const VARIANTS: Record<Variant, TextStyle> = {
 };
 
 const DEFAULT_TONE: Record<Variant, Tone> = {
-  display: "cream",
-  h1: "cream",
-  h2: "cream",
-  h3: "cream",
-  title: "cream",
+  display: "ink",
+  h1: "ink",
+  h2: "ink",
+  h3: "ink",
+  title: "ink",
   body: "sage",
-  bodyStrong: "cream",
+  bodyStrong: "ink",
   caption: "muted",
   label: "sage",
 };
