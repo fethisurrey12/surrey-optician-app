@@ -33,6 +33,8 @@ export function GradientText({
         fontVariantNumeric: "tabular-nums",
         display: "inline-block",
         whiteSpace: "nowrap",
+        maxWidth: "100%",
+        overflowWrap: "anywhere",
       },
     },
     children,

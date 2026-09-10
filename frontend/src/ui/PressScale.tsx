@@ -33,7 +33,8 @@ export function PressScale({
 }) {
   const reduce = useReduceMotion();
   const scale = useSharedValue(1);
-  const animStyle = useAnimatedStyle(() => ({ transform: [{ scale: scale.value }] }));
+  const dim = useSharedValue(1);
+  const animStyle = useAnimatedStyle(() => ({ transform: [{ scale: scale.value }], opacity: dim.value }));
 
   return (
     <Pressable
@@ -42,11 +43,17 @@ export function PressScale({
       accessibilityLabel={accessibilityLabel}
       disabled={disabled}
       hitSlop={hitSlop}
+      onHoverIn={() => {
+        dim.value = withTiming(0.88, { duration: 150 });
+      }}
+      onHoverOut={() => {
+        dim.value = withTiming(1, { duration: 200 });
+      }}
       onPressIn={() => {
-        if (!reduce) scale.value = withTiming(0.97, { duration: 90 });
+        if (!reduce) scale.value = withTiming(0.975, { duration: 110 });
       }}
       onPressOut={() => {
-        if (!reduce) scale.value = withTiming(1, { duration: 140 });
+        if (!reduce) scale.value = withTiming(1, { duration: 180 });
       }}
       onPress={() => {
         if (disabled) return;

@@ -92,6 +92,34 @@ export default function Settings() {
 
         <StaggerItem index={1} style={styles.group}>
           <Txt variant="label" tone="sage" style={styles.groupLabel}>
+            Reminders on Home
+          </Txt>
+          <Card contentStyle={styles.card}>
+            <ToggleRow
+              icon="eye"
+              title="Eye test due"
+              subtitle="A card when two years have nearly passed since your last examination."
+              value={prefs.remindEyeTest}
+              onValueChange={(v) => setPref("remindEyeTest", v)}
+              testID="settings-remind-eye-test"
+            />
+            <Divider inset={54} />
+            <ToggleRow
+              icon="lens"
+              title="Contact lens reorder"
+              subtitle="A prompt when your last supply is about to run out."
+              value={prefs.remindLenses}
+              onValueChange={(v) => setPref("remindLenses", v)}
+              testID="settings-remind-lenses"
+            />
+          </Card>
+          <Txt variant="caption" tone="dimSage" style={styles.groupNote}>
+            Both are worked out from your purchase history in this app. We hold no clinical records.
+          </Txt>
+        </StaggerItem>
+
+        <StaggerItem index={2} style={styles.group}>
+          <Txt variant="label" tone="sage" style={styles.groupLabel}>
             Notifications
           </Txt>
           <Card contentStyle={styles.card}>
@@ -124,7 +152,7 @@ export default function Settings() {
           </Card>
         </StaggerItem>
 
-        <StaggerItem index={2} style={styles.group}>
+        <StaggerItem index={3} style={styles.group}>
           <Txt variant="label" tone="sage" style={styles.groupLabel}>
             About
           </Txt>
@@ -137,7 +165,7 @@ export default function Settings() {
           </Card>
         </StaggerItem>
 
-        <StaggerItem index={3}>
+        <StaggerItem index={4}>
           <PressScale onPress={signOut} style={styles.signOut} testID="settings-signout">
             <Icon name="logout" size={19} color={colors.error} />
             <Txt variant="bodyStrong" tone="error">
@@ -182,6 +210,7 @@ const useStyles = makeStyles((colors) => ({
   body: { gap: spacing.xl, paddingTop: spacing.sm },
   group: { gap: spacing.sm },
   groupLabel: { marginLeft: spacing.xs },
+  groupNote: { marginLeft: spacing.xs, marginTop: spacing.sm },
   card: { padding: spacing.base },
   cardLinks: { paddingVertical: 0, paddingHorizontal: spacing.base },
   toggleRow: { flexDirection: "row", alignItems: "center", gap: spacing.md, paddingVertical: spacing.md },

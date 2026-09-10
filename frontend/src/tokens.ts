@@ -36,7 +36,25 @@ export const font = {
 // Tabular figures so balances never jitter.
 export const tnum = { fontVariant: ["tabular-nums" as const] };
 
-export const MAX_WIDTH = 480;
+// Responsive content width: full width on phones (with page padding), a
+// comfortable centred column on tablet and desktop.
+export const BREAKPOINT = { tablet: 768, desktop: 1024, wide: 1440 } as const;
+
+export function contentMaxWidth(width: number): number {
+  if (width >= BREAKPOINT.wide) return 1080;
+  if (width >= BREAKPOINT.desktop) return 960;
+  if (width >= BREAKPOINT.tablet) return 720;
+  return width;
+}
+
+export function pagePadding(width: number): number {
+  if (width >= BREAKPOINT.tablet) return 32;
+  if (width >= 375) return 20;
+  return 16;
+}
+
+// Two-column layouts (Home hero beside its cards, voucher grid) from here up.
+export const TWO_COLUMN_MIN = 900;
 
 // Visual height of the custom blurred tab bar (excludes the safe-area inset,
 // which the bar adds on top).

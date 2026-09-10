@@ -1,13 +1,15 @@
 import { useMemo, useState } from "react";
-import { ActivityIndicator, ScrollView, View } from "react-native";
+import { ScrollView, View } from "react-native";
 
 import { type Txn } from "@/src/api/data";
 import { useActivity } from "@/src/api/hooks";
 import { TxnRow } from "@/src/components/TxnRow";
 import { groupByMonth } from "@/src/lib/points";
 import { radius, spacing } from "@/src/tokens";
-import { makeStyles, useTheme } from "@/src/theme";
+import { makeStyles } from "@/src/theme";
 import { Card } from "@/src/ui/Card";
+import { EmptyState } from "@/src/ui/EmptyState";
+import { Skeleton, SkeletonRow } from "@/src/ui/Skeleton";
 import { Divider } from "@/src/ui/Divider";
 import { PressScale } from "@/src/ui/PressScale";
 import { Screen } from "@/src/ui/Screen";
@@ -23,7 +25,6 @@ const FILTERS: { key: Filter; label: string }[] = [
 
 export default function Activity() {
   const styles = useStyles();
-  const { colors } = useTheme();
   const { data } = useActivity();
   const [filter, setFilter] = useState<Filter>("all");
 
@@ -73,13 +74,21 @@ export default function Activity() {
     >
       <View style={styles.body}>
         {!data ? (
-          <View style={styles.loading}>
-            <ActivityIndicator color={colors.gold} />
+          <View style={styles.section}>
+            <Skeleton width={110} height={12} style={styles.month} />
+            <View style={styles.skelCard}>
+              <SkeletonRow />
+              <SkeletonRow />
+              <SkeletonRow />
+            </View>
           </View>
         ) : sections.length === 0 ? (
-          <Txt variant="body" style={styles.emptyText}>
-            Nothing to show here yet.
-          </Txt>
+          <EmptyState
+            icon="activity"
+            title="Nothing here yet"
+            body="Visits and rewards appear here as soon as they happen at the till."
+            testID="activity-empty"
+          />
         ) : (
           sections.map((section, si) => (
             <StaggerItem key={section.key} index={si} style={styles.section}>
@@ -121,7 +130,7 @@ const useStyles = makeStyles((colors) => ({
   chipText: {},
   body: { paddingHorizontal: spacing.lg, gap: spacing.lg },
   loading: { paddingVertical: spacing.huge, alignItems: "center" },
-  emptyText: { paddingVertical: spacing.huge, textAlign: "center" },
+  skelCard: { borderRadius: radius.lg, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.card, paddingHorizontal: spacing.lg },
   section: { gap: spacing.sm },
   month: { marginLeft: spacing.xs },
   card: { paddingVertical: spacing.xs, paddingHorizontal: spacing.base },

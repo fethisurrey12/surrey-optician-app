@@ -1,6 +1,6 @@
 import * as Clipboard from "expo-clipboard";
 import { LinearGradient } from "expo-linear-gradient";
-import { ActivityIndicator, Share, View } from "react-native";
+import { Share, View } from "react-native";
 
 import { REFERRAL_BONUS_POINTS, REFERRAL_LINK_BASE, type Referral } from "@/src/api/data";
 import { useAccount, useReferrals } from "@/src/api/hooks";
@@ -17,6 +17,7 @@ import { HeaderBar } from "@/src/ui/HeaderBar";
 import { Icon } from "@/src/ui/Icon";
 import { Screen } from "@/src/ui/Screen";
 import { SectionHeader } from "@/src/ui/SectionHeader";
+import { SkeletonCard, SkeletonRow } from "@/src/ui/Skeleton";
 import { StaggerItem } from "@/src/ui/Stagger";
 import { Txt } from "@/src/ui/Txt";
 
@@ -35,8 +36,8 @@ export default function Refer() {
 
   if (!a) {
     return (
-      <Screen header={<HeaderBar title="Refer a friend" />} scroll={false} center testID="refer-screen">
-        <ActivityIndicator color={colors.gold} />
+      <Screen header={<HeaderBar title="Refer a friend" />} testID="refer-screen">
+        <SkeletonCard lines={3} />
       </Screen>
     );
   }
@@ -120,11 +121,19 @@ export default function Refer() {
         <SectionHeader title="Your invites" actionLabel={earned ? `${earned} earned` : undefined} />
         <Card contentStyle={styles.list}>
           {!referrals.data ? (
-            <ActivityIndicator color={colors.gold} style={styles.loading} />
+            <>
+              <SkeletonRow />
+              <SkeletonRow />
+            </>
           ) : referrals.data.length === 0 ? (
-            <Txt variant="body" style={styles.emptyText}>
-              No invites yet — share your code to get started.
-            </Txt>
+            <View style={styles.emptyWrap}>
+              <Txt variant="bodyStrong" tone="cream" style={styles.center}>
+                No invites yet
+              </Txt>
+              <Txt variant="body" style={styles.center}>
+                Share your code to get started.
+              </Txt>
+            </View>
           ) : (
             referrals.data.map((r, i) => (
               <View key={r.id}>
@@ -183,7 +192,7 @@ const useStyles = makeStyles((colors) => ({
     backgroundColor: colors.surfaceTertiary,
     marginTop: spacing.xs,
   },
-  code: { fontFamily: font.serifLight, fontSize: 36, letterSpacing: 3, lineHeight: 42 },
+  code: { fontFamily: font.serifLight, fontSize: 30, letterSpacing: 2, lineHeight: 36 },
   block: { marginTop: spacing.xl },
   steps: { gap: spacing.base, padding: spacing.lg },
   step: { flexDirection: "row", gap: spacing.md, alignItems: "flex-start" },
@@ -198,8 +207,7 @@ const useStyles = makeStyles((colors) => ({
   },
   stepTexts: { flex: 1, gap: 2 },
   list: { paddingVertical: spacing.xs, paddingHorizontal: spacing.lg },
-  loading: { paddingVertical: spacing.lg },
-  emptyText: { paddingVertical: spacing.base },
+  emptyWrap: { paddingVertical: spacing.lg, gap: spacing.xs, alignItems: "center" },
   row: { flexDirection: "row", alignItems: "center", gap: spacing.md, paddingVertical: spacing.md },
   rowTexts: { flex: 1, gap: 2 },
   terms: { marginTop: spacing.xl, textAlign: "center" },

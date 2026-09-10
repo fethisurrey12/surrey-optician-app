@@ -132,7 +132,7 @@ const useStyles = makeStyles((colors) => ({
   },
   gLogoText: { fontFamily: font.serifSemi, fontSize: 12, color: colors.gold },
   primary: { gap: 2 },
-  figure: { fontFamily: font.serifThin, fontSize: 56, letterSpacing: -2, lineHeight: 58 },
+  figure: { fontFamily: font.serifLight, fontSize: 56, letterSpacing: -2, lineHeight: 58 },
   fields: { flexDirection: "row", flexWrap: "wrap", gap: spacing.base },
   field: { minWidth: 120, gap: 2 },
   barcode: { alignItems: "center", gap: spacing.sm, paddingTop: spacing.sm },

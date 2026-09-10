@@ -1,5 +1,5 @@
 import { useRouter } from "expo-router";
-import { View } from "react-native";
+import { View, useWindowDimensions } from "react-native";
 
 import { spacing } from "@/src/tokens";
 import { makeStyles } from "@/src/theme";
@@ -12,15 +12,17 @@ import { Wordmark } from "@/src/ui/Wordmark";
 export default function Welcome() {
   const styles = useStyles();
   const router = useRouter();
+  const { width } = useWindowDimensions();
+  const lens = Math.max(200, Math.min(260, width - 80));
 
   return (
     <Screen scroll={false} testID="welcome-screen">
       <View style={styles.body}>
         <View style={styles.hero}>
           <StaggerItem index={0}>
-            <View style={styles.lens}>
-              <View style={styles.lensInner} />
-              <Wordmark size="lg" />
+            <View style={[styles.lens, { width: lens, height: lens, borderRadius: lens / 2 }]}>
+              <View style={[styles.lensInner, { width: lens - 50, height: lens - 50, borderRadius: (lens - 50) / 2 }]} />
+              <Wordmark size={lens < 240 ? "md" : "lg"} />
             </View>
           </StaggerItem>
         </View>

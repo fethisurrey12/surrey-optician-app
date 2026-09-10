@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { ActivityIndicator, Linking, Platform, ScrollView, View } from "react-native";
+import { Linking, Platform, ScrollView, View, useWindowDimensions } from "react-native";
+import { useRouter } from "expo-router";
 
 import { type Voucher, type WalletProvider } from "@/src/api/data";
 import { useAccount, useAddToWallet, useMarkVoucherUsed, useVouchers } from "@/src/api/hooks";
@@ -10,7 +11,7 @@ import { WalletPassPreview } from "@/src/components/WalletPassPreview";
 import { dayMonthYear, expiresInText, expiresSoon, pointsToNextReward } from "@/src/lib/points";
 import { font, spacing } from "@/src/tokens";
 import { makeStyles, useTheme } from "@/src/theme";
-import { Card } from "@/src/ui/Card";
+import { EmptyState } from "@/src/ui/EmptyState";
 import { GhostButton } from "@/src/ui/GhostButton";
 import { GoldButton } from "@/src/ui/GoldButton";
 import { GradientText } from "@/src/ui/GradientText";
@@ -18,6 +19,7 @@ import { Icon } from "@/src/ui/Icon";
 import { PressScale } from "@/src/ui/PressScale";
 import { QRCode } from "@/src/ui/QRCode";
 import { Screen } from "@/src/ui/Screen";
+import { Skeleton, SkeletonCard } from "@/src/ui/Skeleton";
 import { SectionHeader } from "@/src/ui/SectionHeader";
 import { Sheet } from "@/src/ui/Sheet";
 import { StaggerItem } from "@/src/ui/Stagger";
@@ -32,6 +34,10 @@ export default function Rewards() {
   const styles = useStyles();
   const { colors } = useTheme();
   const { toast } = useApp();
+  const router = useRouter();
+  const { width } = useWindowDimensions();
+  // QR fills the sheet on narrow phones without ever exceeding its width.
+  const qrSize = Math.max(160, Math.min(220, width - spacing.lg * 2 - spacing.base * 2 - 24));
   const account = useAccount();
   const vouchers = useVouchers();
   const markUsed = useMarkVoucherUsed();
@@ -43,8 +49,12 @@ export default function Rewards() {
 
   if (!vouchers.data || !account.data) {
     return (
-      <Screen tabBar scroll={false} center testID="rewards-screen">
-        <ActivityIndicator color={colors.gold} />
+      <Screen tabBar testID="rewards-screen" header={<View><Skeleton width={140} height={30} /><Skeleton width={180} height={14} style={styles.sub} /></View>}>
+        <Skeleton width={90} height={20} style={styles.skelTitle} />
+        <View style={styles.list}>
+          <SkeletonCard lines={2} />
+          <SkeletonCard lines={2} />
+        </View>
       </Screen>
     );
   }
@@ -141,18 +151,14 @@ export default function Rewards() {
         </StaggerItem>
       ) : (
         <StaggerItem index={0}>
-          <Card contentStyle={styles.empty}>
-            <View style={styles.emptyIcon}>
-              <Icon name="gift" size={24} color={colors.sage} />
-            </View>
-            <Txt variant="h3" style={styles.center}>
-              No rewards waiting yet
-            </Txt>
-            <Txt variant="body" style={styles.center}>
-              You are {toNext} {toNext === 1 ? "point" : "points"} from your next £10 reward. It
-              lands here the moment you reach ten.
-            </Txt>
-          </Card>
+          <EmptyState
+            icon="gift"
+            title="No rewards waiting yet"
+            body={`You are ${toNext} ${toNext === 1 ? "point" : "points"} from your next £10 reward. It lands here the moment you reach ten.`}
+            actionLabel="See your activity"
+            onAction={() => router.push("/(tabs)/activity")}
+            testID="rewards-empty"
+          />
         </StaggerItem>
       )}
 
@@ -236,14 +242,19 @@ export default function Rewards() {
               </PressScale>
             </View>
 
+            <ScrollView
+              style={styles.previewScroll}
+              contentContainerStyle={styles.qrScroll}
+              showsVerticalScrollIndicator={false}
+            >
             <View style={styles.sheetBody}>
               <Txt variant="label" tone="gold" style={styles.center}>
                 Show this at the till
               </Txt>
               <View style={styles.qrWrap}>
-                <QRCode code={selected.code} size={220} />
+                <QRCode code={selected.code} size={qrSize} />
               </View>
-              <Txt variant="h3" tabular tone="cream" style={styles.sheetCode}>
+              <Txt variant="h3" tabular tone="cream" style={[styles.sheetCode, styles.center]}>
                 {selected.code}
               </Txt>
               <View style={styles.figureRow}>
@@ -251,7 +262,7 @@ export default function Rewards() {
                 <Txt
                   variant="body"
                   tone={expiresSoon(selected.expires) ? "lightGold" : undefined}
-                  style={styles.figureNote}
+                  style={[styles.figureNote, styles.center]}
                 >
                   reward ·{" "}
                   {expiresSoon(selected.expires)
@@ -265,7 +276,6 @@ export default function Rewards() {
                 </Txt>
               ) : null}
             </View>
-
             <View style={styles.sheetFoot}>
               <View style={styles.walletRow}>
                 {WALLET_PROVIDERS.map((p) => (
@@ -297,6 +307,7 @@ export default function Rewards() {
                 Prototype control — stands in for the colleague’s action.
               </Txt>
             </View>
+            </ScrollView>
           </View>
         ) : null}
       </Sheet>
@@ -305,27 +316,17 @@ export default function Rewards() {
 }
 
 const useStyles = makeStyles((colors) => ({
-  sub: { marginTop: 4 },
+  sub: { marginTop: 6 },
+  skelTitle: { marginBottom: spacing.base },
   list: { gap: spacing.base },
   usedBlock: { marginTop: spacing.xxl },
   center: { textAlign: "center" },
-  empty: { alignItems: "center", gap: spacing.md, padding: spacing.xl },
-  emptyIcon: {
-    width: 56,
-    height: 56,
-    borderRadius: 28,
-    backgroundColor: colors.surfaceTertiary,
-    borderWidth: 1,
-    borderColor: colors.border,
-    alignItems: "center",
-    justifyContent: "center",
-    marginBottom: spacing.xs,
-  },
   sheet: { flex: 1, justifyContent: "space-between" },
   sheetTop: { flexDirection: "row", justifyContent: "flex-end" },
   sheetTopRow: { flexDirection: "row", justifyContent: "space-between" },
   previewScroll: { flex: 1, marginVertical: spacing.base },
   previewBody: { gap: spacing.base, paddingBottom: spacing.base },
+  qrScroll: { flexGrow: 1, justifyContent: "space-between", gap: spacing.xl, paddingBottom: spacing.sm },
   walletRow: { gap: spacing.sm, marginBottom: spacing.xs },
   close: {
     width: 42,
@@ -337,7 +338,7 @@ const useStyles = makeStyles((colors) => ({
     alignItems: "center",
     justifyContent: "center",
   },
-  sheetBody: { alignItems: "center", gap: spacing.base },
+  sheetBody: { alignItems: "center", gap: spacing.base, paddingVertical: spacing.sm },
   qrWrap: {
     padding: spacing.base,
     borderRadius: 24,
@@ -349,8 +350,14 @@ const useStyles = makeStyles((colors) => ({
     elevation: 10,
   },
   sheetCode: { letterSpacing: 4 },
-  figureRow: { flexDirection: "row", alignItems: "flex-end", gap: spacing.sm },
-  figure: { fontFamily: font.serifThin, fontSize: 52, letterSpacing: -2, lineHeight: 54 },
+  figureRow: {
+    flexDirection: "row",
+    alignItems: "flex-end",
+    justifyContent: "center",
+    flexWrap: "wrap",
+    gap: spacing.sm,
+  },
+  figure: { fontFamily: font.serifLight, fontSize: 52, letterSpacing: -2, lineHeight: 54 },
   figureNote: { marginBottom: spacing.sm },
   sheetFoot: { gap: spacing.md },
 }));

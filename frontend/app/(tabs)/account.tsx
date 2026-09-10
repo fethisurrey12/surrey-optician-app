@@ -1,5 +1,5 @@
 import { useRouter } from "expo-router";
-import { ActivityIndicator, View } from "react-native";
+import { View } from "react-native";
 
 import { branchName } from "@/src/api/data";
 import { useAccount } from "@/src/api/hooks";
@@ -11,6 +11,7 @@ import { Divider } from "@/src/ui/Divider";
 import { Icon } from "@/src/ui/Icon";
 import { Row } from "@/src/ui/Row";
 import { Screen } from "@/src/ui/Screen";
+import { SkeletonCard } from "@/src/ui/Skeleton";
 import { StaggerItem } from "@/src/ui/Stagger";
 import { Txt } from "@/src/ui/Txt";
 import { Wordmark } from "@/src/ui/Wordmark";
@@ -23,8 +24,9 @@ export default function Account() {
 
   if (!a) {
     return (
-      <Screen tabBar scroll={false} center testID="account-screen">
-        <ActivityIndicator color={colors.gold} />
+      <Screen tabBar testID="account-screen" header={<Txt variant="h1">Account</Txt>}>
+        <SkeletonCard lines={3} />
+        <SkeletonCard lines={2} style={styles.block} />
       </Screen>
     );
   }
@@ -112,7 +114,7 @@ const useStyles = makeStyles((colors) => ({
   },
   memberTop: { flexDirection: "row", alignItems: "flex-start", justifyContent: "space-between" },
   name: { marginTop: spacing.sm },
-  metaRow: { flexDirection: "row", gap: spacing.xxl, marginTop: spacing.xs },
+  metaRow: { flexDirection: "row", flexWrap: "wrap", gap: spacing.lg, rowGap: spacing.md, marginTop: spacing.xs },
   meta: { gap: 2 },
   branch: { marginTop: spacing.xs },
   block: { marginTop: spacing.lg },

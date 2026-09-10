@@ -48,8 +48,8 @@ export function Tile({
 }
 
 const useStyles = makeStyles((colors) => ({
-  content: { padding: spacing.base, gap: spacing.sm, minHeight: 118, justifyContent: "space-between" },
-  head: { flexDirection: "row", alignItems: "center", gap: spacing.sm },
+  content: { padding: spacing.lg, gap: spacing.md, justifyContent: "space-between" },
+  head: { flexDirection: "row", alignItems: "center", gap: spacing.sm, flexWrap: "wrap" },
   value: { fontFamily: font.serifLight, fontSize: 34, letterSpacing: -0.8, lineHeight: 38 },
   valuePlain: { fontFamily: font.serifLight, fontSize: 34, letterSpacing: -0.8, lineHeight: 38, color: colors.cream },
 }));

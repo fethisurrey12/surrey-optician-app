@@ -1,6 +1,6 @@
 import { useRouter } from "expo-router";
 import { useState } from "react";
-import { ActivityIndicator, Linking, Platform, View } from "react-native";
+import { Linking, Platform, View, useWindowDimensions } from "react-native";
 
 import { BRANCHES } from "@/src/api/data";
 import { useAccount, useActivity, useVouchers } from "@/src/api/hooks";
@@ -15,11 +15,12 @@ import { eyeTestStatus } from "@/src/lib/eyeTest";
 import { expiresSoon, ringProgress, pointsToNextReward } from "@/src/lib/points";
 import { lensSupplyStatus } from "@/src/lib/supply";
 import { font, spacing } from "@/src/tokens";
-import { makeStyles, useTheme } from "@/src/theme";
+import { makeStyles } from "@/src/theme";
 import { Divider } from "@/src/ui/Divider";
 import { GradientText } from "@/src/ui/GradientText";
 import { PointsRing } from "@/src/ui/PointsRing";
 import { Screen } from "@/src/ui/Screen";
+import { Skeleton, SkeletonCard } from "@/src/ui/Skeleton";
 import { SectionHeader } from "@/src/ui/SectionHeader";
 import { StaggerItem } from "@/src/ui/Stagger";
 import { Tile } from "@/src/ui/Tile";
@@ -35,9 +36,12 @@ function greeting(): string {
 
 export default function Home() {
   const styles = useStyles();
-  const { colors } = useTheme();
   const router = useRouter();
-  const { eyeTestDismissed, dismissEyeTestNudge, lensReorderDismissed, dismissLensReorderNudge, toast } =
+  const { width } = useWindowDimensions();
+  // Ring shrinks on narrow phones; summary tiles stack below ~360px.
+  const ringSize = Math.max(160, Math.min(224, width - spacing.lg * 2 - 56));
+  const stackTiles = width < 360;
+  const { eyeTestDismissed, dismissEyeTestNudge, lensReorderDismissed, dismissLensReorderNudge, prefs, toast } =
     useApp();
   const account = useAccount();
   const vouchers = useVouchers();
@@ -52,8 +56,16 @@ export default function Home() {
 
   if (!account.data) {
     return (
-      <Screen tabBar scroll={false} center testID="home-screen">
-        <ActivityIndicator color={colors.gold} />
+      <Screen tabBar testID="home-screen" header={<View style={styles.header}><Skeleton width={120} height={28} /><Skeleton width={90} height={28} /></View>}>
+        <View style={styles.ringBlock}>
+          <Skeleton width={ringSize} height={ringSize} round />
+          <Skeleton width={220} height={14} />
+        </View>
+        <SkeletonCard lines={2} style={styles.block} />
+        <View style={styles.tiles}>
+          <SkeletonCard lines={1} style={styles.tile} />
+          <SkeletonCard lines={1} style={styles.tile} />
+        </View>
       </Screen>
     );
   }
@@ -63,8 +75,8 @@ export default function Home() {
   const toNext = pointsToNextReward(a.points);
   const recent = (activity.data ?? []).slice(0, 3);
   const expiring = waiting.filter((v) => expiresSoon(v.expires));
-  const eyeTest = eyeTestDismissed ? null : eyeTestStatus(activity.data ?? []);
-  const lenses = lensReorderDismissed ? null : lensSupplyStatus(activity.data ?? []);
+  const eyeTest = eyeTestDismissed || !prefs.remindEyeTest ? null : eyeTestStatus(activity.data ?? []);
+  const lenses = lensReorderDismissed || !prefs.remindLenses ? null : lensSupplyStatus(activity.data ?? []);
 
   // Reordering is a phone call to the branch the lenses came from; the web
   // preview can't dial, so it shows the branch details instead.
@@ -93,9 +105,10 @@ export default function Home() {
       }
     >
       <StaggerItem index={0} style={styles.ringBlock}>
-        <PointsRing size={224} strokeWidth={14} progress={ringProgress(a.points)}>
+        <View style={[styles.glow, { width: ringSize, height: ringSize, borderRadius: ringSize / 2 }]} />
+        <PointsRing size={ringSize} strokeWidth={ringSize < 200 ? 12 : 14} progress={ringProgress(a.points)}>
           <View style={styles.ringCenter}>
-            <GradientText style={styles.ringNumber} tabular>
+            <GradientText style={[styles.ringNumber, ringSize < 200 && styles.ringNumberSmall]} tabular>
               {String(a.points)}
             </GradientText>
             <Txt variant="label" tone="sage">
@@ -136,7 +149,7 @@ export default function Home() {
         </StaggerItem>
       ) : null}
 
-      <StaggerItem index={2} style={styles.tiles}>
+      <StaggerItem index={2} style={[styles.tiles, stackTiles && styles.tilesStacked]}>
         <Tile
           icon="sparkle"
           label="Points earned"
@@ -192,17 +205,28 @@ export default function Home() {
   );
 }
 
-const useStyles = makeStyles(() => ({
-  header: { flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
-  headerLeft: { gap: 2 },
+const useStyles = makeStyles((colors) => ({
+  header: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: spacing.md },
+  headerLeft: { gap: 2, flex: 1, minWidth: 0 },
   ringBlock: { alignItems: "center", gap: spacing.base, paddingVertical: spacing.lg },
   ringCenter: { alignItems: "center", gap: spacing.xs },
-  ringNumber: { fontFamily: font.serifThin, fontSize: 76, lineHeight: 80, letterSpacing: -3 },
+  glow: {
+    position: "absolute",
+    top: spacing.lg,
+    backgroundColor: "rgba(201,162,39,0.05)",
+    shadowColor: colors.gold,
+    shadowOpacity: 0.28,
+    shadowRadius: 48,
+    shadowOffset: { width: 0, height: 0 },
+  },
+  ringNumber: { fontFamily: font.serifLight, fontSize: 76, lineHeight: 80, letterSpacing: -3 },
+  ringNumberSmall: { fontSize: 60, lineHeight: 64 },
   toNext: { textAlign: "center" },
-  scheme: { textAlign: "center", maxWidth: 300 },
+  scheme: { textAlign: "center", maxWidth: 320 },
   block: { marginTop: spacing.xl },
   nudge: { marginTop: spacing.sm },
   referBlock: { marginTop: spacing.md },
   tiles: { flexDirection: "row", gap: spacing.md, marginTop: spacing.xl },
+  tilesStacked: { flexDirection: "column" },
   tile: { flex: 1 },
 }));

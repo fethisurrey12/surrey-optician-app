@@ -191,3 +191,11 @@ test_plan:
 agent_communication:
   - agent: "main"
     message: "Iteration 1 (core app) already passed. Please test only the four new features above plus a regression on the till-scan simulation (now a GhostButton, testID simulate-till-scan-button)."
+
+# ---- Iteration 3: responsive fixes + premium polish (main agent) ----
+# User bug report: text overflow / responsiveness on Home ("survey results" = Home screen with ring + reward cards).
+# Fixes: Txt flexShrink:1; TabBar items wrapped in flex:1 Views (labels no longer collide); buttons use minHeight + wrapping labels;
+# ring size responsive (useWindowDimensions); tiles stack < 360px; voucher sheet fully scrollable; welcome lens responsive;
+# Card flexGrow so paired tiles match height; account metaRow wraps. Polish: heavier serif headings, roomier line-height,
+# uppercase labels, Skeleton loaders (Home/Rewards/Activity/Account/Refer), EmptyState component, hover/press states, ring glow.
+# testIDs unchanged. Must verify: no horizontal scroll at 320/375/390/430/768/1280; nothing clipped; all previous flows still pass.

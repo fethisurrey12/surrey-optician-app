@@ -19,6 +19,8 @@ type Prefs = {
   notifyRewards: boolean;
   notifyReminders: boolean;
   notifyOffers: boolean;
+  remindEyeTest: boolean; // Home nudge when an eye test is due
+  remindLenses: boolean; // Home nudge when a lens supply is running out
 };
 
 type ToastState = { id: number; message: string } | null;
@@ -76,6 +78,8 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     notifyRewards: true,
     notifyReminders: true,
     notifyOffers: false,
+    remindEyeTest: true,
+    remindLenses: true,
   });
   const [toastState, setToastState] = useState<ToastState>(null);
   const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);

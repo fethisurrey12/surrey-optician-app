@@ -1,7 +1,7 @@
 import { LinearGradient } from "expo-linear-gradient";
 import { StyleSheet, View, type StyleProp, type ViewStyle } from "react-native";
 
-import { radius } from "@/src/tokens";
+import { radius, spacing } from "@/src/tokens";
 import { makeStyles, useTheme } from "@/src/theme";
 
 // Three-stop green gradient, a 1px hairline highlight inset along the top edge,
@@ -39,12 +39,13 @@ const useStyles = makeStyles((colors) => ({
     borderRadius: radius.lg,
     backgroundColor: colors.card,
     shadowColor: colors.shadow,
-    shadowOpacity: 0.45,
-    shadowRadius: 24,
-    shadowOffset: { width: 0, height: 16 },
-    elevation: 12,
+    shadowOpacity: 0.3,
+    shadowRadius: 20,
+    shadowOffset: { width: 0, height: 12 },
+    elevation: 8,
   },
   surface: {
+    flexGrow: 1,
     borderRadius: radius.lg,
     borderWidth: 1,
     borderColor: colors.border,
@@ -60,6 +61,6 @@ const useStyles = makeStyles((colors) => ({
     borderRadius: 1,
   },
   content: {
-    padding: 18,
+    padding: spacing.lg,
   },
 }));

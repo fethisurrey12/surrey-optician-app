@@ -85,7 +85,7 @@ export function WalletBadge({
 
 const useStyles = makeStyles(() => ({
   badge: {
-    height: 50,
+    minHeight: 52,
     borderRadius: radius.md,
     backgroundColor: BADGE_BLACK,
     borderWidth: 1,
@@ -94,7 +94,8 @@ const useStyles = makeStyles(() => ({
     alignItems: "center",
     justifyContent: "center",
     gap: spacing.sm,
-    paddingHorizontal: spacing.xl,
+    paddingHorizontal: spacing.base,
+    paddingVertical: spacing.md,
   },
-  label: { color: BADGE_WHITE },
+  label: { color: BADGE_WHITE, textAlign: "center" },
 }));

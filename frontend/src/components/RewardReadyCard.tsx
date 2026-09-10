@@ -111,8 +111,8 @@ const useStyles = makeStyles((colors) => ({
     alignItems: "center",
     justifyContent: "center",
   },
-  figureRow: { flexDirection: "row", alignItems: "flex-end", gap: spacing.sm },
-  figure: { fontFamily: font.serifThin, fontSize: 56, letterSpacing: -2, lineHeight: 58 },
+  figureRow: { flexDirection: "row", alignItems: "flex-end", gap: spacing.sm, flexWrap: "wrap" },
+  figure: { fontFamily: font.serifLight, fontSize: 56, letterSpacing: -2, lineHeight: 58 },
   off: { marginBottom: spacing.sm },
-  body: { maxWidth: 300 },
+  body: { maxWidth: "100%" },
 }));

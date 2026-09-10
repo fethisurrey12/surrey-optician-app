@@ -84,8 +84,8 @@ const useStyles = makeStyles((colors) => ({
   content: { flexDirection: "row", alignItems: "center", gap: spacing.base, padding: spacing.lg },
   contentUsed: {},
   left: { flex: 1, gap: spacing.xs },
-  figure: { fontFamily: font.serifThin, fontSize: 46, letterSpacing: -1.5, lineHeight: 50 },
-  figureUsed: { fontFamily: font.serifThin, fontSize: 46, letterSpacing: -1.5, lineHeight: 50, color: colors.dimSage },
+  figure: { fontFamily: font.serifLight, fontSize: 46, letterSpacing: -1.5, lineHeight: 50 },
+  figureUsed: { fontFamily: font.serifLight, fontSize: 46, letterSpacing: -1.5, lineHeight: 50, color: colors.dimSage },
   code: { letterSpacing: 1, marginTop: 2 },
   soon: { flexDirection: "row", alignItems: "center", gap: 5 },
   walletChip: {

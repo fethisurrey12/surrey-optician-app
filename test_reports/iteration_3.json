@@ -1,0 +1,40 @@
+{
+  "summary": "Iteration 3 responsive/UI verification — ALL acceptance criteria PASS. Verified across 320 / 375 / 390 / 430 / 768 / 1280 (frontend-only, public URL EXPO_PUBLIC_BACKEND_URL). No horizontal scroll at any viewport (document.documentElement.scrollWidth === window.innerWidth for every width). Home elements (expiry-nudge, lens-reorder-nudge, eye-test-nudge, home-refer-card, reward-open-wallet-button) all render fully inside their parents (right edge ≤ parentRight at every width). Tiles: at 320 they stack vertically (code: `stackTiles = width < 360`), at ≥375 they render side-by-side with equal flex — confirmed both by code review of /app/frontend/app/(tabs)/index.tsx:43,152,229-232 and by screenshots (see /tmp/home_tiles_320.png, /tmp/home_tiles_390.png). Tab bar at 320 and 390: labels Home / Rewards / Activity / Account do NOT overlap (bounding boxes exactly partition the width at 80px each @320 and 97.5px @390); each label visible; active tab is gold (confirmed visually — home icon+label gold, others sage). Rewards @320 and @390: voucher cards render with no overflow; tap voucher-v-9k2t08mw opens the sheet — QR, code, £10 figure line, add-to-apple-wallet, add-to-google-wallet and simulate-till-scan-button all present and reachable via scroll (all rects verified inside 0..viewport); voucher-close closes the sheet (sheet not visible after close). Account @320: membership-card visible (x=21,w=278), Mobile and Member since fields wrap (metaRow flexWrap:wrap — Mobile at y=193, Member since at y=250 — different rows, no overlap), privacy-note visible (y=765). link-settings row renders inside its card. Refer screen (/refer via home-refer-card) @320: refer-hero shows SARAH-5589 fully (parentRight=299, hero right=299, overflowsParent=false), refer-share-button and refer-copy-button both visible and inside viewport. Desktop 1280: content column is centred at x=400 with width=480 (max-width:480px via /app/frontend/src/tokens.ts:39 MAX_WIDTH; Screen.tsx column style with alignSelf:center) — intentional and not stretched. No console red-screen errors; 0 console.error messages across the whole run (only benign RN-Web deprecations from earlier iterations, non-blocking). REGRESSION: redeeming both voucher-v-7f3k92qx and voucher-v-9k2t08mw via simulate-till-scan-button leaves Rewards showing rewards-empty EmptyState with text 'No rewards waiting yet — You are 2 points from your next £10 reward…', and rewards-empty-action ('See your activity') navigates to /activity (activity-screen present after click). One decorative absolute-positioned lens circle inside the Account membership-card has its bounding rect extending past the viewport at 320, but the card has overflow:hidden so it does NOT produce horizontal scroll — verified scrollWidth==innerWidth==320. No text visibly overflows/clips/overlaps and no horizontal scrollbar appears at any tested width.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [],
+    "react_native_issues": [
+      {"component": "Account membership-card decorative lens", "issue": "Absolute-positioned decorative circle (width:200, right:-70) has bounding rect extending past viewport at 320px, but parent Card uses overflow:'hidden' so no horizontal scroll or visual clipping issue. Cosmetic-only. Reference: /app/frontend/app/(tabs)/account.tsx:105-114 and :104 (member style has overflow:'hidden')."},
+      {"component": "views using pointerEvents / shadow* props", "issue": "Pre-existing RN-Web deprecation warnings (already reported in iteration_1/2). Non-blocking. Reference: /app/frontend/app/(tabs)/account.tsx:38, /app/frontend/src/ui/Card.tsx, rewards.tsx qrWrap:342-351."}
+    ]
+  },
+  "test_report_links": [
+    "/tmp/home_tiles_320.png",
+    "/tmp/home_tiles_390.png",
+    "/tmp/rewards_empty.png"
+  ],
+  "action_items": [
+    "No functional or responsive fixes required — every item in the review request passes.",
+    "Optional (carried from iteration_1/2): migrate RN-Web deprecations (pointerEvents → style.pointerEvents, shadow* → boxShadow) to silence console warnings on web."
+  ],
+  "critical_code_review_comments": [
+    "Home responsive strategy is clean: ringSize = clamp(160, 224, width - 2·lg - 56) and stackTiles = width < 360 (index.tsx:42-43). Tiles use flex:1 in a row and column-direction when stacked (index.tsx:229-232). Nudge/Refer cards inherit width from Screen contentContainer with padHorizontal:lg — never exceed parent.",
+    "Screen scaffolds a centred 480px column with alignSelf:center (Screen.tsx:131-135 + tokens.ts MAX_WIDTH=480), giving intentional desktop layout at ≥480px — confirmed at 1280 (column x=400,w=480).",
+    "TabBar uses flex:1 + minWidth:0 on each item and numberOfLines:1 on labels (TabBar.tsx:103,116) — labels can never overlap and are truncated instead of pushing siblings. Confirmed 4 equal-width items at 320 (80px each) and 390 (97.5px each).",
+    "Voucher sheet uses ScrollView with contentContainerStyle flexGrow:1 (rewards.tsx:329) so simulate-till-scan-button remains reachable on short/narrow viewports.",
+    "EmptyState/Skeleton components live in /app/frontend/src/ui/ and are used correctly; rewards.tsx uses <EmptyState testID='rewards-empty' actionLabel='See your activity' /> which yields both testIDs required by the spec (rewards-empty and rewards-empty-action).",
+    "Account metaRow uses flexDirection:'row' + flexWrap:'wrap' + rowGap (account.tsx:117), so Mobile and Member since drop to separate lines at 320 without truncation — verified.",
+    "No horizontal scroll at any tested width (scrollWidth === innerWidth for all six widths). No files exceed the 700-line limit."
+  ],
+  "updated_files": [
+    "/app/test_reports/iteration_3.json (this file)"
+  ],
+  "success_rate": {"backend": "n/a (frontend-only run — iteration_2 kept 100% (6/6))", "frontend": "100% (all responsive acceptance criteria pass across 6 viewports)"},
+  "seed_data_creation": "None. Uses in-memory mock (frontend/src/api/mock.ts) as-is. Session is per-page-load; test signs in once per script run and switches viewports without reload via page.set_viewport_size().",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "State is in-memory (mock.ts) — a full page reload signs the user out. To test multiple viewports in one session, use page.set_viewport_size() without goto/reload. To read the six-digit demo code, parse verify-demo-code innerText with re.sub(r'\\D','',text)[-6:]. Voucher sheet buttons sit below the fold on narrow viewports; use page.evaluate() + scrollIntoView(), or page.dispatch_event(sel,'click'), rather than page.click() which triggers Playwright's 'element outside viewport' check. Note: at 320 the tab-rewards element is inside the fixed tab bar; page.click still works because Playwright uses element-center coordinates. Voucher-v-9k2t08mw's expiry is dynamically today+41 days so the expiring flow is always live. Rewards empty state uses testID 'rewards-empty' (card) and 'rewards-empty-action' (button) — the '-action' suffix is auto-added by EmptyState.tsx:41.",
+  "rca_of_issue": "N/A — no bugs. Responsive polish (typography scale, ring size clamp, tile stacking, Screen 480px column, TabBar minWidth:0 + numberOfLines:1, ScrollView flexGrow:1 for the voucher sheet) is correctly implemented; every acceptance point in the review request is verified end-to-end."
+}

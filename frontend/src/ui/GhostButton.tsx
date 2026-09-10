@@ -36,7 +36,7 @@ export function GhostButton({
     >
       <View style={styles.btn}>
         {icon ? <Icon name={icon} size={18} color={colors[tone]} /> : null}
-        <Txt variant="bodyStrong" tone={tone}>
+        <Txt variant="bodyStrong" tone={tone} style={styles.label}>
           {label}
         </Txt>
       </View>
@@ -46,7 +46,7 @@ export function GhostButton({
 
 const useStyles = makeStyles((colors) => ({
   btn: {
-    height: 50,
+    minHeight: 52,
     borderRadius: radius.md,
     borderWidth: 1,
     borderColor: colors.borderStrong,
@@ -54,7 +54,9 @@ const useStyles = makeStyles((colors) => ({
     justifyContent: "center",
     flexDirection: "row",
     gap: spacing.sm,
-    paddingHorizontal: spacing.xl,
+    paddingHorizontal: spacing.base,
+    paddingVertical: spacing.md,
     backgroundColor: colors.surfaceTertiary,
   },
+  label: { textAlign: "center" },
 }));

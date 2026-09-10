@@ -58,17 +58,18 @@ export function GoldButton({
 
 const useStyles = makeStyles((colors) => ({
   btn: {
-    height: 54,
+    minHeight: 52,
     borderRadius: radius.md,
     alignItems: "center",
     justifyContent: "center",
-    paddingHorizontal: spacing.xl,
+    paddingHorizontal: spacing.base,
+    paddingVertical: spacing.md,
     shadowColor: colors.gold,
     shadowOpacity: 0.35,
     shadowRadius: 16,
     shadowOffset: { width: 0, height: 8 },
     elevation: 6,
   },
-  row: { flexDirection: "row", alignItems: "center", gap: spacing.sm },
-  label: { color: colors.ink },
+  row: { flexDirection: "row", alignItems: "center", justifyContent: "center", gap: spacing.sm },
+  label: { color: colors.ink, textAlign: "center" },
 }));
