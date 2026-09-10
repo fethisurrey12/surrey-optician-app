@@ -7,32 +7,37 @@ import { Icon } from "@/src/ui/Icon";
 import { PressScale } from "@/src/ui/PressScale";
 import { QRCode } from "@/src/ui/QRCode";
 import { Txt } from "@/src/ui/Txt";
-import { dayMonthYear, expiresInText, expiresSoon } from "@/src/lib/points";
+import { dayMonthYear, expiresInText, expiresSoon, voucherLabel } from "@/src/lib/points";
 import { font, spacing } from "@/src/tokens";
 import { makeStyles, useTheme } from "@/src/theme";
 
 // A wallet voucher. Available vouchers show a QR thumbnail and open the
-// full-screen sheet; used vouchers are shown greyed and inert.
+// full-screen sheet; used and expired vouchers are shown greyed and inert.
 export function VoucherCard({ voucher, onPress }: { voucher: Voucher; onPress?: () => void }) {
   const styles = useStyles();
   const { colors } = useTheme();
-  const used = voucher.status === "used";
+  const spent = voucher.status === "used";
+  const expired = voucher.status === "expired";
+  // Both are inert: greyed, no QR, nothing to present at the till.
+  const used = spent || expired;
 
   const inner = (
     <Card contentStyle={[styles.content, used && styles.contentUsed]}>
       <View style={styles.left}>
         <Txt variant="label" tone={used ? "dimSage" : "teal"}>
-          {used ? "Used" : "Reward voucher"}
+          {expired ? "Expired" : spent ? "Used" : voucher.kind === "signup" ? "Welcome offer" : "Reward voucher"}
         </Txt>
         {used ? (
-          <Txt style={styles.figureUsed}>£10</Txt>
+          <Txt style={styles.figureUsed}>{voucherLabel(voucher)}</Txt>
         ) : (
-          <GradientText style={styles.figure}>£10</GradientText>
+          <GradientText style={styles.figure}>{voucherLabel(voucher)}</GradientText>
         )}
         <Txt variant="caption" tabular tone={used ? "dimSage" : "sage"} style={styles.code}>
           {voucher.code}
         </Txt>
-        {used ? (
+        {expired ? (
+          <Txt variant="caption">Expired {dayMonthYear(voucher.expires)}</Txt>
+        ) : spent ? (
           <Txt variant="caption">
             {branchName(voucher.usedBranchId)} · {dayMonthYear(voucher.usedAt ?? voucher.issued)}
           </Txt>
@@ -58,7 +63,8 @@ export function VoucherCard({ voucher, onPress }: { voucher: Voucher; onPress?: 
 
       {used ? (
         <View style={styles.usedMark}>
-          <Icon name="check" size={22} color={colors.dimSage} strokeWidth={2} />
+          {/* A tick would read as "redeemed"; an expired voucher was not. */}
+          <Icon name={expired ? "clock" : "check"} size={22} color={colors.dimSage} strokeWidth={2} />
         </View>
       ) : (
         <View style={styles.qr}>

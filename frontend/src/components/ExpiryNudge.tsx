@@ -1,7 +1,7 @@
 import { View } from "react-native";
 
 import { type Voucher } from "@/src/api/data";
-import { daysUntil } from "@/src/lib/points";
+import { daysUntil, voucherLabel } from "@/src/lib/points";
 import { radius, spacing } from "@/src/tokens";
 import { makeStyles, useTheme } from "@/src/theme";
 import { Icon } from "@/src/ui/Icon";
@@ -20,8 +20,8 @@ export function ExpiryNudge({ vouchers, onPress }: { vouchers: Voucher[]; onPres
   const when = days <= 0 ? "today" : days === 1 ? "tomorrow" : `in ${days} days`;
   const title =
     vouchers.length > 1
-      ? `${vouchers.length} £10 vouchers expire soon`
-      : `Your £10 voucher expires ${when}`;
+      ? `${vouchers.length} vouchers expire soon`
+      : `Your ${voucherLabel(vouchers[0])} voucher expires ${when}`;
 
   return (
     <PressScale onPress={onPress} testID="expiry-nudge" accessibilityLabel={title}>
@@ -34,7 +34,7 @@ export function ExpiryNudge({ vouchers, onPress }: { vouchers: Voucher[]; onPres
             {title}
           </Txt>
           <Txt variant="caption" tone="sage">
-            Use it at any branch — it’s worth £10 off your next private purchase.
+            Use it at any branch, against your next private purchase.
           </Txt>
         </View>
         <Icon name="chevronRight" size={18} color={colors.dimSage} />

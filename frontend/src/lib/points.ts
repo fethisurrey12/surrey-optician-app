@@ -98,3 +98,18 @@ export function groupByMonth<T extends { date: string }>(
   }
   return out;
 }
+
+
+// How a voucher is written wherever it appears: "£10" for a reward, "20% off"
+// for the welcome voucher a member gets when they first sign up. One helper so
+// the two kinds cannot drift apart across the screens.
+export function voucherLabel(v: { value?: number; percentOff?: number }): string {
+  if (v.percentOff) return `${v.percentOff}% off`;
+  return money(v.value ?? 0);
+}
+
+// The longer form, for headings and sheets.
+export function voucherHeadline(v: { value?: number; percentOff?: number }): string {
+  if (v.percentOff) return `${v.percentOff}% off`;
+  return `${money(v.value ?? 0)} reward`;
+}

@@ -19,7 +19,12 @@ export async function loadAccount(): Promise<Account> {
 
 export async function loadVouchers(): Promise<Voucher[]> {
   await delay(320);
-  return vouchers.map((v) => ({ ...v }));
+  const today = new Date().toISOString().slice(0, 10);
+  return vouchers.map((v) => ({
+    ...v,
+    // Mirrors the server, which derives expiry from the date on read.
+    status: v.status === "available" && v.expires < today ? ("expired" as const) : v.status,
+  }));
 }
 
 export async function loadActivity(): Promise<Txn[]> {
@@ -39,6 +44,12 @@ export async function markVoucherUsed(
   branchId: string,
 ): Promise<Voucher> {
   await delay(700);
+  // The server refuses an out-of-term voucher; the offline sample data must
+  // behave the same way or the two paths disagree.
+  const target = vouchers.find((v) => v.id === id);
+  if (target && target.expires < new Date().toISOString().slice(0, 10)) {
+    throw new Error(`That voucher expired on ${target.expires}`);
+  }
   vouchers = vouchers.map((v) =>
     v.id === id
       ? {

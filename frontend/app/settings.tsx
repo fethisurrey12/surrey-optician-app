@@ -194,7 +194,7 @@ export default function Settings() {
 const TERMS = [
   "You earn one point for every whole £10 of eligible private spend at any Surrey Opticians branch. Amounts are rounded down.",
   "NHS-funded amounts earn nothing. Points are worked out on the private balance you actually pay.",
-  "Ten points convert automatically into a £10 reward voucher, which appears in your wallet with a unique code and an 18-month expiry.",
+  "Ten points convert automatically into a £10 reward voucher, which appears in your wallet with a unique code and is valid for one year.",
   "Vouchers are applied by a colleague at the till. Show the code and they apply £10 in the practice system. The app never applies the discount itself.",
   "Points and vouchers work the same across Coulsdon, Wallington and Banstead. They have no cash value and cannot be transferred.",
 ];

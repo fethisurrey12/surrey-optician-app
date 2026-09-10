@@ -54,10 +54,22 @@ def rewards_earned(previous_total: int, new_total: int) -> int:
     return (new_total // POINTS_PER_REWARD) - (previous_total // POINTS_PER_REWARD)
 
 
+def _block(n: int = 4) -> str:
+    return "".join(secrets.choice(CODE_ALPHABET) for _ in range(n))
+
+
 def voucher_code() -> str:
     """SO-XXXX-XXXX, drawn from the unambiguous alphabet."""
-    block = lambda: "".join(secrets.choice(CODE_ALPHABET) for _ in range(4))
-    return f"SO-{block()}-{block()}"
+    return f"SO-{_block()}-{_block()}"
+
+
+def member_code() -> str:
+    """SM-XXXX-XXXX — the patient's own code, shown as a QR at the desk.
+
+    The prefix differs from a voucher's so whoever is scanning, and the code
+    that reads it, can tell a check-in from a redemption at a glance.
+    """
+    return f"SM-{_block()}-{_block()}"
 
 
 def add_months(d: date, months: int) -> date:

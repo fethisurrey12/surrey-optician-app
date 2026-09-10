@@ -15,10 +15,13 @@ from typing import Literal, Optional
 
 from pydantic import BaseModel, EmailStr, Field, field_validator
 
-from scheme import pence_to_pounds
+from datetime import date
 
-VoucherStatus = Literal["available", "used"]
+from scheme import iso_date, pence_to_pounds
+
+VoucherStatus = Literal["available", "used", "expired"]
 WalletProvider = Literal["apple", "google"]
+VoucherKind = Literal["reward", "signup"]
 TxnKind = Literal["spend", "reward"]
 TxnCategory = Literal["exam", "lenses"]
 ReferralStatus = Literal["invited", "joined", "rewarded"]
@@ -52,6 +55,13 @@ class VerifyOtpIn(BaseModel):
     @classmethod
     def _digits(cls, v: str) -> str:
         return "".join(c for c in v if c.isdigit())
+
+
+class CheckInIn(BaseModel):
+    """What the desk sends after scanning a patient's membership QR."""
+
+    code: str
+    branchId: str
 
 
 class UpdateAccountIn(BaseModel):
@@ -105,6 +115,8 @@ class Account(BaseModel):
     points: int
     totalEarned: int
     referralCode: str
+    # The code behind the membership QR the desk scans to check the patient in.
+    memberCode: str
 
     @staticmethod
     def from_doc(doc: dict) -> "Account":
@@ -122,13 +134,18 @@ class Account(BaseModel):
             points=doc.get("points", 0),
             totalEarned=doc.get("totalEarned", 0),
             referralCode=doc["referralCode"],
+            memberCode=doc.get("memberCode", ""),
         )
 
 
 class Voucher(BaseModel):
     id: str
     code: str
-    value: float
+    kind: VoucherKind = "reward"
+    # A reward voucher is worth a fixed amount; the welcome voucher takes a
+    # percentage off instead. Exactly one of the two is set.
+    value: Optional[float] = None
+    percentOff: Optional[int] = None
     issued: str
     expires: str
     status: VoucherStatus
@@ -138,13 +155,23 @@ class Voucher(BaseModel):
 
     @staticmethod
     def from_doc(doc: dict) -> "Voucher":
+        # Expiry is derived on read rather than written by a nightly job, so a
+        # voucher stops being offered the moment its term is up, with nothing
+        # to schedule and no stored state that can fall behind the clock.
+        status = doc["status"]
+        if status == "available" and doc["expires"] < iso_date(date.today()):
+            status = "expired"
+
+        value_pence = doc.get("valuePence")
         return Voucher(
             id=doc["_id"],
             code=doc["code"],
-            value=pence_to_pounds(doc["valuePence"]),
+            kind=doc.get("kind", "reward"),
+            value=pence_to_pounds(value_pence) if value_pence is not None else None,
+            percentOff=doc.get("percentOff"),
             issued=doc["issued"],
             expires=doc["expires"],
-            status=doc["status"],
+            status=status,
             usedAt=doc.get("usedAt"),
             usedBranchId=doc.get("usedBranchId"),
             wallet=doc.get("wallet"),
@@ -213,6 +240,25 @@ class OtpSent(BaseModel):
     resendIn: int
     # Populated only when EXPOSE_DEV_OTP is on, for the prototype's on-screen code.
     devCode: Optional[str] = None
+
+
+class CheckIn(BaseModel):
+    id: str
+    at: str
+    branchId: str
+
+
+class CheckInResult(BaseModel):
+    """Shown to the colleague at the desk: who has arrived, and when."""
+
+    checkIn: CheckIn
+    firstName: str
+    lastName: str
+    mobileDisplay: str
+    memberCode: str
+    homeBranchId: str
+    # So the desk can mention a waiting reward while the patient is there.
+    vouchersAvailable: int
 
 
 class RedeemResult(BaseModel):

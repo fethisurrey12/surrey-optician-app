@@ -52,8 +52,18 @@ def test_points_to_next_reward():
     assert points_to_next_reward(10) == 10
 
 
-def test_voucher_term_is_eighteen_months():
-    assert voucher_expiry(date(2026, 6, 15)) == date(2027, 12, 15)
+def test_voucher_term_is_one_year():
+    assert voucher_expiry(date(2026, 6, 15)) == date(2027, 6, 15)
+
+
+def test_a_voucher_never_outlives_a_year():
+    # The practice's rule: nothing stays valid longer than twelve months.
+    for issued in (date(2026, 1, 1), date(2026, 2, 29 - 1), date(2026, 6, 15), date(2026, 12, 31)):
+        assert (voucher_expiry(issued) - issued).days <= 366
+
+
+def test_a_leap_day_issue_still_lands_on_a_real_date():
+    assert voucher_expiry(date(2028, 2, 29)) == date(2029, 2, 28)
 
 
 def test_month_arithmetic_clamps_to_short_months():

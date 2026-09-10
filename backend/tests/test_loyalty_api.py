@@ -114,7 +114,8 @@ async def test_a_retried_till_post_does_not_award_twice(client):
 
     headers, _ = await sign_in(client, MOBILE)
     vouchers = (await client.get("/api/me/vouchers", headers=headers)).json()
-    assert len(vouchers) == 1
+    rewards = [v for v in vouchers if v["kind"] == "reward"]
+    assert len(rewards) == 1
 
 
 # --- Redemption -----------------------------------------------------------
@@ -283,3 +284,203 @@ async def test_two_members_with_the_same_name_and_ending_get_distinct_codes(clie
 
     assert code_a == "SARAH-0123"
     assert code_b != code_a
+
+
+# --- Expiry -----------------------------------------------------------------
+async def test_a_new_voucher_runs_for_a_year(client):
+    from datetime import date
+
+    r = await purchase(client, total=100)
+    voucher = r.json()["vouchersIssued"][0]
+    issued = date.fromisoformat(voucher["issued"])
+    expires = date.fromisoformat(voucher["expires"])
+    assert (expires - issued).days <= 366
+
+
+async def test_an_out_of_term_voucher_reads_as_expired(client, database):
+    await purchase(client, total=100)
+    headers, _ = await sign_in(client, MOBILE)
+    voucher = (await client.get("/api/me/vouchers", headers=headers)).json()[0]
+
+    # Wind its expiry back past today, as the clock would.
+    await database.vouchers.update_one({"_id": voucher["id"]}, {"$set": {"expires": "2020-01-01"}})
+
+    after = (await client.get("/api/me/vouchers", headers=headers)).json()[0]
+    assert after["status"] == "expired"
+
+
+async def test_an_expired_voucher_cannot_be_redeemed(client, database):
+    await purchase(client, total=100)
+    headers, _ = await sign_in(client, MOBILE)
+    voucher = (await client.get("/api/me/vouchers", headers=headers)).json()[0]
+    await database.vouchers.update_one({"_id": voucher["id"]}, {"$set": {"expires": "2020-01-01"}})
+
+    r = await client.post(f"/api/me/vouchers/{voucher['id']}/redeem",
+                          json={"branchId": "coulsdon"}, headers=headers)
+    assert r.status_code == 410
+    assert "expired" in r.json()["detail"].lower()
+
+
+async def test_a_voucher_expiring_today_is_still_good(client, database):
+    from datetime import date
+
+    await purchase(client, total=100)
+    headers, _ = await sign_in(client, MOBILE)
+    voucher = (await client.get("/api/me/vouchers", headers=headers)).json()[0]
+    await database.vouchers.update_one(
+        {"_id": voucher["id"]}, {"$set": {"expires": date.today().isoformat()}}
+    )
+
+    still = (await client.get("/api/me/vouchers", headers=headers)).json()[0]
+    assert still["status"] == "available", "the last day of the term still counts"
+
+    r = await client.post(f"/api/me/vouchers/{voucher['id']}/redeem",
+                          json={"branchId": "coulsdon"}, headers=headers)
+    assert r.status_code == 200
+
+
+# --- Welcome voucher --------------------------------------------------------
+async def test_a_new_member_gets_one_welcome_voucher(client):
+    headers, _ = await sign_in(client, MOBILE)
+    vouchers = (await client.get("/api/me/vouchers", headers=headers)).json()
+
+    welcome = [v for v in vouchers if v["kind"] == "signup"]
+    assert len(welcome) == 1
+    assert welcome[0]["percentOff"] == 20
+    assert welcome[0]["value"] is None
+    assert welcome[0]["status"] == "available"
+
+
+async def test_the_welcome_voucher_is_issued_only_once(client):
+    await sign_in(client, MOBILE)
+    await sign_in(client, MOBILE)
+    headers, _ = await sign_in(client, MOBILE)
+
+    vouchers = (await client.get("/api/me/vouchers", headers=headers)).json()
+    assert len([v for v in vouchers if v["kind"] == "signup"]) == 1
+
+
+async def test_the_welcome_voucher_runs_for_no_more_than_a_year(client):
+    from datetime import date
+
+    headers, _ = await sign_in(client, MOBILE)
+    welcome = [v for v in (await client.get("/api/me/vouchers", headers=headers)).json()
+               if v["kind"] == "signup"][0]
+    term = date.fromisoformat(welcome["expires"]) - date.fromisoformat(welcome["issued"])
+    assert term.days <= 366
+
+
+async def test_a_long_standing_customer_still_gets_one_on_first_sign_in(client):
+    # The till knows this patient already; they have never opened the app.
+    await purchase(client, total=50)
+    headers, session = await sign_in(client, MOBILE)
+    assert session["isNewMember"] is False
+
+    vouchers = (await client.get("/api/me/vouchers", headers=headers)).json()
+    assert len([v for v in vouchers if v["kind"] == "signup"]) == 1
+
+
+async def test_the_till_alone_does_not_mint_a_welcome_voucher(client, database):
+    await purchase(client, total=50)
+    member = await database.members.find_one({"mobile": MOBILE})
+    assert await database.vouchers.count_documents(
+        {"memberId": member["_id"], "kind": "signup"}
+    ) == 0
+
+
+async def test_the_welcome_voucher_can_be_redeemed(client):
+    headers, _ = await sign_in(client, MOBILE)
+    welcome = [v for v in (await client.get("/api/me/vouchers", headers=headers)).json()
+               if v["kind"] == "signup"][0]
+
+    r = await client.post(f"/api/me/vouchers/{welcome['id']}/redeem",
+                          json={"branchId": "coulsdon"}, headers=headers)
+    assert r.status_code == 200
+    assert r.json()["voucher"]["status"] == "used"
+
+
+# --- Desk check-in ----------------------------------------------------------
+async def test_the_desk_checks_a_patient_in_from_their_qr(client):
+    headers, _ = await sign_in(client, MOBILE)
+    await client.patch("/api/me/account", json={"firstName": "Sarah", "lastName": "Whitfield"},
+                       headers=headers)
+    account = (await client.get("/api/me/account", headers=headers)).json()
+
+    code = account["memberCode"]
+    assert code.startswith("SM-"), "a membership code must not look like a voucher"
+
+    r = await client.post("/api/staff/check-in",
+                          json={"code": code, "branchId": "coulsdon"}, headers=STAFF)
+    assert r.status_code == 200
+
+    body = r.json()
+    assert body["firstName"] == "Sarah"
+    assert body["lastName"] == "Whitfield"
+    assert body["memberCode"] == code
+    assert body["checkIn"]["branchId"] == "coulsdon"
+    assert body["checkIn"]["at"]
+
+
+async def test_checking_in_awards_no_points(client):
+    headers, _ = await sign_in(client, MOBILE)
+    code = (await client.get("/api/me/account", headers=headers)).json()["memberCode"]
+
+    before = (await client.get("/api/me/account", headers=headers)).json()["totalEarned"]
+    await client.post("/api/staff/check-in", json={"code": code, "branchId": "coulsdon"}, headers=STAFF)
+    after = (await client.get("/api/me/account", headers=headers)).json()["totalEarned"]
+    assert before == after == 0
+
+
+async def test_a_patient_can_check_in_at_every_appointment(client, database):
+    headers, _ = await sign_in(client, MOBILE)
+    code = (await client.get("/api/me/account", headers=headers)).json()["memberCode"]
+
+    for branch in ("coulsdon", "banstead", "coulsdon"):
+        r = await client.post("/api/staff/check-in",
+                              json={"code": code, "branchId": branch}, headers=STAFF)
+        assert r.status_code == 200
+
+    member = await database.members.find_one({"mobile": MOBILE})
+    assert await database.checkins.count_documents({"memberId": member["_id"]}) == 3
+
+
+async def test_scanning_a_voucher_at_the_desk_says_so(client):
+    headers, _ = await sign_in(client, MOBILE)
+    voucher = (await client.get("/api/me/vouchers", headers=headers)).json()[0]
+
+    r = await client.post("/api/staff/check-in",
+                          json={"code": voucher["code"], "branchId": "coulsdon"}, headers=STAFF)
+    assert r.status_code == 422
+    assert "voucher" in r.json()["detail"].lower()
+
+
+async def test_an_unknown_code_is_refused(client):
+    r = await client.post("/api/staff/check-in",
+                          json={"code": "SM-ZZZZ-ZZZZ", "branchId": "coulsdon"}, headers=STAFF)
+    assert r.status_code == 404
+
+
+async def test_check_in_needs_the_staff_key(client):
+    headers, _ = await sign_in(client, MOBILE)
+    code = (await client.get("/api/me/account", headers=headers)).json()["memberCode"]
+    r = await client.post("/api/staff/check-in", json={"code": code, "branchId": "coulsdon"})
+    assert r.status_code == 401
+
+
+async def test_the_desk_sees_a_waiting_reward(client):
+    await purchase(client, total=100)
+    headers, _ = await sign_in(client, MOBILE)
+    code = (await client.get("/api/me/account", headers=headers)).json()["memberCode"]
+
+    r = await client.post("/api/staff/check-in",
+                          json={"code": code, "branchId": "coulsdon"}, headers=STAFF)
+    # One earned reward plus the welcome voucher.
+    assert r.json()["vouchersAvailable"] == 2
+
+
+async def test_member_codes_are_distinct_per_member(client):
+    a, _ = await sign_in(client, "+447700900123")
+    b, _ = await sign_in(client, "+447700900456")
+    code_a = (await client.get("/api/me/account", headers=a)).json()["memberCode"]
+    code_b = (await client.get("/api/me/account", headers=b)).json()["memberCode"]
+    assert code_a != code_b

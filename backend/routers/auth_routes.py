@@ -10,7 +10,7 @@ from auth import current_member, issue_otp, make_token, verify_otp
 from config import EXPOSE_DEV_OTP, OTP_TTL_SECONDS
 from models import Account, OtpSent, RequestOtpIn, Session, VerifyOtpIn
 from sms import send_otp
-from store import attach_referral, get_or_create_member
+from store import attach_referral, ensure_member_code, get_or_create_member, issue_signup_voucher
 
 log = logging.getLogger(__name__)
 router = APIRouter(prefix="/auth", tags=["auth"])
@@ -41,6 +41,11 @@ async def verify(body: VerifyOtpIn):
         raise HTTPException(status.HTTP_401_UNAUTHORIZED, "That code is not right. Please check and try again.")
 
     member, is_new = await get_or_create_member(body.mobile)
+
+    # The welcome offer lands on the first sign-in, whether or not the till had
+    # already created a record for this patient. It is a no-op after that.
+    await issue_signup_voucher(member["_id"])
+    member = await ensure_member_code(member["_id"])
 
     referral_applied = False
     if is_new and body.referralCode:

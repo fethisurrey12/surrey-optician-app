@@ -75,3 +75,28 @@ async def test_the_rewards_tab_has_both_states_to_show(client, database):
     assert statuses == {"available", "used"}, "the demo should show both voucher states"
     used = next(v for v in vouchers if v["status"] == "used")
     assert used["usedBranchId"] and used["usedAt"]
+
+
+async def test_the_demo_shows_a_voucher_in_every_state(client, database):
+    from models import Voucher
+    from seed import seed_demo_member
+
+    await seed_demo_member()
+    member = await database.members.find_one({"mobile": DEMO_MOBILE})
+    docs = await database.vouchers.find({"memberId": member["_id"]}).to_list(50)
+    states = {Voucher.from_doc(d).status for d in docs}
+
+    # Available, spent, and out of term — so every branch of the Rewards tab
+    # has something to render.
+    assert {"available", "used", "expired"} <= states, states
+
+
+async def test_no_seeded_voucher_runs_longer_than_a_year(client, database):
+    from datetime import date
+
+    from seed import seed_demo_member
+
+    await seed_demo_member()
+    for v in await database.vouchers.find({}).to_list(50):
+        term = date.fromisoformat(v["expires"]) - date.fromisoformat(v["issued"])
+        assert term.days <= 366, v

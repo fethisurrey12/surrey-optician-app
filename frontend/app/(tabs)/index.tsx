@@ -26,7 +26,7 @@ import { SectionHeader } from "@/src/ui/SectionHeader";
 import { StaggerItem } from "@/src/ui/Stagger";
 import { Tile } from "@/src/ui/Tile";
 import { Txt } from "@/src/ui/Txt";
-import { Wordmark } from "@/src/ui/Wordmark";
+import { LogoMark } from "@/src/ui/LogoMark";
 
 function greeting(): string {
   const h = new Date().getHours();
@@ -101,7 +101,7 @@ export default function Home() {
             </Txt>
             <Txt variant="h2">{a.firstName}</Txt>
           </View>
-          <Wordmark size="sm" align="left" />
+          <LogoMark height={34} />
         </View>
       }
     >

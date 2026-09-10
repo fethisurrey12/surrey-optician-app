@@ -24,7 +24,7 @@ ROOT = Path(__file__).resolve().parent.parent
 FONTS = ROOT / "assets" / "fonts"
 OUT = ROOT / "assets" / "images"
 
-TURQUOISE = (20, 175, 193, 255)   # the logo tile
+TURQUOISE = (75, 166, 188, 255)   # the logo tile
 INK = (23, 23, 51, 255)           # the navy-black of "surrey"
 PAPER = (255, 255, 255, 255)
 
@@ -54,6 +54,34 @@ def monogram(size: int, bg, fg) -> Image.Image:
         d.rounded_rectangle([0, 0, size - 1, size - 1], radius=int(size * 0.22), fill=bg)
     f = font("Inter-Regular.ttf", int(size * 0.50))
     centre(d, (size / 2, size / 2 - size * 0.01), "so", f, fg, tracking=int(size * -0.01))
+    return img
+
+
+def tile(width: int, height: int) -> Image.Image:
+    """The turquoise tile with the white interlocking-lens motif.
+
+    Traced by eye from the logo on surreyopticians.co.uk — close in form and
+    colour, but not the practice's actual artwork. Replace
+    assets/images/logo-mark.png with the real file when it is to hand.
+    """
+    img = Image.new("RGBA", (width, height), TURQUOISE)
+    d = ImageDraw.Draw(img)
+    stroke = max(2, int(height * 0.055))
+
+    # Two lenses: a larger ring to the right, a smaller one overlapping left.
+    big_r = height * 0.30
+    big_c = (width * 0.575, height * 0.42)
+    small_r = height * 0.205
+    small_c = (width * 0.415, height * 0.55)
+
+    for (cx, cy), r in ((big_c, big_r), (small_c, small_r)):
+        d.ellipse([cx - r, cy - r, cx + r, cy + r], outline=PAPER, width=stroke)
+
+    # The sweep that runs off the lower-left, as on the practice's mark.
+    d.arc(
+        [width * 0.235, height * 0.42, width * 0.445, height * 0.98],
+        start=200, end=20, fill=PAPER, width=stroke,
+    )
     return img
 
 
@@ -92,7 +120,13 @@ def main() -> None:
 
     monogram(196, TURQUOISE, PAPER).convert("RGB").save(OUT / "favicon.png")
 
-    for n in ("icon.png", "adaptive-icon.png", "splash-image.png", "favicon.png"):
+    # The mark shown in the app's own headers: the turquoise tile with the
+    # white interlocking-lens motif, in the logo's own landscape proportions.
+    # Kept as its own file so the practice's real artwork can replace just this
+    # one, without touching the store icon or the splash.
+    tile(880, 400).save(OUT / "logo-mark.png")
+
+    for n in ("icon.png", "adaptive-icon.png", "splash-image.png", "favicon.png", "logo-mark.png"):
         p = OUT / n
         print(f"  {n:20} {Image.open(p).size}  {p.stat().st_size // 1024}KB")
 

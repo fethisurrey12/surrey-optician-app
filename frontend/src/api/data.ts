@@ -23,6 +23,7 @@ export type Account = {
   points: number; // balance toward the next reward (0–9 after conversions)
   totalEarned: number; // lifetime points
   referralCode: string; // quoted by a friend at their first visit
+  memberCode: string; // behind the QR the desk scans to check the patient in
 };
 
 // A friend the member has invited. Both earn one bonus point when the friend
@@ -35,13 +36,21 @@ export type Referral = {
   rewardedAt?: string; // ISO
 };
 
+export type VoucherKind = "reward" | "signup";
+
 export type Voucher = {
   id: string;
   code: string;
-  value: number; // £
+  // A reward voucher is worth a fixed amount; the welcome voucher a member
+  // gets when they first sign up takes a percentage off instead.
+  kind: VoucherKind;
+  value?: number; // £, on reward vouchers
+  percentOff?: number; // %, on the welcome voucher
   issued: string; // ISO
-  expires: string; // ISO (18 months from issue)
-  status: "available" | "used";
+  expires: string; // ISO (one year from issue)
+  // "expired" is derived by the server from the date — a voucher past its
+  // term is never offered as ready to use.
+  status: "available" | "used" | "expired";
   usedAt?: string; // ISO
   usedBranchId?: string;
   wallet?: WalletProvider; // set once the member has added it to their phone wallet
@@ -108,7 +117,7 @@ export const BRANCHES: Branch[] = [
 export const PRACTICE_EMAIL = "hello@surreyopticians.co.uk";
 
 // One sample voucher sits inside the 60-day expiry window whatever today's date
-// is, so the reminder flow is always visible in the prototype. 18-month term.
+// is, so the reminder flow is always visible in the prototype. One-year term.
 function iso(d: Date): string {
   const mm = String(d.getMonth() + 1).padStart(2, "0");
   const dd = String(d.getDate()).padStart(2, "0");
@@ -116,7 +125,7 @@ function iso(d: Date): string {
 }
 const today = new Date();
 const soonExpires = new Date(today.getFullYear(), today.getMonth(), today.getDate() + 41);
-const soonIssued = new Date(soonExpires.getFullYear(), soonExpires.getMonth() - 18, soonExpires.getDate());
+const soonIssued = new Date(soonExpires.getFullYear() - 1, soonExpires.getMonth(), soonExpires.getDate());
 const DEMO_EXPIRING = { issued: iso(soonIssued), expires: iso(soonExpires) };
 // The sample eye examination was bought just under two years ago, so the
 // recall nudge (due in 20 days) is always visible in the prototype.
@@ -136,6 +145,7 @@ export const ACCOUNT: Account = {
   points: 8,
   totalEarned: 88,
   referralCode: "SARAH-5589",
+  memberCode: "SM-4H7P-2QXD",
 };
 
 export const REFERRAL_BONUS_POINTS = 1;
@@ -158,14 +168,16 @@ export const VOUCHERS: Voucher[] = [
   {
     id: "v-7f3k92qx",
     code: "SO-7F3K-92QX",
+    kind: "reward",
     value: 10,
     issued: "2026-06-15",
-    expires: "2027-12-15",
+    expires: "2027-06-15",
     status: "available",
   },
   {
     id: "v-9k2t08mw",
     code: "SO-9K2T-08MW",
+    kind: "reward",
     value: 10,
     issued: DEMO_EXPIRING.issued,
     expires: DEMO_EXPIRING.expires,
@@ -174,9 +186,10 @@ export const VOUCHERS: Voucher[] = [
   {
     id: "v-2m8d41lp",
     code: "SO-2M8D-41LP",
+    kind: "reward",
     value: 10,
     issued: "2025-11-04",
-    expires: "2027-05-04",
+    expires: "2026-11-04",
     status: "used",
     usedAt: "2025-12-02",
     usedBranchId: "coulsdon",

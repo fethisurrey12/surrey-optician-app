@@ -15,9 +15,11 @@ till.
 | Earning | 1 point per whole £10 of private spend, rounded down |
 | NHS-funded care | Earns nothing — only the amount the customer pays counts |
 | Reward | 10 points issues a £10 voucher automatically |
-| Voucher term | 18 months from issue |
+| Voucher term | 12 months from issue — nothing stays valid longer than a year |
 | Redemption | Manual, at the till — the app never redeems itself |
+| Expiry | Derived from the date on read; an expired voucher is never offered and cannot be redeemed |
 | Referrals | Both parties earn a bonus point on the friend's first purchase |
+| Welcome offer | One voucher, 20% off, issued the first time a patient signs in — one per member, ever |
 
 The maths lives in `backend/scheme.py`, which is the authority; the app keeps a
 matching copy in `frontend/src/lib/points.ts` for display only.
@@ -76,9 +78,24 @@ All routes are under `/api`.
 | `POST /me/vouchers/{id}/redeem` | member | Mark a voucher used at the till |
 | `POST /me/vouchers/{id}/wallet` | member | Record an Apple/Google Wallet add |
 | `POST /staff/purchases` | till | Record a purchase and award points |
+| `POST /staff/check-in` | desk | Check a patient in from their membership QR |
 | `GET /wallet/status` | public | What wallet signing material is missing |
 
-Members authenticate with a bearer token; the till presents `X-Staff-Key`.
+Members authenticate with a bearer token; the till and desk present `X-Staff-Key`.
+
+## Codes
+
+Two kinds of QR, told apart by their prefix so whoever is scanning cannot
+confuse them:
+
+| Prefix | What it is | Where it is scanned |
+|---|---|---|
+| `SO-` | A voucher — £10 reward, or the 20% welcome offer | The till, to apply the discount |
+| `SM-` | The patient's membership code | The desk, to check them in on arrival |
+
+Checking in records the arrival and tells the colleague who has arrived. It
+moves no points, because arriving is not a purchase. Presenting a voucher code
+at the desk is refused with a message saying so.
 
 ## Booking
 

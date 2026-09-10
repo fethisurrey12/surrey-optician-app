@@ -62,8 +62,14 @@ TWILIO_FROM = os.environ.get("TWILIO_FROM", "")
 SPEND_PER_POINT_PENCE = _int("SPEND_PER_POINT_PENCE", 1000)   # £10 -> 1 point
 POINTS_PER_REWARD = _int("POINTS_PER_REWARD", 10)             # 10 points -> voucher
 VOUCHER_VALUE_PENCE = _int("VOUCHER_VALUE_PENCE", 1000)       # £10
-VOUCHER_TTL_MONTHS = _int("VOUCHER_TTL_MONTHS", 18)
+VOUCHER_TTL_MONTHS = _int("VOUCHER_TTL_MONTHS", 12)   # a voucher is valid for a year
 REFERRAL_BONUS_POINTS = _int("REFERRAL_BONUS_POINTS", 1)
+
+# A welcome offer, issued once when a member first signs up. One per member,
+# ever — re-signing in on a new phone does not mint another.
+SIGNUP_VOUCHER_ENABLED = _bool("SIGNUP_VOUCHER_ENABLED", True)
+SIGNUP_VOUCHER_PERCENT = _int("SIGNUP_VOUCHER_PERCENT", 20)
+SIGNUP_VOUCHER_TTL_MONTHS = _int("SIGNUP_VOUCHER_TTL_MONTHS", 12)
 
 # --- Staff / till ---------------------------------------------------------
 # Shared secret the in-practice till software presents to record purchases and

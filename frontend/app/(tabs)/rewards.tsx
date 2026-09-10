@@ -8,7 +8,7 @@ import { appleWalletUrl, googleWalletUrl, walletStatus } from "@/src/api/wallet"
 import { useApp } from "@/src/context/AppContext";
 import { VoucherCard } from "@/src/components/VoucherCard";
 import { WalletPassPreview } from "@/src/components/WalletPassPreview";
-import { dayMonthYear, expiresInText, expiresSoon, pointsToNextReward } from "@/src/lib/points";
+import { dayMonthYear, expiresInText, expiresSoon, pointsToNextReward, voucherLabel } from "@/src/lib/points";
 import { font, spacing } from "@/src/tokens";
 import { makeStyles, useTheme } from "@/src/theme";
 import { EmptyState } from "@/src/ui/EmptyState";
@@ -60,7 +60,10 @@ export default function Rewards() {
   }
 
   const available = vouchers.data.filter((v) => v.status === "available");
-  const used = vouchers.data.filter((v) => v.status === "used");
+  // Anything not available — spent or out of term — sits in the past section
+  // rather than disappearing from the wallet altogether.
+  const used = vouchers.data.filter((v) => v.status !== "available");
+  const anyExpired = used.some((v) => v.status === "expired");
   const toNext = pointsToNextReward(account.data.points);
   const selected: Voucher | null = vouchers.data.find((v) => v.id === selectedId) ?? null;
 
@@ -164,7 +167,7 @@ export default function Rewards() {
 
       {used.length > 0 ? (
         <StaggerItem index={1} style={styles.usedBlock}>
-          <SectionHeader title="Used" />
+          <SectionHeader title={anyExpired ? "Used and expired" : "Used"} />
           <View style={styles.list}>
             {used.map((v) => (
               <VoucherCard key={v.id} voucher={v} />
@@ -258,13 +261,13 @@ export default function Rewards() {
                 {selected.code}
               </Txt>
               <View style={styles.figureRow}>
-                <GradientText style={styles.figure}>£10</GradientText>
+                <GradientText style={styles.figure}>{voucherLabel(selected)}</GradientText>
                 <Txt
                   variant="body"
                   tone={expiresSoon(selected.expires) ? "warning" : undefined}
                   style={[styles.figureNote, styles.center]}
                 >
-                  reward ·{" "}
+                  {selected.kind === "signup" ? "welcome offer" : "reward"} ·{" "}
                   {expiresSoon(selected.expires)
                     ? expiresInText(selected.expires)
                     : `expires ${dayMonthYear(selected.expires)}`}
@@ -293,8 +296,8 @@ export default function Rewards() {
                 </Txt>
               </View>
               <Txt variant="caption" style={styles.center}>
-                The app never applies the discount itself. A colleague scans this, applies £10 in
-                the practice system, and marks it used.
+                The app never applies the discount itself. A colleague scans this, applies{" "}
+                {voucherLabel(selected)} in the practice system, and marks it used.
               </Txt>
               <GhostButton
                 label="Simulate the till scan"

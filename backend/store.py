@@ -19,11 +19,20 @@ from typing import Optional
 from fastapi import HTTPException, status
 from pymongo.errors import DuplicateKeyError
 
-from config import POINTS_PER_REWARD, REFERRAL_BONUS_POINTS, VOUCHER_VALUE_PENCE
+from config import (
+    POINTS_PER_REWARD,
+    REFERRAL_BONUS_POINTS,
+    SIGNUP_VOUCHER_ENABLED,
+    SIGNUP_VOUCHER_PERCENT,
+    SIGNUP_VOUCHER_TTL_MONTHS,
+    VOUCHER_VALUE_PENCE,
+)
 from db import get_db
 from phone import last_four
 from scheme import (
+    add_months,
     iso_date,
+    member_code,
     points_for_spend,
     pounds_to_pence,
     private_pence,
@@ -80,6 +89,7 @@ async def create_member(mobile: str, first_name: str = "", last_name: str = "",
         # It is reissued once they tell us their name — see update_member — because
         # the join page reads the inviter's name back out of the code.
         "referralCodeAuto": not bool(first_name),
+        "memberCode": member_code(),
         "createdAt": datetime.now(timezone.utc),
     }
     try:
@@ -98,6 +108,69 @@ async def get_or_create_member(mobile: str) -> tuple[dict, bool]:
     if existing:
         return existing, False
     return await create_member(mobile), True
+
+
+async def ensure_member_code(member_id: str) -> dict:
+    """Give an older member record a code the first time it is needed."""
+    db = get_db()
+    doc = await db.members.find_one({"_id": member_id})
+    if not doc:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "Account not found")
+    if doc.get("memberCode"):
+        return doc
+
+    for _ in range(5):
+        try:
+            await db.members.update_one(
+                {"_id": member_id}, {"$set": {"memberCode": member_code()}}
+            )
+            return await db.members.find_one({"_id": member_id})
+        except DuplicateKeyError:
+            continue
+    raise HTTPException(status.HTTP_500_INTERNAL_SERVER_ERROR, "Could not allocate a member code")
+
+
+async def check_in(code: str, branch_id: str) -> tuple[dict, dict]:
+    """Record a patient arriving at the desk. Returns (member, check-in).
+
+    The desk scans the patient's membership QR; this says who they are and
+    notes the arrival. It does not touch points — checking in is not a purchase.
+    """
+    db = get_db()
+    code = (code or "").strip().upper()
+
+    member = await db.members.find_one({"memberCode": code})
+    if not member:
+        # A colleague scanning the wrong QR is the likeliest mistake, so say so.
+        if code.startswith("SO-"):
+            raise HTTPException(
+                status.HTTP_422_UNPROCESSABLE_ENTITY,
+                "That is a reward voucher, not a membership code. Ask for the check-in QR.",
+            )
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "No member found for that code")
+
+    now = datetime.now(timezone.utc)
+    doc = {
+        "_id": _uid("c"),
+        "memberId": member["_id"],
+        "branchId": branch_id,
+        "at": now,
+        "date": iso_date(now.date()),
+    }
+    await db.checkins.insert_one(doc)
+    return member, doc
+
+
+async def recent_check_in(member_id: str, within_minutes: int = 60) -> Optional[dict]:
+    """The member's latest arrival, if it is recent enough to still be the one."""
+    db = get_db()
+    doc = await get_db().checkins.find_one({"memberId": member_id}, sort=[("at", -1)])
+    if not doc:
+        return None
+    at = doc["at"] if doc["at"].tzinfo else doc["at"].replace(tzinfo=timezone.utc)
+    if (datetime.now(timezone.utc) - at).total_seconds() > within_minutes * 60:
+        return None
+    return doc
 
 
 async def update_member(member_id: str, changes: dict) -> dict:
@@ -126,18 +199,37 @@ async def update_member(member_id: str, changes: dict) -> dict:
 
 
 # --- Vouchers -------------------------------------------------------------
-async def issue_voucher(member_id: str, issued: Optional[str] = None) -> dict:
-    """Mint one voucher. Retries on the astronomically unlikely code clash."""
+async def issue_voucher(
+    member_id: str,
+    issued: Optional[str] = None,
+    *,
+    kind: str = "reward",
+    percent_off: Optional[int] = None,
+    value_pence: Optional[int] = VOUCHER_VALUE_PENCE,
+    ttl_months: Optional[int] = None,
+) -> dict:
+    """Mint one voucher. Retries on the astronomically unlikely code clash.
+
+    A "reward" voucher is worth a fixed amount; a "signup" voucher takes a
+    percentage off instead, so exactly one of value_pence and percent_off is
+    set on the document.
+    """
     db = get_db()
     issued_date = date.fromisoformat(issued) if issued else datetime.now(timezone.utc).date()
+    expires = (
+        add_months(issued_date, ttl_months) if ttl_months is not None
+        else voucher_expiry(issued_date)
+    )
     for _ in range(5):
         doc = {
             "_id": _uid("v"),
             "memberId": member_id,
             "code": voucher_code(),
-            "valuePence": VOUCHER_VALUE_PENCE,
+            "kind": kind,
+            "valuePence": None if percent_off else value_pence,
+            "percentOff": percent_off,
             "issued": iso_date(issued_date),
-            "expires": iso_date(voucher_expiry(issued_date)),
+            "expires": iso_date(expires),
             "status": "available",
             "createdAt": datetime.now(timezone.utc),
         }
@@ -147,6 +239,32 @@ async def issue_voucher(member_id: str, issued: Optional[str] = None) -> dict:
         except DuplicateKeyError:
             continue
     raise HTTPException(status.HTTP_500_INTERNAL_SERVER_ERROR, "Could not allocate a voucher code")
+
+
+async def issue_signup_voucher(member_id: str) -> Optional[dict]:
+    """The welcome offer — one per member, ever.
+
+    Issued when a patient first signs in to the app, not when the till first
+    creates their record: a long-standing customer who has been buying in
+    branch for years still gets their welcome voucher the day they sign up.
+
+    Guarded by a lookup rather than a flag on the member, so the rule holds
+    even if two sign-ins race each other.
+    """
+    if not SIGNUP_VOUCHER_ENABLED or SIGNUP_VOUCHER_PERCENT <= 0:
+        return None
+
+    db = get_db()
+    if await db.vouchers.find_one({"memberId": member_id, "kind": "signup"}):
+        return None
+
+    return await issue_voucher(
+        member_id,
+        kind="signup",
+        percent_off=SIGNUP_VOUCHER_PERCENT,
+        value_pence=None,
+        ttl_months=SIGNUP_VOUCHER_TTL_MONTHS,
+    )
 
 
 async def list_vouchers(member_id: str) -> list[dict]:
@@ -162,6 +280,17 @@ async def redeem_voucher(member_id: str, voucher_id: str, branch_id: str) -> dic
     GBP 10 credit cannot be applied twice.
     """
     db = get_db()
+
+    # Checked before the update so an out-of-term voucher is refused with a
+    # reason, rather than being silently redeemable because the stored status
+    # still reads "available".
+    existing = await db.vouchers.find_one({"_id": voucher_id, "memberId": member_id})
+    if existing and existing["status"] == "available" and existing["expires"] < _today():
+        raise HTTPException(
+            status.HTTP_410_GONE,
+            f"That voucher expired on {existing['expires']}",
+        )
+
     result = await db.vouchers.find_one_and_update(
         {"_id": voucher_id, "memberId": member_id, "status": "available"},
         {

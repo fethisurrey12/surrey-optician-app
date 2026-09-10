@@ -40,7 +40,7 @@ async def seed_demo_member() -> None:
         member = await create_member(DEMO_MOBILE, "Sarah", "Whitfield", "coulsdon")
         await db.members.update_one(
             {"_id": member["_id"]},
-            {"$set": {"email": "sarah.whitfield@gmail.com", "memberSince": _ago(days=507)}},
+            {"$set": {"email": "sarah.whitfield@gmail.com", "memberSince": _ago(days=712)}},
         )
 
     today = date.today()
@@ -49,16 +49,18 @@ async def seed_demo_member() -> None:
     exam_date = iso_date(add_months(today + timedelta(days=20), -24))
     lens_date = iso_date(add_months(today + timedelta(days=10), -3))
 
-    # 507 days back is 18 months minus about six weeks, so the vouchers those
-    # purchases unlock sit inside the 60-day expiry window and the Home nudge
-    # always has something to show.
+    # Dated so the sample account shows every voucher state at once. Vouchers
+    # run for a year, so the purchase 324 days back unlocks one that expires in
+    # about six weeks — inside the 60-day window the Home nudge watches — while
+    # the pair from 600 days back have run out and demonstrate the expired
+    # state. Ordered oldest first so points accrue the way they would in life.
     purchases = [
-        (_ago(days=507), "coulsdon", "Varifocal lenses", "Premium extra-wide field", 190, 0, None, None),
-        (_ago(days=507), "coulsdon", "Titanium frames", "Lightweight, hypoallergenic", 145, 0, None, None),
-        (_ago(days=400), "wallington", "Anti-reflection coating", "Premium clarity finish", 60, 0, None, None),
-        (lens_date, "banstead", "Contact lenses", "Three-month supply of monthlies", 54, 0, "lenses", 3),
         (exam_date, "coulsdon", "Eye examination", "Part-funded by an NHS optical voucher", 95, 39.10, "exam", None),
+        (_ago(days=600), "coulsdon", "Varifocal lenses", "Premium extra-wide field", 190, 0, None, None),
+        (_ago(days=324), "coulsdon", "Titanium frames", "Lightweight, hypoallergenic", 145, 0, None, None),
+        (_ago(days=250), "wallington", "Anti-reflection coating", "Premium clarity finish", 60, 0, None, None),
         (_ago(days=87), "wallington", "Prescription sunglasses", "Polarised, gradient tint", 160, 0, None, None),
+        (lens_date, "banstead", "Contact lenses", "Three-month supply of monthlies", 54, 0, "lenses", 3),
         (_ago(days=39), "banstead", "Blue-light lens coating", "Applied to existing lenses", 45, 0, None, None),
     ]
 
@@ -78,8 +80,8 @@ async def seed_demo_member() -> None:
 
     fresh = await find_member(DEMO_MOBILE)
 
-    # Spend the oldest voucher so the Rewards tab demonstrates its "used" state
-    # as well as the available one.
+    # Spend the oldest voucher so the Rewards tab demonstrates the used state
+    # alongside the available, expiring and expired ones.
     oldest = await db.vouchers.find_one(
         {"memberId": fresh["_id"], "status": "available"}, sort=[("issued", 1)]
     )

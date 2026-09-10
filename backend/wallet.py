@@ -179,7 +179,7 @@ def build_pkpass(code: str, value: int, expires: str, member: str, branch: str) 
                     "value": "Show this pass at the till in any Surrey Opticians branch. A colleague scans it, "
                     "applies £10 to your private purchase and marks it used.",
                 },
-                {"key": "terms", "label": "Terms", "value": "One voucher per transaction. Not valid against NHS-funded amounts. Expires 18 months after issue."},
+                {"key": "terms", "label": "Terms", "value": "One voucher per transaction. Not valid against NHS-funded amounts. Expires one year after issue."},
                 {"key": "branches", "label": "Branches", "value": "Coulsdon · Wallington · Banstead"},
             ],
         },

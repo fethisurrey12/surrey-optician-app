@@ -23,7 +23,7 @@ behind four async functions so it can point at a real server later without touch
 
 ## Scheme rules (implemented in src/lib/points.ts)
 1 point per whole £10 of **private** spend (NHS-funded amounts earn nothing), rounded down.
-10 points → auto £10 voucher, unique code, 18-month expiry. Redemption is manual (till);
+10 points → auto £10 voucher, unique code, 12-month expiry (the practice's rule: no voucher outlives a year). Redemption is manual (till);
 the app never self-redeems — a "Simulate the till scan" control stands in for the colleague.
 
 ## Implemented (2026-06 / build 1.0.0)
@@ -95,8 +95,30 @@ the app never self-redeems — a "Simulate the till scan" control stands in for 
   shows a QR at the till.
 - **Colleague (till)**: scans the code, applies £10 in the practice system, marks it used.
 
+- **Real backend (2026-09)**: FastAPI + MongoDB service under `backend/`. Phone + OTP sign-in
+  (bcrypt-hashed, single-use, rate limited), JWT sessions kept in secure storage, members,
+  points ledger, vouchers, referrals, and a staff API for the till. `src/api/index.ts` resolves
+  to the API when EXPO_PUBLIC_BACKEND_URL is set and to the bundled sample data when it is not.
+- **Brand (2026-09)**: the practice's own turquoise (#4BA6BC), navy (#2E2C66) and white, taken
+  from surreyopticians.co.uk. Emergent's logo, splash and icon replaced. Logo artwork in
+  `assets/images/logo-mark.png` is a stand-in until the practice supplies the real file.
+- **Booking (2026-09)**: "Book an eye test" and "Book online" hand off to
+  https://www.surreyopticians.co.uk/book-appointment. The practice's own page owns availability.
+- **Voucher term (2026-09)**: 12 months, not 18 — no voucher outlives a year. Expiry is derived
+  on read, so an out-of-term voucher is never offered and cannot be redeemed.
+- **Welcome offer (2026-09)**: one 20% voucher, issued the first time a patient signs in, one per
+  member ever. Issued on sign-in rather than record creation, so a long-standing customer the
+  till already knows still gets theirs the day they sign up.
+- **Desk check-in (2026-09)**: every member has an `SM-` code behind a QR on `/checkin`. The desk
+  scans it on arrival (`POST /api/staff/check-in`), which records the visit and names the patient.
+  No points move — arriving is not a purchase. A voucher (`SO-`) presented at the desk is refused
+  with a message saying which QR to ask for.
+
 ## Backlog (not built)
-- P1: real backend wiring (swap mock.ts bodies for fetch), real SMS gateway, wallet signing
+- P0: the branch addresses, phone numbers and practice email in `src/api/data.ts` and
+  `backend/branches.py` are Emergent's inventions and do not match the real practices —
+  tap-to-call currently dials wrong numbers. Awaiting the correct details.
+- P1: real SMS gateway, wallet signing
   credentials from the practice (Apple Pass Type ID cert, Google issuer) — see WALLET_SETUP.md.
 - P2: referral redemption at the till (staff enters friend's code),
   RN Web deprecation clean-up (pointerEvents / shadow props).
