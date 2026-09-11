@@ -30,7 +30,7 @@ export function LogoMark({
         <Rect width={W} height={H} fill={TURQUOISE} />
         <Circle cx={356} cy={162} r={142} fill="none" stroke={MARK} strokeWidth={32} />
         <Path
-          d="M -14 122 C 34 62 118 44 158 92 C 190 130 170 168 138 186 C 96 208 84 258 112 292 C 142 328 208 326 228 288 C 246 254 222 214 184 202"
+          d="M 178 120 C 178 88 152 62 122 62 C 90 62 62 88 62 126 C 62 162 98 184 156 198 C 214 212 250 236 250 278 C 250 322 208 348 162 348 C 116 348 76 324 64 284"
           fill="none"
           stroke={MARK}
           strokeWidth={32}
