@@ -99,8 +99,11 @@ the app never self-redeems — a "Simulate the till scan" control stands in for 
   (bcrypt-hashed, single-use, rate limited), JWT sessions kept in secure storage, members,
   points ledger, vouchers, referrals, and a staff API for the till. `src/api/index.ts` resolves
   to the API when EXPO_PUBLIC_BACKEND_URL is set and to the bundled sample data when it is not.
-- **Brand (2026-09)**: the practice's own turquoise (#4BA6BC), navy (#2E2C66) and white, taken
-  from surreyopticians.co.uk. Emergent's logo, splash and icon replaced. Logo artwork in
+- **Brand (2026-09)**: taken from the practice's own Surrey Opticians Lookbook (2019) —
+  turquoise #009db1, dark grey #3b3c43, dark blue #282460, type Gill Sans Nova.
+  Branch addresses, phone numbers and the practice email come from the same source:
+  four practices (Coulsdon, Wallington, Wallington Green, Banstead), replacing the three
+  Emergent invented with wrong streets and wrong numbers. Emergent's logo, splash and icon replaced. Logo artwork in
   `assets/images/logo-mark.png` is a stand-in until the practice supplies the real file.
 - **Booking (2026-09)**: "Book an eye test" and "Book online" hand off to
   https://www.surreyopticians.co.uk/book-appointment. The practice's own page owns availability.
@@ -115,9 +118,9 @@ the app never self-redeems — a "Simulate the till scan" control stands in for 
   with a message saying which QR to ask for.
 
 ## Backlog (not built)
-- P0: the branch addresses, phone numbers and practice email in `src/api/data.ts` and
-  `backend/branches.py` are Emergent's inventions and do not match the real practices —
-  tap-to-call currently dials wrong numbers. Awaiting the correct details.
+- P1: `assets/images/logo-mark.png` is a hand trace. The practice's own artwork is in
+  SharePoint (SOMarketing / Surrey Opticians Logo-01.png) and needs to reach the repo.
+- P1: the app substitutes Inter for the brand face, Gill Sans Nova.
 - P1: real SMS gateway, wallet signing
   credentials from the practice (Apple Pass Type ID cert, Google issuer) — see WALLET_SETUP.md.
 - P2: referral redemption at the till (staff enters friend's code),

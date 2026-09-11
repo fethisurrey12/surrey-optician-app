@@ -9,15 +9,16 @@
 // named palette (paper, ink, teal, sage...) and the gradient tuples are what
 // the screens actually reach for.
 //
-// Taken from surreyopticians.co.uk: the turquoise of the logo mark, the navy
-// of the "Book Appointment" button, white pages and near-black type.
+// Taken from the practice's own Surrey Opticians Lookbook (2019), not guessed
+// from a screenshot: primary turquoise #009db1, dark grey #3b3c43 and dark
+// blue #282460 are the brand's own values.
 //
-// The brand turquoise (#4BA6BC, here `lightTeal`) is only 2.8:1 on white, so
-// it carries the identity — the ring, badges, icon fills — while `teal` is the
-// deeper shade used wherever type or a small icon has to stay legible.
+// The brand turquoise is only 3.2:1 on white, so it carries the identity —
+// the ring, badges, icon fills — while `teal`, a deeper mix of it, is used
+// wherever type or a small icon has to stay legible.
 //
-// Contrast against paper, to WCAG AA: ink 15.9:1, navy 11.4:1, sage 5.2:1,
-// dimSage 4.6:1, teal 4.9:1, and paper on teal 4.9:1. Anything added here
+// Contrast against paper, to WCAG AA: ink 10.5:1, navy 12.9:1, sage 5.0:1,
+// dimSage 4.6:1, teal 5.8:1, and paper on teal 5.8:1. Anything added here
 // should be checked the same way — this is read one-handed in a shop.
 
 import { useMemo } from "react";
@@ -27,17 +28,17 @@ export type ColorScheme = "light" | "dark";
 
 // Raw palette --------------------------------------------------------------
 const paper = "#FFFFFF";      // the page, and type sitting on the brand
-const mist = "#F1FAFB";       // quiet surface, a breath of turquoise
-const haze = "#DFF3F6";       // deeper tint for gradients and wells
+const mist = "#F0FAFB";       // quiet surface, a breath of turquoise
+const haze = "#DBF2F5";       // deeper tint for gradients and wells
 const card = "#FFFFFF";       // cards sit above the page on shadow, not tone
 const cardTop = "#FBFEFF";
-const ink = "#171733";        // primary type — the navy-black of "surrey"
-const navy = "#2E2C66";       // the practice's second brand colour
-const sage = "#55607A";       // secondary type
-const dimSage = "#646E8A";    // tertiary type and labels
-const teal = "#2A7B90";       // the brand, deepened so type on white is legible
-const lightTeal = "#4BA6BC";  // the logo tile's turquoise — fills and highlights
-const deepTeal = "#1E5C6D";   // gradient depth, pressed states
+const ink = "#3B3C43";        // brand Dark Grey — the primary type colour
+const navy = "#282460";       // brand Dark Blue
+const sage = "#6B6D77";       // secondary type
+const dimSage = "#71737D";    // tertiary type and labels
+const teal = "#00707E";       // the brand turquoise, deepened so type reads
+const lightTeal = "#009DB1";  // brand Turquoise — fills, the ring, highlights
+const deepTeal = "#005560";   // gradient depth, pressed states
 
 const light = {
   // Surfaces
@@ -72,9 +73,9 @@ const light = {
   onInfo: paper,
 
   // Lines
-  border: "rgba(23,23,51,0.12)",
-  borderStrong: "rgba(23,23,51,0.22)",
-  divider: "rgba(23,23,51,0.08)",
+  border: "rgba(59,60,67,0.14)",
+  borderStrong: "rgba(59,60,67,0.24)",
+  divider: "rgba(59,60,67,0.09)",
 
   // Named optician palette
   paper,
@@ -92,24 +93,24 @@ const light = {
 
   // Accent tints — the washes and hairlines that mark a card as branded.
   // Named so no screen has to spell out an rgba of the brand colour.
-  accentBorder: "rgba(75,166,188,0.45)",
-  accentBorderSoft: "rgba(75,166,188,0.26)",
-  accentWash: "rgba(75,166,188,0.09)",
+  accentBorder: "rgba(0,157,177,0.42)",
+  accentBorderSoft: "rgba(0,157,177,0.24)",
+  accentWash: "rgba(0,157,177,0.08)",
   errorBorder: "rgba(179,38,30,0.35)",
 
   // Effects
-  hairline: "rgba(23,23,51,0.10)",
-  shadow: "#0D2A30",
-  overlay: "rgba(15,20,40,0.45)",
+  hairline: "rgba(59,60,67,0.11)",
+  shadow: "#0A2C31",
+  overlay: "rgba(20,22,30,0.45)",
   glass: "rgba(255,255,255,0.86)",
 
   // Gradients (tuples so expo-linear-gradient is happy)
-  tealFoil: [deepTeal, teal, "#35899F", deepTeal] as [string, string, string, string],
+  tealFoil: [deepTeal, teal, "#00808F", deepTeal] as [string, string, string, string],
   tealFoilSoft: [
-    "rgba(30,92,109,0.92)",
-    "rgba(42,123,144,0.96)",
-    "rgba(75,166,188,1)",
-    "rgba(30,92,109,0.92)",
+    "rgba(0,85,96,0.92)",
+    "rgba(0,112,126,0.96)",
+    "rgba(0,157,177,1)",
+    "rgba(0,85,96,0.92)",
   ] as [string, string, string, string],
   cardGradient: [cardTop, card, mist] as [string, string, string],
   screenGradient: [paper, mist] as [string, string],

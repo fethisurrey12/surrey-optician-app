@@ -24,8 +24,8 @@ ROOT = Path(__file__).resolve().parent.parent
 FONTS = ROOT / "assets" / "fonts"
 OUT = ROOT / "assets" / "images"
 
-TURQUOISE = (75, 166, 188, 255)   # the logo tile
-INK = (23, 23, 51, 255)           # the navy-black of "surrey"
+TURQUOISE = (0, 157, 177, 255)    # brand Turquoise #009db1, from the Lookbook
+INK = (59, 60, 67, 255)           # brand Dark Grey #3b3c43
 PAPER = (255, 255, 255, 255)
 
 
@@ -60,35 +60,34 @@ def monogram(size: int, bg, fg) -> Image.Image:
 def tile(width: int, height: int) -> Image.Image:
     """The turquoise tile with the white SO monogram.
 
-    Traced by eye from the logo on surreyopticians.co.uk: the practice's
-    initials drawn as loops — an S built from two bowls, each an arc with its
-    gap facing the other so the eye joins them, beside a closed O. The S sits
-    left and slightly high, the O overlaps its lower right, and the right of
-    the tile is left open.
+    Traced against the practice's own Surrey Opticians Logo-01.png: a large O
+    filling most of the tile's height, set left of centre, with a smaller S
+    tucked into its lower left — an open upper bowl running out to the tile's
+    edge and a lower loop that drops past the tile's foot. The right of the
+    tile is empty, as theirs is.
 
-    Still a trace, not the practice's artwork — replace
-    assets/images/logo-mark.png with the real file when it is to hand.
+    A trace, not the artwork. The practice's own file lives in SharePoint at
+    SOMarketing / Surrey Opticians Logo-01.png; dropping it in over
+    assets/images/logo-mark.png replaces this with the real thing.
     """
     # Drawn at 4x and downsampled so the curves are smooth at header size.
-    S = 4
-    w, h = width * S, height * S
+    F = 4
+    w, h = width * F, height * F
     img = Image.new("RGBA", (w, h), TURQUOISE)
     d = ImageDraw.Draw(img)
-    stroke = max(2, int(h * 0.070))
+    stroke = max(2, int(h * 0.090))
 
     def arc(cx, cy, r, start, end):
         d.arc([cx - r, cy - r, cx + r, cy + r], start=start, end=end, fill=PAPER, width=stroke)
 
-    # PIL measures clockwise from 3 o'clock: 90 is 6 o'clock, 180 is 9, 270 is 12.
+    # The O — large, high, left of centre.
+    arc(w * 0.330, h * 0.345, h * 0.430, 0, 360)
 
-    # The S — upper bowl, open at its lower right.
-    arc(w * 0.205, h * 0.355, h * 0.180, 105, 350)
+    # The S, upper bowl: runs out to the tile's left edge, open at its foot.
+    arc(w * 0.072, h * 0.500, h * 0.215, 170, 40)
 
-    # The S — lower bowl, open at its upper left, so the two read as one letter.
-    arc(w * 0.262, h * 0.660, h * 0.200, 285, 170)
-
-    # The O, closed, overlapping the S's lower right.
-    arc(w * 0.415, h * 0.420, h * 0.285, 0, 360)
+    # The S, lower loop: drops past the tile's foot, open at its head.
+    arc(w * 0.180, h * 0.810, h * 0.200, 330, 200)
 
     return img.resize((width, height), Image.LANCZOS)
 
@@ -132,7 +131,7 @@ def main() -> None:
     # white interlocking-lens motif, in the logo's own landscape proportions.
     # Kept as its own file so the practice's real artwork can replace just this
     # one, without touching the store icon or the splash.
-    tile(980, 400).save(OUT / "logo-mark.png")
+    tile(1032, 400).save(OUT / "logo-mark.png")
 
     for n in ("icon.png", "adaptive-icon.png", "splash-image.png", "favicon.png", "logo-mark.png"):
         p = OUT / n

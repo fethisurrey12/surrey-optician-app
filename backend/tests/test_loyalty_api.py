@@ -254,9 +254,16 @@ async def test_branches_are_public(client):
     r = await client.get("/api/branches")
     assert r.status_code == 200
     body = r.json()
-    assert [b["id"] for b in body["branches"]] == ["coulsdon", "wallington", "banstead"]
-    assert body["practiceEmail"] == "hello@surreyopticians.co.uk"
+    # Four practices, from the Surrey Opticians Lookbook.
+    assert [b["id"] for b in body["branches"]] == [
+        "coulsdon", "wallington", "wallington-green", "banstead",
+    ]
+    assert body["practiceEmail"] == "info@surreyopticians.com"
     assert all(len(b["hours"]) == 3 for b in body["branches"])
+    # Every number must be a dialable E.164 UK line — these get tapped to call.
+    for b in body["branches"]:
+        assert b["phone"].startswith("+44") and b["phone"][3:].isdigit()
+        assert b["address"][-1].replace(" ", "")  # a postcode is present
 
 
 async def test_referral_code_upgrades_from_placeholder_then_stays_put(client):

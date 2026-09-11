@@ -1,7 +1,7 @@
 # Surrey People — the Surrey Opticians loyalty app
 
 A customer loyalty app for Surrey Opticians, an independent optometry practice
-with branches in Coulsdon, Wallington and Banstead. Members earn a point for
+with four practices — Coulsdon, Wallington, Wallington Green and Banstead. Members earn a point for
 every £10 of private spend; ten points become a £10 voucher redeemed at the
 till.
 
@@ -109,6 +109,26 @@ It opens in an in-app browser on a phone and a new tab on web. The URL lives in
 does not hold a diary and does not know which slots are free — whatever runs
 that page owns availability.
 
+## Brand
+
+Colours and type come from the practice's own **Surrey Opticians Lookbook**
+(2019), held in SharePoint under Marketing / SO Fonts and colours — not from a
+guess at the website:
+
+| | |
+|---|---|
+| Turquoise | `#009db1` — the primary, used for the ring, badges and fills |
+| Dark grey | `#3b3c43` — body type |
+| Dark blue | `#282460` |
+| Lilac | `#7087c3` |
+| Type | Gill Sans Nova (Light / Book / Semibold) |
+
+Two gaps. The app substitutes **Inter** for Gill Sans Nova, which is licensed
+and not bundled here; swapping it is a font file plus one line in
+`src/tokens.ts`. And `assets/images/logo-mark.png` is a **trace**, not the
+practice's artwork — their own `Surrey Opticians Logo-01.png` lives in the
+SOMarketing SharePoint site and should replace it.
+
 ## Before going live
 
 - [ ] Set `JWT_SECRET` — an unset one is regenerated per boot and signs everyone out
@@ -118,3 +138,6 @@ that page owns availability.
 - [ ] Set `STAFF_API_KEY` before the till can post purchases
 - [ ] Set `SEED_DEMO_DATA=false` on the practice's deployment
 - [ ] Add the Apple and Google Wallet signing material — see `backend/WALLET_SETUP.md`
+- [ ] Replace `frontend/assets/images/logo-mark.png` with the practice's real logo
+- [ ] Confirm opening hours — the brand book does not state them
+- [ ] Change the bundle identifier from Emergent's `com.emergent.surreyopticians.xkx2pz`
