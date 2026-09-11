@@ -78,7 +78,7 @@ export async function markVoucherInWallet(id: string, provider: WalletProvider):
 // Offline counterpart to the server's PATCH /api/me/account. The sample account
 // lives in module memory, so the edit lasts for the session only.
 export async function updateAccount(
-  changes: Partial<Pick<Account, "firstName" | "lastName" | "email" | "homeBranchId">>,
+  changes: Partial<Pick<Account, "firstName" | "lastName" | "email" | "dateOfBirth" | "address" | "postcode" | "homeBranchId">>,
 ): Promise<Account> {
   await delay(400);
   Object.assign(account, changes);

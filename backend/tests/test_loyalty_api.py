@@ -506,3 +506,53 @@ async def test_member_codes_are_distinct_per_member(client):
     code_a = (await client.get("/api/me/account", headers=a)).json()["memberCode"]
     code_b = (await client.get("/api/me/account", headers=b)).json()["memberCode"]
     assert code_a != code_b
+
+
+# --- What the record holds -------------------------------------------------
+async def test_signing_in_saves_a_member_record(client, database):
+    headers, _ = await sign_in(client, MOBILE)
+
+    doc = await database.members.find_one({"mobile": MOBILE})
+    assert doc, "signing in must create a record"
+    # The fields the practice's own sign-up form asks for.
+    for field in ("mobile", "firstName", "lastName", "email", "dateOfBirth",
+                  "address", "postcode", "homeBranchId", "memberSince", "memberCode"):
+        assert field in doc, field
+    assert doc["createdAt"]
+
+
+async def test_a_member_can_give_their_details(client):
+    headers, _ = await sign_in(client, MOBILE)
+    r = await client.patch("/api/me/account", headers=headers, json={
+        "firstName": "Sarah",
+        "lastName": "Whitfield",
+        "email": "sarah@example.com",
+        "dateOfBirth": "1984-07-19",
+        "address": "12 Chipstead Valley Road\nCoulsdon",
+        "postcode": "cr5 2ra",
+    })
+    assert r.status_code == 200, r.text
+
+    body = r.json()
+    assert body["dateOfBirth"] == "1984-07-19"
+    assert body["address"].startswith("12 Chipstead")
+    assert body["postcode"] == "CR5 2RA", "postcodes are tidied to upper case"
+
+
+async def test_the_details_persist_across_sign_ins(client):
+    headers, _ = await sign_in(client, MOBILE)
+    await client.patch("/api/me/account", headers=headers,
+                       json={"firstName": "Sarah", "dateOfBirth": "1984-07-19"})
+
+    # Sign in again, as if on a new phone.
+    headers2, _ = await sign_in(client, MOBILE)
+    again = (await client.get("/api/me/account", headers=headers2)).json()
+    assert again["firstName"] == "Sarah"
+    assert again["dateOfBirth"] == "1984-07-19"
+
+
+async def test_an_impossible_date_of_birth_is_refused(client):
+    headers, _ = await sign_in(client, MOBILE)
+    for bad in ("2099-01-01", "1850-01-01", "19/07/1984", "not a date"):
+        r = await client.patch("/api/me/account", headers=headers, json={"dateOfBirth": bad})
+        assert r.status_code == 422, f"{bad} should be refused"

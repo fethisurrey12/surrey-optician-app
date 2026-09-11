@@ -18,6 +18,9 @@ export type Account = {
   firstName: string;
   lastName: string;
   email: string;
+  dateOfBirth?: string | null; // ISO yyyy-mm-dd
+  address?: string;
+  postcode?: string;
   homeBranchId: string;
   memberSince: string; // ISO
   points: number; // balance toward the next reward (0–9 after conversions)
@@ -147,6 +150,9 @@ export const ACCOUNT: Account = {
   firstName: "Sarah",
   lastName: "Whitfield",
   email: "sarah.whitfield@gmail.com",
+  dateOfBirth: "1984-07-19",
+  address: "12 Chipstead Valley Road\nCoulsdon",
+  postcode: "CR5 2RA",
   homeBranchId: "coulsdon",
   memberSince: DEMO_EXPIRING.issued,
   points: 8,

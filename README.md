@@ -83,6 +83,28 @@ All routes are under `/api`.
 
 Members authenticate with a bearer token; the till and desk present `X-Staff-Key`.
 
+## What a member record holds
+
+Signing in creates the record; the member fills in the rest once, and it is
+kept from then on. The fields match the practice's own Surrey People sign-up
+form.
+
+| Field | Set by |
+|---|---|
+| `mobile` | Sign-in — it is the account key, and what the till searches on |
+| `firstName`, `lastName` | The member |
+| `email` | The member |
+| `dateOfBirth` | The member, as ISO `yyyy-mm-dd` |
+| `address`, `postcode` | The member |
+| `homeBranchId` | The member |
+| `memberCode` | Generated — the `SM-` code behind the check-in QR |
+| `referralCode` | Generated from their first name and mobile |
+| `points`, `totalEarned` | The till, through the loyalty engine |
+| `memberSince`, `createdAt` | Generated |
+
+Loyalty data only. No prescriptions, appointments or clinical notes — the app's
+own privacy screen tells members exactly that, and it should stay true.
+
 ## Codes
 
 Two kinds of QR, told apart by their prefix so whoever is scanning cannot

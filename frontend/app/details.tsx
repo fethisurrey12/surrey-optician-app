@@ -8,6 +8,7 @@ import { useAccount, useUpdateAccount } from "@/src/api/hooks";
 import { useApp } from "@/src/context/AppContext";
 import { radius, spacing } from "@/src/tokens";
 import { makeStyles } from "@/src/theme";
+import { DateField, digitsToIso } from "@/src/ui/DateField";
 import { Field } from "@/src/ui/Field";
 import { BrandButton } from "@/src/ui/BrandButton";
 import { HeaderBar } from "@/src/ui/HeaderBar";
@@ -15,6 +16,12 @@ import { PressScale } from "@/src/ui/PressScale";
 import { Screen } from "@/src/ui/Screen";
 import { Skeleton } from "@/src/ui/Skeleton";
 import { Txt } from "@/src/ui/Txt";
+
+/** "1984-07-19" -> "19071984", so a saved date shows in the field. */
+function isoToDigits(iso: string | null | undefined): string {
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(iso ?? "");
+  return m ? `${m[3]}${m[2]}${m[1]}` : "";
+}
 
 export default function Details() {
   const { data: account } = useAccount();
@@ -47,11 +54,24 @@ function DetailsForm({ account: a }: { account: Account }) {
   const [firstName, setFirstName] = useState(a.firstName);
   const [lastName, setLastName] = useState(a.lastName);
   const [email, setEmail] = useState(a.email);
+  const [dob, setDob] = useState(isoToDigits(a.dateOfBirth));
+  const [address, setAddress] = useState(a.address ?? "");
+  const [postcode, setPostcode] = useState(a.postcode ?? "");
   const [branch, setBranch] = useState(a.homeBranchId);
+
+  const dobOk = dob.length === 0 || digitsToIso(dob) !== "";
 
   const onSave = async () => {
     try {
-      await save.mutateAsync({ firstName, lastName, email, homeBranchId: branch });
+      await save.mutateAsync({
+        firstName,
+        lastName,
+        email,
+        dateOfBirth: digitsToIso(dob) || undefined,
+        address,
+        postcode,
+        homeBranchId: branch,
+      });
       toast("Your details are saved");
       router.back();
     } catch (e) {
@@ -71,6 +91,30 @@ function DetailsForm({ account: a }: { account: Account }) {
           keyboardType="email-address"
           placeholder="you@example.com"
           testID="details-email"
+        />
+
+        <DateField
+          digits={dob}
+          onChangeDigits={setDob}
+          note="Used to size frames and to wish you a happy birthday."
+          testID="details-dob"
+        />
+        <Field
+          label="Address"
+          value={address}
+          onChangeText={setAddress}
+          autoCapitalize="words"
+          placeholder="House and street"
+          testID="details-address"
+        />
+        <Field
+          label="Postcode"
+          value={postcode}
+          onChangeText={setPostcode}
+          autoCapitalize="characters"
+          placeholder="CR5 2NJ"
+          maxLength={12}
+          testID="details-postcode"
         />
 
         <View style={styles.branchBlock}>
@@ -105,7 +149,7 @@ function DetailsForm({ account: a }: { account: Account }) {
         <BrandButton
           label={save.isPending ? "Saving…" : "Save changes"}
           onPress={onSave}
-          disabled={save.isPending}
+          disabled={save.isPending || !dobOk}
           testID="details-save-button"
           style={styles.save}
         />

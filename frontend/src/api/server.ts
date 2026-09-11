@@ -59,7 +59,7 @@ export function loadReferrals(): Promise<Referral[]> {
 }
 
 export function updateAccount(changes: Partial<
-  Pick<Account, "firstName" | "lastName" | "email" | "homeBranchId">
+  Pick<Account, "firstName" | "lastName" | "email" | "dateOfBirth" | "address" | "postcode" | "homeBranchId">
 >): Promise<Account> {
   return request<Account>("/api/me/account", { method: "PATCH", body: changes });
 }

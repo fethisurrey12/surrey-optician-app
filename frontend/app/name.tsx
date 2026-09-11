@@ -7,6 +7,7 @@ import { useApp } from "@/src/context/AppContext";
 import { makeStyles } from "@/src/theme";
 import { radius, spacing } from "@/src/tokens";
 import { BrandButton } from "@/src/ui/BrandButton";
+import { DateField, digitsToIso } from "@/src/ui/DateField";
 import { Field } from "@/src/ui/Field";
 import { GhostButton } from "@/src/ui/GhostButton";
 import { PressScale } from "@/src/ui/PressScale";
@@ -25,15 +26,23 @@ export default function NameStep() {
 
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
+  const [email, setEmail] = useState("");
+  const [dob, setDob] = useState("");
+  const [postcode, setPostcode] = useState("");
   const [branch, setBranch] = useState("coulsdon");
 
-  const ready = firstName.trim().length > 1;
+  // Only the name is required; the rest can be filled in later under Account,
+  // so nobody is stopped at the door for want of a postcode.
+  const ready = firstName.trim().length > 1 && (dob.length === 0 || digitsToIso(dob) !== "");
 
   const onSave = async () => {
     try {
       await save.mutateAsync({
         firstName: firstName.trim(),
         lastName: lastName.trim(),
+        email: email.trim() || undefined,
+        dateOfBirth: digitsToIso(dob) || undefined,
+        postcode: postcode.trim() || undefined,
         homeBranchId: branch,
       });
       finishNameStep();
@@ -48,8 +57,8 @@ export default function NameStep() {
         <StaggerItem index={0}>
           <Txt variant="h1">Welcome to the scheme</Txt>
           <Txt variant="body" style={styles.lead}>
-            Just your name, so a colleague can find you at the till and your invites arrive from
-            someone your friends recognise.
+            The same details the practice asks for in branch. Only your name is needed now —
+            the rest can wait.
           </Txt>
         </StaggerItem>
 
@@ -67,6 +76,29 @@ export default function NameStep() {
             onChangeText={setLastName}
             autoCapitalize="words"
             testID="name-last"
+          />
+          <Field
+            label="Email"
+            value={email}
+            onChangeText={setEmail}
+            keyboardType="email-address"
+            placeholder="you@example.com"
+            testID="name-email"
+          />
+          <DateField
+            digits={dob}
+            onChangeDigits={setDob}
+            note="So the practice can size frames and wish you a happy birthday."
+            testID="name-dob"
+          />
+          <Field
+            label="Postcode"
+            value={postcode}
+            onChangeText={setPostcode}
+            autoCapitalize="characters"
+            placeholder="CR5 2NJ"
+            maxLength={12}
+            testID="name-postcode"
           />
         </StaggerItem>
 

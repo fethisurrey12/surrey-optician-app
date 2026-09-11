@@ -68,7 +68,38 @@ class UpdateAccountIn(BaseModel):
     firstName: Optional[str] = Field(default=None, max_length=60)
     lastName: Optional[str] = Field(default=None, max_length=60)
     email: Optional[EmailStr] = None
+    # ISO yyyy-mm-dd. Held so the practice can greet members on their birthday
+    # and size frames for children — not a clinical record.
+    dateOfBirth: Optional[str] = None
+    address: Optional[str] = Field(default=None, max_length=300)
+    postcode: Optional[str] = Field(default=None, max_length=12)
     homeBranchId: Optional[str] = None
+
+    @field_validator("dateOfBirth")
+    @classmethod
+    def _sane_date(cls, v: Optional[str]) -> Optional[str]:
+        if v is None or v == "":
+            return None
+        from datetime import date as _date
+
+        try:
+            born = _date.fromisoformat(v)
+        except ValueError:
+            raise ValueError("Enter a date of birth as yyyy-mm-dd")
+
+        today = _date.today()
+        if born > today:
+            raise ValueError("A date of birth cannot be in the future")
+        if born.year < today.year - 120:
+            raise ValueError("Please check the date of birth")
+        return born.isoformat()
+
+    @field_validator("postcode")
+    @classmethod
+    def _tidy_postcode(cls, v: Optional[str]) -> Optional[str]:
+        if v is None:
+            return None
+        return " ".join(v.upper().split())
 
 
 class RedeemVoucherIn(BaseModel):
@@ -110,6 +141,9 @@ class Account(BaseModel):
     firstName: str
     lastName: str
     email: str
+    dateOfBirth: Optional[str] = None
+    address: str = ""
+    postcode: str = ""
     homeBranchId: str
     memberSince: str
     points: int
@@ -129,6 +163,9 @@ class Account(BaseModel):
             firstName=doc.get("firstName", ""),
             lastName=doc.get("lastName", ""),
             email=doc.get("email", ""),
+            dateOfBirth=doc.get("dateOfBirth"),
+            address=doc.get("address", "") or "",
+            postcode=doc.get("postcode", "") or "",
             homeBranchId=doc.get("homeBranchId", ""),
             memberSince=doc["memberSince"],
             points=doc.get("points", 0),
