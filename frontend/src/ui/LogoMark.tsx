@@ -28,12 +28,12 @@ export function LogoMark({
     <View style={style} accessible accessibilityRole="image" accessibilityLabel="Surrey Opticians">
       <Svg width={width} height={height} viewBox={`0 0 ${W} ${H}`}>
         <Rect width={W} height={H} fill={TURQUOISE} />
-        <Circle cx={368} cy={150} r={152} fill="none" stroke={MARK} strokeWidth={40} />
+        <Circle cx={356} cy={162} r={142} fill="none" stroke={MARK} strokeWidth={32} />
         <Path
-          d="M 221 113 C 221 76 188 56 152 56 C 109 56 76 83 76 124 C 76 162 111 183 161 196 C 214 209 249 233 249 275 C 249 319 207 344 163 344 C 117 344 76 321 65 282"
+          d="M 213 116 C 213 82 182 60 148 60 C 108 60 78 86 78 126 C 78 163 112 184 164 198 C 216 212 250 236 250 278 C 250 322 208 348 162 348 C 116 348 76 324 64 284"
           fill="none"
           stroke={MARK}
-          strokeWidth={40}
+          strokeWidth={32}
           strokeLinecap="round"
           strokeLinejoin="round"
         />
