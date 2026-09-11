@@ -53,10 +53,13 @@ type Options = {
   body?: unknown;
   auth?: boolean;
   timeoutMs?: number;
+  // Extra headers, for the desk endpoints which authenticate with the
+  // practice's own key rather than a patient's bearer token.
+  headers?: Record<string, string>;
 };
 
 export async function request<T>(path: string, options: Options = {}): Promise<T> {
-  const { method = "GET", body, auth = true, timeoutMs = 15000 } = options;
+  const { method = "GET", body, auth = true, timeoutMs = 15000, headers: extra } = options;
 
   if (!hasBackend) {
     throw new ApiError(0, "No backend is configured");
@@ -69,6 +72,7 @@ export async function request<T>(path: string, options: Options = {}): Promise<T
     const bearer = await loadToken();
     if (bearer) headers.Authorization = `Bearer ${bearer}`;
   }
+  if (extra) Object.assign(headers, extra);
 
   // React Native has no fetch timeout, so a dead network would otherwise hang
   // a screen's spinner indefinitely.
@@ -107,7 +111,9 @@ export async function request<T>(path: string, options: Options = {}): Promise<T
 
   if (!response.ok) {
     // A dead session should not leave a stale token behind to fail again.
-    if (response.status === 401) await setToken(null);
+    // Only ever the patient's own session: a 401 from a desk endpoint means the
+    // practice key is wrong, which must not sign the patient out of the app.
+    if (response.status === 401 && auth) await setToken(null);
     throw new ApiError(response.status, readDetail(payload) ?? fallbackMessage(response.status));
   }
 

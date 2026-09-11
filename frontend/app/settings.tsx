@@ -1,3 +1,4 @@
+import { useRouter } from "expo-router";
 import { useState } from "react";
 import { ScrollView, Switch, View } from "react-native";
 
@@ -60,6 +61,7 @@ function ToggleRow({
 
 export default function Settings() {
   const styles = useStyles();
+  const router = useRouter();
   const { colors } = useTheme();
   const { biometricEnrolled, setBiometricEnrolled, biometricSupport, prefs, setPref, signOut, lock } = useApp();
   const label = biometricSupport?.label ?? "biometrics";
@@ -162,6 +164,14 @@ export default function Settings() {
             <Row icon="shield" title="Privacy notice" onPress={() => setSheet("privacy")} testID="settings-privacy" />
             <Divider inset={54} />
             <Row icon="card" title="Version" value="1.0.0" chevron={false} />
+            <Divider inset={54} />
+            <Row
+              icon="users"
+              title="Practice desk"
+              subtitle="For colleagues — needs the practice key"
+              onPress={() => router.push("/staff")}
+              testID="settings-desk"
+            />
           </Card>
         </StaggerItem>
 

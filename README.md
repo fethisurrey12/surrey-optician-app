@@ -77,6 +77,9 @@ All routes are under `/api`.
 | `GET /me/referrals` | member | Invites and their status |
 | `POST /me/vouchers/{id}/redeem` | member | Mark a voucher used at the till |
 | `POST /me/vouchers/{id}/wallet` | member | Record an Apple/Google Wallet add |
+| `GET /staff/session` | desk | Confirm the practice key before the desk opens |
+| `GET /staff/members?q=` | desk | Find a patient by name, number, email or code |
+| `GET /staff/members/{id}` | desk | One patient: details, points, vouchers, visits |
 | `POST /staff/purchases` | till | Record a purchase and award points |
 | `POST /staff/check-in` | desk | Check a patient in from their membership QR |
 | `GET /wallet/status` | public | What wallet signing material is missing |
@@ -119,6 +122,29 @@ Checking in records the arrival and tells the colleague who has arrived. It
 moves no points, because arriving is not a purchase. Presenting a voucher code
 at the desk is refused with a message saying so.
 
+## The practice desk
+
+`/staff` is the colleague's side of the app — the same build, a different door.
+It carries the practice key (`STAFF_API_KEY`) rather than a patient's session,
+so a colleague can look anyone up without that patient signing in on the device.
+The key is entered once and kept in the device's secure storage; "Lock the desk"
+clears it. It is reached from Settings → Practice desk, or at `/staff` directly
+on a desk computer.
+
+| On the desk | What it does |
+|---|---|
+| Check in | Scan the membership QR (a scanner types the code and presses enter) or type it. Says who has arrived and whether a reward is waiting. |
+| Find a patient | Name, mobile — however it is read out — email, or `SM-` code |
+| Their record | Details, points, rewards, visits and arrivals |
+| Record a purchase | Total paid and the NHS share; points and any reward follow automatically |
+
+The branch is chosen once on the device and remembered: everything the desk
+records is attributed to it.
+
+With no `EXPO_PUBLIC_BACKEND_URL` configured the desk opens straight onto the
+bundled sample patients and says so on screen, so it can be shown and tried
+before the practice's server exists.
+
 ## Booking
 
 "Book an eye test" on Home and "Book online" on Branches hand the patient to
@@ -157,7 +183,7 @@ SOMarketing SharePoint site and should replace it.
 - [ ] Set `EXPOSE_DEV_OTP=false` — otherwise the sign-in code is returned in the API response
 - [ ] Set `CORS_ORIGINS` to the real origins rather than `*`
 - [ ] Set `SMS_PROVIDER=twilio` with credentials, so codes actually reach members
-- [ ] Set `STAFF_API_KEY` before the till can post purchases
+- [ ] Set `STAFF_API_KEY` before the till can post purchases or the desk can open
 - [ ] Set `SEED_DEMO_DATA=false` on the practice's deployment
 - [ ] Add the Apple and Google Wallet signing material — see `backend/WALLET_SETUP.md`
 - [ ] Replace `frontend/assets/images/logo-mark.png` with the practice's real logo

@@ -12,6 +12,7 @@ The routes stay thin; the rules live here. Two invariants this module owns:
 from __future__ import annotations
 
 import logging
+import re
 import uuid
 from datetime import date, datetime, timezone
 from typing import Optional
@@ -177,6 +178,82 @@ async def recent_check_in(member_id: str, within_minutes: int = 60) -> Optional[
     if (datetime.now(timezone.utc) - at).total_seconds() > within_minutes * 60:
         return None
     return doc
+
+
+async def get_member(member_id: str) -> dict:
+    doc = await get_db().members.find_one({"_id": member_id})
+    if not doc:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "Account not found")
+    return doc
+
+
+def _mobile_digits(query: str) -> str:
+    """The dialling digits of whatever the colleague typed, without the prefix.
+
+    A patient reads their number out as "07712 045589" but it is stored as
+    "+447712045589", so both are reduced to "7712045589" before matching.
+    """
+    digits = re.sub(r"\D", "", query)
+    if digits.startswith("44"):
+        digits = digits[2:]
+    return digits.lstrip("0")
+
+
+async def search_members(query: str, limit: int = 20) -> list[dict]:
+    """Find a patient at the desk by name, number, email or membership code.
+
+    The desk knows one of four things about whoever is standing there, so all
+    four are tried at once rather than making the colleague choose a field.
+    """
+    query = (query or "").strip()
+    if len(query) < 2:
+        return []
+
+    db = get_db()
+    clauses: list[dict] = []
+
+    digits = _mobile_digits(query)
+    if len(digits) >= 3:
+        # Match the end of the number: enough of it to be distinctive, and the
+        # last few digits are what a patient remembers when the front is wrong.
+        clauses.append({"mobile": {"$regex": re.escape(digits) + "$"}})
+
+    code = query.upper().replace(" ", "")
+    # Every code begins "SM-", so two characters of it says nothing; wait until
+    # there is a digit of the code itself before matching on it.
+    if code.startswith("SM") and len(code) >= 4:
+        clauses.append({"memberCode": {"$regex": "^" + re.escape(code)}})
+
+    words = [w for w in re.split(r"\s+", query) if w]
+    if words:
+        # Prefix matching, so "sar" finds Sarah while a stray substring from the
+        # middle of an unrelated surname does not pad the list.
+        first = {"$regex": "^" + re.escape(words[0]), "$options": "i"}
+        clauses.append({"firstName": first})
+        clauses.append({"lastName": first})
+        clauses.append({"email": first})
+        if len(words) > 1:
+            # "sarah j" is a first name and the start of a surname, not two
+            # separate guesses, so it must match both halves of the same record.
+            clauses.append(
+                {
+                    "$and": [
+                        {"firstName": first},
+                        {"lastName": {"$regex": "^" + re.escape(words[1]), "$options": "i"}},
+                    ]
+                }
+            )
+
+    if not clauses:
+        return []
+
+    cursor = db.members.find({"$or": clauses}).sort([("firstName", 1), ("lastName", 1)])
+    return await cursor.to_list(limit)
+
+
+async def list_check_ins(member_id: str, limit: int = 20) -> list[dict]:
+    cursor = get_db().checkins.find({"memberId": member_id}).sort("at", -1)
+    return await cursor.to_list(limit)
 
 
 async def update_member(member_id: str, changes: dict) -> dict:

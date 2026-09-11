@@ -29,6 +29,9 @@ function useRouteGuard() {
   useEffect(() => {
     if (!ready) return;
     const root = segments[0];
+    // The desk is the practice's own screen, not a patient's. It carries the
+    // practice key instead of a session, so none of these redirects apply.
+    if (root === "staff") return;
     const inAuth = root === "(auth)";
     const onLock = root === "lock";
     const onBiometric = root === "biometric";

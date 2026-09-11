@@ -292,6 +292,9 @@ class CheckInResult(BaseModel):
     """Shown to the colleague at the desk: who has arrived, and when."""
 
     checkIn: CheckIn
+    # The record to open when the colleague wants the rest of the patient's
+    # details straight after scanning them in.
+    memberId: str
     firstName: str
     lastName: str
     mobileDisplay: str
@@ -299,6 +302,45 @@ class CheckInResult(BaseModel):
     homeBranchId: str
     # So the desk can mention a waiting reward while the patient is there.
     vouchersAvailable: int
+
+
+class StaffMemberRow(BaseModel):
+    """One line of the desk's search results."""
+
+    id: str
+    firstName: str
+    lastName: str
+    mobileDisplay: str
+    memberCode: str
+    homeBranchId: str
+    memberSince: str
+    points: int
+    totalEarned: int
+
+    @staticmethod
+    def from_doc(doc: dict) -> "StaffMemberRow":
+        from phone import display_uk_mobile
+
+        return StaffMemberRow(
+            id=doc["_id"],
+            firstName=doc.get("firstName", ""),
+            lastName=doc.get("lastName", ""),
+            mobileDisplay=display_uk_mobile(doc["mobile"]),
+            memberCode=doc.get("memberCode", ""),
+            homeBranchId=doc.get("homeBranchId", ""),
+            memberSince=doc["memberSince"],
+            points=doc.get("points", 0),
+            totalEarned=doc.get("totalEarned", 0),
+        )
+
+
+class StaffMemberDetail(BaseModel):
+    """Everything the desk needs about the patient in front of them."""
+
+    account: Account
+    vouchers: list[Voucher]
+    activity: list[Txn]
+    checkIns: list[CheckIn]
 
 
 class RedeemResult(BaseModel):

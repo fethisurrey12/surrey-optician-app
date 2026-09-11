@@ -9,7 +9,7 @@ from __future__ import annotations
 
 import hmac
 
-from fastapi import APIRouter, Depends, Header, HTTPException, status
+from fastapi import APIRouter, Depends, Header, HTTPException, Query, status
 
 from branches import valid_branch
 from config import STAFF_API_KEY
@@ -20,11 +20,21 @@ from models import (
     CheckInResult,
     PurchaseResult,
     RecordPurchaseIn,
+    StaffMemberDetail,
+    StaffMemberRow,
     Txn,
     Voucher,
 )
 from phone import display_uk_mobile
-from store import check_in, list_vouchers, record_purchase
+from store import (
+    check_in,
+    get_member,
+    list_activity,
+    list_check_ins,
+    list_vouchers,
+    record_purchase,
+    search_members,
+)
 
 router = APIRouter(prefix="/staff", tags=["staff"])
 
@@ -83,10 +93,46 @@ async def desk_check_in(body: CheckInIn):
             at=record["at"].isoformat(),
             branchId=record["branchId"],
         ),
+        memberId=member["_id"],
         firstName=member.get("firstName", ""),
         lastName=member.get("lastName", ""),
         mobileDisplay=display_uk_mobile(member["mobile"]),
         memberCode=member.get("memberCode", ""),
         homeBranchId=member.get("homeBranchId", ""),
         vouchersAvailable=ready,
+    )
+
+
+@router.get("/session", dependencies=[Depends(staff_key)])
+async def staff_session():
+    """Confirms the key is good, so the desk can be told before it searches."""
+    return {"ok": True}
+
+
+@router.get("/members", response_model=list[StaffMemberRow], dependencies=[Depends(staff_key)])
+async def find_members(q: str = Query(default="", max_length=80)):
+    """Search the membership by name, number, email or membership code."""
+    docs = await search_members(q, limit=25)
+    return [StaffMemberRow.from_doc(d) for d in docs]
+
+
+@router.get(
+    "/members/{member_id}",
+    response_model=StaffMemberDetail,
+    dependencies=[Depends(staff_key)],
+)
+async def member_detail(member_id: str):
+    """The patient's record as the desk needs it: who they are, what they have."""
+    member = await get_member(member_id)
+    vouchers = await list_vouchers(member["_id"])
+    activity = await list_activity(member["_id"], limit=50)
+    arrivals = await list_check_ins(member["_id"], limit=10)
+
+    return StaffMemberDetail(
+        account=Account.from_doc(member),
+        vouchers=[Voucher.from_doc(v) for v in vouchers],
+        activity=[Txn.from_doc(t) for t in activity],
+        checkIns=[
+            CheckIn(id=c["_id"], at=c["at"].isoformat(), branchId=c["branchId"]) for c in arrivals
+        ],
     )
