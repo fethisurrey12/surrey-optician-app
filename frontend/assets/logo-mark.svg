@@ -1,6 +1,7 @@
 <!-- Surrey Opticians SO monogram — a trace of the practice's own
      Surrey Opticians Logo-01.png, drawn as bezier curves so the S flows as one
-     continuous stroke rather than stacked arcs. Turquoise #009DB1 is the
+     continuous stroke rather than stacked arcs. Its upper bowl stops clear
+     of the O, as the practice's does — they meet only lower down. Turquoise #009DB1 is the
      brand's own value, from the Surrey Opticians Lookbook.
      These same paths are drawn in src/ui/LogoMark.tsx (react-native-svg) and
      scripts/brand-assets.html (from which the PNGs are rendered) — keep all
@@ -8,6 +9,6 @@
 <svg width="1032" height="400" viewBox="0 0 1032 400" xmlns="http://www.w3.org/2000/svg">
   <rect width="1032" height="400" fill="#009DB1"/>
   <circle cx="356" cy="162" r="142" fill="none" stroke="#fff" stroke-width="32"/>
-  <path d="M 213 116 C 213 82 182 60 148 60 C 108 60 78 86 78 126 C 78 163 112 184 164 198 C 216 212 250 236 250 278 C 250 322 208 348 162 348 C 116 348 76 324 64 284" fill="none" stroke="#fff" stroke-width="32"
+  <path d="M 178 120 C 178 88 152 62 122 62 C 90 62 62 88 62 126 C 62 162 98 184 156 198 C 214 212 250 236 250 278 C 250 322 208 348 162 348 C 116 348 76 324 64 284" fill="none" stroke="#fff" stroke-width="32"
         stroke-linecap="round" stroke-linejoin="round"/>
 </svg>
