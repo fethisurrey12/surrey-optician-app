@@ -173,9 +173,32 @@ guess at the website:
 
 Two gaps. The app substitutes **Inter** for Gill Sans Nova, which is licensed
 and not bundled here; swapping it is a font file plus one line in
-`src/tokens.ts`. And `assets/images/logo-mark.png` is a **trace**, not the
-practice's artwork — their own `Surrey Opticians Logo-01.png` lives in the
-SOMarketing SharePoint site and should replace it.
+`src/tokens.ts`.
+
+### The logo
+
+`frontend/assets/images/logo-mark.png` is a **hand trace**, not the practice's
+artwork — close, but not their letterform. Their own `Surrey Opticians
+Logo-01.png` lives in the SOMarketing SharePoint site.
+
+Replacing it is one command. The logo lives in exactly one file, and every
+other size is rendered from it:
+
+```bash
+cd frontend
+npm i -D playwright-core                       # once
+node scripts/install-logo.mjs "Surrey Opticians Logo-01.png"
+```
+
+That writes the in-app logo, the store icon, the Android adaptive icon, the
+favicon, the splash image and the three Apple Wallet pass logos. It takes PNG,
+JPEG or SVG, crops the artwork to its ink so it sits centred rather than small
+and off to one side, and keeps whatever ground the artwork came on. `--ground`
+sets the colour behind the square icon, `--pad` its margin.
+
+No code changes: `src/ui/LogoMark.tsx` renders `assets/images/logo-mark.png`
+and takes its proportions from the file. Running the script against
+`assets/logo-mark.svg` regenerates the placeholder set.
 
 ## Before going live
 
@@ -186,6 +209,6 @@ SOMarketing SharePoint site and should replace it.
 - [ ] Set `STAFF_API_KEY` before the till can post purchases or the desk can open
 - [ ] Set `SEED_DEMO_DATA=false` on the practice's deployment
 - [ ] Add the Apple and Google Wallet signing material — see `backend/WALLET_SETUP.md`
-- [ ] Replace `frontend/assets/images/logo-mark.png` with the practice's real logo
+- [ ] Replace the logo — `node frontend/scripts/install-logo.mjs "Surrey Opticians Logo-01.png"`
 - [ ] Confirm opening hours — the brand book does not state them
 - [ ] Change the bundle identifier from Emergent's `com.emergent.surreyopticians.xkx2pz`

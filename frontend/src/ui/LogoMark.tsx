@@ -1,43 +1,47 @@
-import { type StyleProp, View, type ViewStyle } from "react-native";
-import Svg, { Circle, Path, Rect } from "react-native-svg";
+import { Image } from "expo-image";
+import { Image as RNImage, type StyleProp, View, type ViewStyle } from "react-native";
 
-// The practice's logo tile, drawn as vector so it stays sharp at any size.
+// The practice's logo, from the artwork file rather than drawn in code.
 //
-// A trace of their own Surrey Opticians Logo-01.png: the S is one continuous
-// stroked centreline rather than stacked arcs, which is what lets it read as a
-// letter. The same paths live in assets/logo-mark.svg, which the store icon
-// and splash are rendered from — edit both together, or replace them with the
-// practice's artwork when it is to hand.
-const W = 1032;
-const H = 400;
-export const LOGO_ASPECT = W / H;
+// It renders assets/images/logo-mark.png, which is the one place the logo
+// lives: replace that file with the practice's own artwork and every screen
+// that shows the logo follows, with no code to edit. The store icon, splash and
+// favicon are rendered from the same file by scripts/install-logo.mjs.
+const SOURCE = require("../../assets/images/logo-mark.png");
 
-const TURQUOISE = "#009DB1";
-const MARK = "#FFFFFF";
+// Fall back to the tile's proportions if the bundler cannot report the file's
+// own size, so the logo is never laid out as a zero-width box.
+const FALLBACK_ASPECT = 1032 / 400;
+
+function aspectOf(source: number): number {
+  try {
+    const resolved = RNImage.resolveAssetSource(source);
+    if (resolved?.width && resolved?.height) return resolved.width / resolved.height;
+  } catch {
+    // Web export paths where the asset registry is not available.
+  }
+  return FALLBACK_ASPECT;
+}
+
+export const LOGO_ASPECT = aspectOf(SOURCE);
 
 export function LogoMark({
   height = 34,
   style,
 }: {
-  /** Width follows from the tile's proportions. */
+  /** Width follows from the artwork's own proportions. */
   height?: number;
   style?: StyleProp<ViewStyle>;
 }) {
-  const width = Math.round(height * LOGO_ASPECT);
   return (
     <View style={style} accessible accessibilityRole="image" accessibilityLabel="Surrey Opticians">
-      <Svg width={width} height={height} viewBox={`0 0 ${W} ${H}`}>
-        <Rect width={W} height={H} fill={TURQUOISE} />
-        <Circle cx={356} cy={162} r={142} fill="none" stroke={MARK} strokeWidth={32} />
-        <Path
-          d="M 178 120 C 178 88 152 62 122 62 C 90 62 62 88 62 126 C 62 162 98 184 156 198 C 214 212 250 236 250 278 C 250 322 208 348 162 348 C 116 348 76 324 64 284"
-          fill="none"
-          stroke={MARK}
-          strokeWidth={32}
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-      </Svg>
+      <Image
+        source={SOURCE}
+        style={{ height, aspectRatio: LOGO_ASPECT }}
+        contentFit="contain"
+        // The logo is decoration around a label the screen reader already has.
+        accessible={false}
+      />
     </View>
   );
 }
