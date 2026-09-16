@@ -186,20 +186,32 @@ places:
 | File | What it is |
 |---|---|
 | `frontend/src/ui/wordmarkPath.ts` | The wordmark on one line, drawn by `Wordmark.tsx` on the membership card, the lock screen and the join page |
-| `frontend/assets/logo-mark.svg` | The stacked lockup, white on the brand turquoise — the source every PNG is rendered from |
+| `frontend/assets/logo-mark.svg` | The stacked lockup, white on the brand turquoise — the source for the in-app logo, splash and wallet passes |
+| `frontend/assets/logo-device.svg` | The SO device: the same two letters set as a monogram, for the square icons |
 
 Because the outlines are drawn rather than set, the app needs no licensed font
 file for the wordmark, and it is exactly theirs at every size.
 
-What is **not** here is the practice's **SO device** — the monogram tile. It is a
-placed image inside the brand book rather than vector artwork in the page, so it
-could not be lifted the same way. Earlier versions of this app carried a hand
-trace of it; that has been removed rather than shipped as if it were the real
-thing. To put the device back, run their artwork through one command:
+The **SO device** is the one part that is not lifted from their artwork. Their
+own device is a placed image inside the brand book rather than vector in the
+page, so it could not come across with the type. `logo-device.svg` stands in for
+it: their S and their O, in their typeface, set plainly side by side. Near, but
+not a copy of the device itself — and not a hand trace of it either, which is
+what earlier versions of this app shipped.
+
+To put their real device in, pass it to the same script:
 
 ```bash
 cd frontend
 npm i -D playwright-core                       # once
+node scripts/install-logo.mjs assets/logo-mark.svg --device "Surrey Opticians Logo-01.png"
+```
+
+`--device` is for artwork that belongs only on the square icons; a full lockup
+given as the main file fills everything else. Passing one file and no `--device`
+uses it for all of them:
+
+```bash
 node scripts/install-logo.mjs "Surrey Opticians Logo-01.png"
 ```
 

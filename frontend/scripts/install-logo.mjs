@@ -15,6 +15,10 @@
 //   --pad <percent>     breathing room around the artwork (default 12)
 //   --no-trim           keep the artwork's own margins instead of cropping to
 //                       the ink, which is what centres it in a square icon
+//   --device <file>     separate artwork for the square icons (store icon,
+//                       adaptive icon, favicon). A brand usually has both a
+//                       lockup and a device; a wide lockup squeezed into a
+//                       square icon reads as a stripe across an empty tile.
 import { chromium } from "playwright-core";
 import { fileURLToPath } from "node:url";
 import fs from "node:fs";
@@ -27,11 +31,11 @@ const images = path.join(frontend, "assets", "images");
 const wallet = path.join(repo, "backend", "wallet_assets");
 
 const argv = process.argv.slice(2);
-const options = { ground: "#009DB1", pad: "12", trim: true };
+const options = { ground: "#009DB1", pad: "12", trim: true, device: null };
 let source = null;
 for (let i = 0; i < argv.length; i += 1) {
   const arg = argv[i];
-  if (arg === "--ground" || arg === "--pad") {
+  if (arg === "--ground" || arg === "--pad" || arg === "--device") {
     options[arg.slice(2)] = argv[i + 1];
     i += 1;
   } else if (arg === "--no-trim") {
@@ -45,22 +49,31 @@ const pad = Number(options.pad);
 
 if (!source) {
   console.error(
-    "Usage: node scripts/install-logo.mjs <artwork.png|.jpg|.svg> [--ground <colour>] [--pad <percent>] [--no-trim]",
+    "Usage: node scripts/install-logo.mjs <artwork.png|.jpg|.svg> [--device <file>] [--ground <colour>] [--pad <percent>] [--no-trim]",
   );
   process.exit(1);
 }
-if (!fs.existsSync(source)) {
-  console.error(`No such file: ${source}`);
-  process.exit(1);
+for (const file of [source, options.device]) {
+  if (file && !fs.existsSync(file)) {
+    console.error(`No such file: ${file}`);
+    process.exit(1);
+  }
 }
 
-const ext = path.extname(source).toLowerCase();
-const mime = { ".png": "image/png", ".jpg": "image/jpeg", ".jpeg": "image/jpeg", ".svg": "image/svg+xml" }[ext];
-if (!mime) {
-  console.error(`Unsupported file type ${ext}. Use PNG, JPEG or SVG.`);
-  process.exit(1);
+const TYPES = { ".png": "image/png", ".jpg": "image/jpeg", ".jpeg": "image/jpeg", ".svg": "image/svg+xml" };
+
+function load(file) {
+  const ext = path.extname(file).toLowerCase();
+  const mime = TYPES[ext];
+  if (!mime) {
+    console.error(`Unsupported file type ${ext}. Use PNG, JPEG or SVG.`);
+    process.exit(1);
+  }
+  return { uri: `data:${mime};base64,${fs.readFileSync(file).toString("base64")}`, vector: ext === ".svg" };
 }
-const original = `data:${mime};base64,${fs.readFileSync(source).toString("base64")}`;
+
+const lockup = load(source);
+const device = options.device ? load(options.device) : null;
 
 const browser = await chromium.launch({
   executablePath: process.env.CHROMIUM_PATH || undefined,
@@ -72,7 +85,8 @@ await tab.setContent("<body style='margin:0'>");
 // Crop the artwork down to its ink. Exported artwork usually carries a wide
 // margin, and a logo fitted with its margins sits small and off-centre in a
 // square icon; cropping first is what makes every size below look deliberate.
-const art = await tab.evaluate(
+const crop = (file) =>
+  tab.evaluate(
   async ([uri, doTrim, vector]) => {
     const img = new Image();
     img.src = uri;
@@ -144,8 +158,11 @@ const art = await tab.evaluate(
       ground,
     };
   },
-  [original, options.trim, ext === ".svg"],
-);
+    [file.uri, options.trim, file.vector],
+  );
+
+const art = await crop(lockup);
+const mark = device ? await crop(device) : art;
 
 // The in-app logo keeps the artwork's own proportions, with a margin around it
 // so the mark is not jammed against the edge of its own tile. Cropping to the
@@ -154,25 +171,29 @@ const MARK_FIT = 72;
 const markWidth = Math.round(Math.min(1600, Math.max(600, art.width)) / (MARK_FIT / 100));
 const markHeight = Math.round((markWidth * art.height) / art.width);
 
+// The square icons take the device where there is one; everything that has room
+// for the full lockup takes that.
 const jobs = [
   {
     file: path.join(images, "logo-mark.png"),
+    from: art,
     w: markWidth,
     h: markHeight,
     // Whatever the artwork sat on, it keeps sitting on.
     bg: art.ground,
     fit: MARK_FIT,
   },
-  { file: path.join(images, "icon.png"), w: 1024, h: 1024, bg: ground, fit: 100 - pad * 2 },
-  { file: path.join(images, "adaptive-icon.png"), w: 1024, h: 1024, bg: null, fit: 62 },
-  { file: path.join(images, "favicon.png"), w: 196, h: 196, bg: ground, fit: 100 - pad * 2 },
-  { file: path.join(images, "splash-image.png"), w: 900, h: 900, bg: null, fit: 76 },
-  { file: path.join(wallet, "logo.png"), w: 160, h: 50, bg: null, fit: 100 },
-  { file: path.join(wallet, "logo@2x.png"), w: 320, h: 100, bg: null, fit: 100 },
-  { file: path.join(wallet, "logo@3x.png"), w: 480, h: 150, bg: null, fit: 100 },
+  { file: path.join(images, "icon.png"), from: mark, w: 1024, h: 1024, bg: ground, fit: 100 - pad * 2 },
+  { file: path.join(images, "adaptive-icon.png"), from: mark, w: 1024, h: 1024, bg: null, fit: 62 },
+  { file: path.join(images, "favicon.png"), from: mark, w: 196, h: 196, bg: ground, fit: 100 - pad * 2 },
+  { file: path.join(images, "splash-image.png"), from: art, w: 900, h: 900, bg: null, fit: 76 },
+  { file: path.join(wallet, "logo.png"), from: art, w: 160, h: 50, bg: null, fit: 100 },
+  { file: path.join(wallet, "logo@2x.png"), from: art, w: 320, h: 100, bg: null, fit: 100 },
+  { file: path.join(wallet, "logo@3x.png"), from: art, w: 480, h: 150, bg: null, fit: 100 },
 ];
 
 console.log(`Logo: ${path.basename(source)} (${art.width}×${art.height}${art.trimmed ? ", cropped to the artwork" : ""})`);
+if (device) console.log(`Device: ${path.basename(options.device)} (${mark.width}×${mark.height}) — square icons only`);
 for (const job of jobs) {
   await tab.setContent(
     `<style>
@@ -181,7 +202,7 @@ for (const job of jobs) {
              ${job.bg ? `background:${job.bg};` : ""}}
         img{width:${job.fit}%;height:${job.fit}%;object-fit:contain;display:block}
       </style>
-      <div id="box"><img src="${art.uri}"></div>`,
+      <div id="box"><img src="${job.from.uri}"></div>`,
     { waitUntil: "load" },
   );
   await tab.waitForTimeout(120);
