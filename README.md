@@ -177,6 +177,75 @@ and not bundled here; swapping it is a font file plus one line in
 
 ### The logo
 
+The logo in the app is the practice's own artwork, not a lookalike. The
+letterforms are Gill Sans Nova outlines taken from page 1 of the **Surrey
+Opticians Brand Book 2026** — the Adobe InDesign publication in the SOMarketing
+SharePoint site, where the type is already converted to paths. They live in two
+places:
+
+| File | What it is |
+|---|---|
+| `frontend/src/ui/wordmarkPath.ts` | The wordmark on one line, drawn by `Wordmark.tsx` on the membership card, the lock screen and the join page |
+| `frontend/assets/logo-mark.svg` | The stacked lockup, white on the brand turquoise — the source every PNG is rendered from |
+
+Because the outlines are drawn rather than set, the app needs no licensed font
+file for the wordmark, and it is exactly theirs at every size.
+
+What is **not** here is the practice's **SO device** — the monogram tile. It is a
+placed image inside the brand book rather than vector artwork in the page, so it
+could not be lifted the same way. Earlier versions of this app carried a hand
+trace of it; that has been removed rather than shipped as if it were the real
+thing. To put the device back, run their artwork through one command:
+
+```bash
+cd frontend
+npm i -D playwright-core                       # once
+node scripts/install-logo.mjs "Surrey Opticians Logo-01.png"
+```
+
+That writes the in-app logo, the store icon, the Android adaptive icon, the
+favicon, the splash image and the three Apple Wallet pass logos. It takes PNG,
+JPEG or SVG (redrawing a vector source at full size rather than enlarging a
+small raster), crops the artwork to its ink so it sits centred rather than small
+and off to one side, and keeps whatever ground the artwork came on. `--ground`
+sets the colour behind the square icon, `--pad` its margin.
+
+No code changes either way: `src/ui/LogoMark.tsx` renders
+`assets/images/logo-mark.png` and takes its proportions from the file. Running
+the script against `assets/logo-mark.svg` regenerates the current set.
+
+## Booking
+
+"Book an eye test" on Home and "Book online" on Branches hand the patient to
+the practice's own booking page:
+
+    https://www.surreyopticians.co.uk/book-appointment
+
+It opens in an in-app browser on a phone and a new tab on web. The URL lives in
+`frontend/src/lib/booking.ts`. Because booking happens on that page, the app
+does not hold a diary and does not know which slots are free — whatever runs
+that page owns availability.
+
+## Brand
+
+Colours and type come from the practice's own **Surrey Opticians Lookbook**
+(2019), held in SharePoint under Marketing / SO Fonts and colours — not from a
+guess at the website:
+
+| | |
+|---|---|
+| Turquoise | `#009db1` — the primary, used for the ring, badges and fills |
+| Dark grey | `#3b3c43` — body type |
+| Dark blue | `#282460` |
+| Lilac | `#7087c3` |
+| Type | Gill Sans Nova (Light / Book / Semibold) |
+
+Two gaps. The app substitutes **Inter** for Gill Sans Nova, which is licensed
+and not bundled here; swapping it is a font file plus one line in
+`src/tokens.ts`.
+
+### The logo
+
 `frontend/assets/images/logo-mark.png` is a **hand trace**, not the practice's
 artwork — close, but not their letterform. Their own `Surrey Opticians
 Logo-01.png` lives in the SOMarketing SharePoint site.
@@ -209,6 +278,6 @@ and takes its proportions from the file. Running the script against
 - [ ] Set `STAFF_API_KEY` before the till can post purchases or the desk can open
 - [ ] Set `SEED_DEMO_DATA=false` on the practice's deployment
 - [ ] Add the Apple and Google Wallet signing material — see `backend/WALLET_SETUP.md`
-- [ ] Replace the logo — `node frontend/scripts/install-logo.mjs "Surrey Opticians Logo-01.png"`
+- [ ] Add the SO device — `node frontend/scripts/install-logo.mjs "Surrey Opticians Logo-01.png"` (the wordmark is already theirs)
 - [ ] Confirm opening hours — the brand book does not state them
 - [ ] Change the bundle identifier from Emergent's `com.emergent.surreyopticians.xkx2pz`

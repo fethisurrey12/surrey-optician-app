@@ -73,17 +73,23 @@ await tab.setContent("<body style='margin:0'>");
 // margin, and a logo fitted with its margins sits small and off-centre in a
 // square icon; cropping first is what makes every size below look deliberate.
 const art = await tab.evaluate(
-  async ([uri, doTrim]) => {
+  async ([uri, doTrim, vector]) => {
     const img = new Image();
     img.src = uri;
     await img.decode();
-    const w = img.naturalWidth;
-    const h = img.naturalHeight;
+    // An SVG has no true pixel size: drawn at its nominal one it would be
+    // rasterised small and then scaled up into a blurred icon, so redraw it
+    // large enough for the biggest size below. A photograph or PNG is left at
+    // its own resolution, since enlarging it would invent detail it lacks.
+    const nominal = Math.max(img.naturalWidth, img.naturalHeight) || 1;
+    const scale = vector ? Math.max(1, Math.round(2400 / nominal)) : 1;
+    const w = Math.round(img.naturalWidth * scale);
+    const h = Math.round(img.naturalHeight * scale);
     const canvas = document.createElement("canvas");
     canvas.width = w;
     canvas.height = h;
     const ctx = canvas.getContext("2d", { willReadFrequently: true });
-    ctx.drawImage(img, 0, 0);
+    ctx.drawImage(img, 0, 0, w, h);
     if (!doTrim) return { uri, width: w, height: h, trimmed: false, ground: null };
 
     const { data } = ctx.getImageData(0, 0, w, h);
@@ -138,14 +144,14 @@ const art = await tab.evaluate(
       ground,
     };
   },
-  [original, options.trim],
+  [original, options.trim, ext === ".svg"],
 );
 
 // The in-app logo keeps the artwork's own proportions, with a margin around it
 // so the mark is not jammed against the edge of its own tile. Cropping to the
 // ink took the artwork's margin away; this puts a measured one back.
-const MARK_FIT = 78;
-const markWidth = Math.round(Math.min(1400, Math.max(400, art.width)) / (MARK_FIT / 100));
+const MARK_FIT = 72;
+const markWidth = Math.round(Math.min(1600, Math.max(600, art.width)) / (MARK_FIT / 100));
 const markHeight = Math.round((markWidth * art.height) / art.width);
 
 const jobs = [

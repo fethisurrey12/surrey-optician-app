@@ -1,14 +1,14 @@
 import { View, type StyleProp, type ViewStyle } from "react-native";
+import Svg, { Path } from "react-native-svg";
 
-import { Txt } from "@/src/ui/Txt";
-import { font } from "@/src/tokens";
+import { WORDMARK_ASPECT, WORDMARK_PATH, WORDMARK_VIEWBOX } from "@/src/ui/wordmarkPath";
 import { useTheme } from "@/src/theme";
 
-// The practice's wordmark: "surrey" and "opticians" set as one lowercase word,
-// navy then turquoise, as it appears on surreyopticians.co.uk.
-//
-// Their artwork uses a rounded geometric sans; Inter stands in for it here.
-// Swapping in the real face is a change to `family` below plus the font files.
+// The practice's wordmark, drawn from their own outlines rather than set in a
+// stand-in typeface — see src/ui/wordmarkPath.ts for where the letterforms come
+// from. Single colour, as the brand book uses it.
+const HEIGHTS = { sm: 12, md: 15, lg: 18 } as const;
+
 export function Wordmark({
   size = "md",
   align = "center",
@@ -17,37 +17,24 @@ export function Wordmark({
 }: {
   size?: "sm" | "md" | "lg";
   align?: "left" | "center";
-  /** On a navy or turquoise field the whole wordmark reverses to white. */
+  /** On a navy or turquoise field the wordmark reverses to white. */
   onDark?: boolean;
   style?: StyleProp<ViewStyle>;
 }) {
   const { colors } = useTheme();
-  const s = SIZES[size];
-  const family = font.regular;
-
-  const type = {
-    fontFamily: family,
-    fontSize: s.size,
-    letterSpacing: s.tracking,
-    lineHeight: s.size * 1.16,
-  };
+  const height = HEIGHTS[size];
+  const width = Math.round(height * WORDMARK_ASPECT);
 
   return (
     <View
-      style={[
-        { flexDirection: "row", alignItems: "baseline" },
-        { justifyContent: align === "center" ? "center" : "flex-start" },
-        style,
-      ]}
+      style={[{ alignItems: align === "center" ? "center" : "flex-start" }, style]}
+      accessible
+      accessibilityRole="image"
+      accessibilityLabel="Surrey Opticians"
     >
-      <Txt style={[type, { color: onDark ? colors.paper : colors.ink }]}>surrey</Txt>
-      <Txt style={[type, { color: onDark ? colors.paper : colors.lightTeal }]}>opticians</Txt>
+      <Svg width={width} height={height} viewBox={WORDMARK_VIEWBOX}>
+        <Path d={WORDMARK_PATH} fill={onDark ? colors.paper : colors.ink} />
+      </Svg>
     </View>
   );
 }
-
-const SIZES = {
-  sm: { size: 19, tracking: -0.2 },
-  md: { size: 27, tracking: -0.4 },
-  lg: { size: 37, tracking: -0.6 },
-};

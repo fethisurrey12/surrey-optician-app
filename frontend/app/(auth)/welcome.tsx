@@ -7,25 +7,24 @@ import { BrandButton } from "@/src/ui/BrandButton";
 import { Screen } from "@/src/ui/Screen";
 import { StaggerItem } from "@/src/ui/Stagger";
 import { Txt } from "@/src/ui/Txt";
-import { LogoMark } from "@/src/ui/LogoMark";
-import { Wordmark } from "@/src/ui/Wordmark";
+import { LOGO_ASPECT, LogoMark } from "@/src/ui/LogoMark";
 
 export default function Welcome() {
   const styles = useStyles();
   const router = useRouter();
   const { width } = useWindowDimensions();
-  // The logo tile, sized to the screen but never so large it crowds the copy.
-  const mark = Math.max(74, Math.min(104, (width - 96) / 2.2));
+  // The logo tile, sized from the screen's width by its own proportions so it
+  // never runs past the page's margins.
+  const mark = Math.max(40, Math.min(96, (width - 96) / LOGO_ASPECT));
 
   return (
     <Screen scroll={false} testID="welcome-screen">
       <View style={styles.body}>
         <View style={styles.hero}>
           <StaggerItem index={0}>
-            {/* The practice's lockup: the tile above, the wordmark beneath. */}
+            {/* The practice's lockup, which carries the wordmark itself. */}
             <View style={styles.lockup}>
               <LogoMark height={mark} />
-              <Wordmark size={mark < 90 ? "md" : "lg"} />
             </View>
           </StaggerItem>
         </View>
