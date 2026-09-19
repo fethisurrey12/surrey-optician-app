@@ -1,8 +1,7 @@
 from fastapi import FastAPI, APIRouter
 from dotenv import load_dotenv
 from starlette.middleware.cors import CORSMiddleware
-from motor.motor_asyncio import AsyncIOMotorClient
-import os
+import db as dbmod
 import logging
 from pathlib import Path
 from pydantic import BaseModel, Field
@@ -14,10 +13,8 @@ from datetime import datetime
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
 
-# MongoDB connection
-mongo_url = os.environ['MONGO_URL']
-client = AsyncIOMotorClient(mongo_url)
-db = client[os.environ['DB_NAME']]
+# MongoDB connection lives in db.py. Its client is created on first use, so
+# importing this module no longer requires MONGO_URL to be set.
 
 # Create the main app without a prefix
 app = FastAPI()
@@ -44,12 +41,12 @@ async def root():
 async def create_status_check(input: StatusCheckCreate):
     status_dict = input.dict()
     status_obj = StatusCheck(**status_dict)
-    _ = await db.status_checks.insert_one(status_obj.dict())
+    _ = await dbmod.get_db().status_checks.insert_one(status_obj.dict())
     return status_obj
 
 @api_router.get("/status", response_model=List[StatusCheck])
 async def get_status_checks():
-    status_checks = await db.status_checks.find().to_list(1000)
+    status_checks = await dbmod.get_db().status_checks.find().to_list(1000)
     return [StatusCheck(**status_check) for status_check in status_checks]
 
 from wallet import router as wallet_router
@@ -74,6 +71,18 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
+@app.on_event("startup")
+async def create_indexes():
+    """Indexes are declared in db.py and created here. create_index is a no-op
+    when the index already exists, so this is safe on every boot."""
+    try:
+        await dbmod.ensure_indexes()
+    except Exception:
+        # A database that is briefly unreachable must not stop the API booting;
+        # the wallet endpoints and /api/ do not depend on these indexes.
+        logger.exception("Could not create indexes at startup")
+
+
 @app.on_event("shutdown")
 async def shutdown_db_client():
-    client.close()
+    dbmod.close()
