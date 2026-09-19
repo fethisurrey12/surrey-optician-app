@@ -60,18 +60,6 @@ async def test_finds_a_patient_by_the_number_they_read_out(client):
         assert [m["firstName"] for m in found] == ["Sarah"], typed
 
 
-async def test_finds_a_patient_by_membership_code(client):
-    _, account = await a_member(client, "+447700900123", "Sarah", "Jones")
-    found = (await find(client, account["memberCode"].lower())).json()
-    assert [m["firstName"] for m in found] == ["Sarah"]
-
-
-async def test_two_letters_of_the_code_prefix_is_not_a_search(client):
-    await a_member(client, "+447700900123", "Sarah", "Jones")
-    # Every code starts SM-, so "sm" must not list the whole membership.
-    assert (await find(client, "sm")).json() == []
-
-
 async def test_a_single_character_finds_nothing(client):
     await a_member(client, "+447700900123", "Sarah", "Jones")
     assert (await find(client, "s")).json() == []
@@ -89,8 +77,8 @@ async def test_search_does_not_take_a_regular_expression(client):
 
 
 # --- The record -----------------------------------------------------------
-async def test_the_record_shows_points_vouchers_visits_and_arrivals(client):
-    _, account = await a_member(client, "+447700900123", "Sarah", "Jones", "sarah@example.com")
+async def test_the_record_shows_points_vouchers_and_visits(client):
+    await a_member(client, "+447700900123", "Sarah", "Jones", "sarah@example.com")
     member_id = (await find(client, "sarah")).json()[0]["id"]
 
     r = await client.post(
@@ -99,15 +87,6 @@ async def test_the_record_shows_points_vouchers_visits_and_arrivals(client):
         headers=STAFF,
     )
     assert r.status_code == 200, r.text
-
-    r = await client.post(
-        "/api/staff/check-in",
-        json={"code": account["memberCode"], "branchId": "wallington"},
-        headers=STAFF,
-    )
-    assert r.status_code == 200, r.text
-    # The scan hands back the record to open, not just a name to read out.
-    assert r.json()["memberId"] == member_id
 
     r = await client.get(f"/api/staff/members/{member_id}", headers=STAFF)
     assert r.status_code == 200, r.text
@@ -119,7 +98,6 @@ async def test_the_record_shows_points_vouchers_visits_and_arrivals(client):
     # The welcome voucher, plus the £10 reward the £120 unlocked.
     assert sorted(v["kind"] for v in detail["vouchers"]) == ["reward", "signup"]
     assert any(t["title"] == "Frames" for t in detail["activity"])
-    assert [c["branchId"] for c in detail["checkIns"]] == ["wallington"]
 
 
 async def test_an_unknown_record_is_a_404(client):

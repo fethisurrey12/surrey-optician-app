@@ -57,13 +57,6 @@ class VerifyOtpIn(BaseModel):
         return "".join(c for c in v if c.isdigit())
 
 
-class CheckInIn(BaseModel):
-    """What the desk sends after scanning a patient's membership QR."""
-
-    code: str
-    branchId: str
-
-
 class UpdateAccountIn(BaseModel):
     firstName: Optional[str] = Field(default=None, max_length=60)
     lastName: Optional[str] = Field(default=None, max_length=60)
@@ -149,8 +142,6 @@ class Account(BaseModel):
     points: int
     totalEarned: int
     referralCode: str
-    # The code behind the membership QR the desk scans to check the patient in.
-    memberCode: str
 
     @staticmethod
     def from_doc(doc: dict) -> "Account":
@@ -171,7 +162,6 @@ class Account(BaseModel):
             points=doc.get("points", 0),
             totalEarned=doc.get("totalEarned", 0),
             referralCode=doc["referralCode"],
-            memberCode=doc.get("memberCode", ""),
         )
 
 
@@ -282,28 +272,6 @@ class OtpSent(BaseModel):
     devCode: Optional[str] = None
 
 
-class CheckIn(BaseModel):
-    id: str
-    at: str
-    branchId: str
-
-
-class CheckInResult(BaseModel):
-    """Shown to the colleague at the desk: who has arrived, and when."""
-
-    checkIn: CheckIn
-    # The record to open when the colleague wants the rest of the patient's
-    # details straight after scanning them in.
-    memberId: str
-    firstName: str
-    lastName: str
-    mobileDisplay: str
-    memberCode: str
-    homeBranchId: str
-    # So the desk can mention a waiting reward while the patient is there.
-    vouchersAvailable: int
-
-
 class StaffMemberRow(BaseModel):
     """One line of the desk's search results."""
 
@@ -311,7 +279,6 @@ class StaffMemberRow(BaseModel):
     firstName: str
     lastName: str
     mobileDisplay: str
-    memberCode: str
     homeBranchId: str
     memberSince: str
     points: int
@@ -326,7 +293,6 @@ class StaffMemberRow(BaseModel):
             firstName=doc.get("firstName", ""),
             lastName=doc.get("lastName", ""),
             mobileDisplay=display_uk_mobile(doc["mobile"]),
-            memberCode=doc.get("memberCode", ""),
             homeBranchId=doc.get("homeBranchId", ""),
             memberSince=doc["memberSince"],
             points=doc.get("points", 0),
@@ -340,7 +306,6 @@ class StaffMemberDetail(BaseModel):
     account: Account
     vouchers: list[Voucher]
     activity: list[Txn]
-    checkIns: list[CheckIn]
 
 
 class RedeemResult(BaseModel):

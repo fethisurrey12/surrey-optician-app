@@ -26,7 +26,6 @@ export type Account = {
   points: number; // balance toward the next reward (0–9 after conversions)
   totalEarned: number; // lifetime points
   referralCode: string; // quoted by a friend at their first visit
-  memberCode: string; // behind the QR the desk scans to check the patient in
 };
 
 // A friend the member has invited. Both earn one bonus point when the friend
@@ -158,7 +157,6 @@ export const ACCOUNT: Account = {
   points: 8,
   totalEarned: 88,
   referralCode: "SARAH-5589",
-  memberCode: "SM-4H7P-2QXD",
 };
 
 export const REFERRAL_BONUS_POINTS = 1;

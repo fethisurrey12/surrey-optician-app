@@ -6,15 +6,12 @@ import { useQuery } from "@tanstack/react-query";
 import { branchName } from "@/src/api/data";
 import {
   checkStaffKey,
-  deskCheckIn,
   loadStaffKey,
   searchMembers,
   setStaffKey,
   staffKeyRequired,
-  type CheckInResult,
 } from "@/src/api/staff";
 import { BranchChips } from "@/src/components/BranchChips";
-import { useApp } from "@/src/context/AppContext";
 import { useDeskBranch } from "@/src/lib/desk";
 import { makeStyles } from "@/src/theme";
 import { spacing } from "@/src/tokens";
@@ -23,7 +20,6 @@ import { Card } from "@/src/ui/Card";
 import { Divider } from "@/src/ui/Divider";
 import { Field } from "@/src/ui/Field";
 import { GhostButton } from "@/src/ui/GhostButton";
-import { Icon } from "@/src/ui/Icon";
 import { LogoMark } from "@/src/ui/LogoMark";
 import { PressScale } from "@/src/ui/PressScale";
 import { Screen } from "@/src/ui/Screen";
@@ -37,7 +33,6 @@ import { Txt } from "@/src/ui/Txt";
 export default function Desk() {
   const styles = useStyles();
   const router = useRouter();
-  const { toast } = useApp();
   const { branchId, setBranchId } = useDeskBranch();
 
   const [unlocked, setUnlocked] = useState(!staffKeyRequired);
@@ -81,12 +76,6 @@ export default function Desk() {
           <Txt variant="label">You are at</Txt>
           <BranchChips value={branchId} onChange={setBranchId} testID="desk-branches" />
         </View>
-
-        <CheckInCard
-          branchId={branchId}
-          onOpenRecord={(id) => router.push(`/staff/${id}`)}
-          onError={toast}
-        />
 
         <Search onOpen={(id) => router.push(`/staff/${id}`)} />
 
@@ -171,100 +160,6 @@ function KeyGate({ onUnlocked }: { onUnlocked: () => void }) {
   );
 }
 
-// --- Checking a patient in -------------------------------------------------
-function CheckInCard({
-  branchId,
-  onOpenRecord,
-  onError,
-}: {
-  branchId: string;
-  onOpenRecord: (id: string) => void;
-  onError: (message: string) => void;
-}) {
-  const styles = useStyles();
-  const [code, setCode] = useState("");
-  const [busy, setBusy] = useState(false);
-  const [arrived, setArrived] = useState<CheckInResult | null>(null);
-
-  const submit = async () => {
-    const wanted = code.trim().toUpperCase();
-    if (!wanted || busy) return;
-    setBusy(true);
-    try {
-      const result = await deskCheckIn(wanted, branchId);
-      setArrived(result);
-      setCode("");
-    } catch (e) {
-      setArrived(null);
-      onError(e instanceof Error ? e.message : "That code was not recognised");
-    } finally {
-      setBusy(false);
-    }
-  };
-
-  return (
-    <Card testID="desk-checkin">
-      <View style={styles.cardBody}>
-        <SectionHeader title="Check in" />
-        <Txt variant="caption">
-          Scan the patient&apos;s membership QR, or type the code beneath it. A scanner types the
-          code and presses enter for you.
-        </Txt>
-        <Field
-          label="Membership code"
-          value={code}
-          onChangeText={(t) => setCode(t.toUpperCase())}
-          placeholder="SM-0000-0000"
-          autoCapitalize="characters"
-          maxLength={14}
-          testID="desk-checkin-code"
-          returnKeyType="go"
-          onSubmitEditing={submit}
-        />
-        <BrandButton
-          label="Check in"
-          icon="scan"
-          onPress={submit}
-          loading={busy}
-          disabled={!code.trim()}
-          testID="desk-checkin-submit"
-        />
-
-        {arrived ? (
-          <View style={styles.arrived} testID="desk-checkin-result">
-            <Divider />
-            <View style={styles.arrivedRow}>
-              <View style={styles.tick}>
-                <Icon name="check" size={16} color="#FFFFFF" strokeWidth={2.4} />
-              </View>
-              <View style={styles.arrivedText}>
-                <Txt variant="title">
-                  {arrived.firstName} {arrived.lastName} has arrived
-                </Txt>
-                <Txt variant="caption">
-                  {arrived.mobileDisplay} · home branch {branchName(arrived.homeBranchId)}
-                </Txt>
-                {arrived.vouchersAvailable > 0 ? (
-                  <Txt variant="caption" tone="teal">
-                    {arrived.vouchersAvailable === 1
-                      ? "1 reward waiting to be used"
-                      : `${arrived.vouchersAvailable} rewards waiting to be used`}
-                  </Txt>
-                ) : null}
-              </View>
-            </View>
-            <GhostButton
-              label="Open their record"
-              onPress={() => onOpenRecord(arrived.memberId)}
-              testID="desk-checkin-open"
-            />
-          </View>
-        ) : null}
-      </View>
-    </Card>
-  );
-}
-
 // --- Finding a patient -----------------------------------------------------
 function Search({ onOpen }: { onOpen: (id: string) => void }) {
   const styles = useStyles();
@@ -290,10 +185,10 @@ function Search({ onOpen }: { onOpen: (id: string) => void }) {
       <View style={styles.cardBody}>
         <SectionHeader title="Find a patient" />
         <Field
-          label="Name, number, email or membership code"
+          label="Name, number or email"
           value={query}
           onChangeText={setQuery}
-          placeholder="Sarah, 900123, SM-4H7P…"
+          placeholder="Sarah, Whitfield, 900123…"
           testID="desk-search-field"
         />
 
@@ -322,7 +217,7 @@ function Search({ onOpen }: { onOpen: (id: string) => void }) {
                       {m.firstName || m.lastName ? `${m.firstName} ${m.lastName}`.trim() : "No name yet"}
                     </Txt>
                     <Txt variant="caption">
-                      {m.mobileDisplay} · {m.memberCode}
+                      {m.mobileDisplay} · {branchName(m.homeBranchId)}
                     </Txt>
                   </View>
                   <Txt variant="caption" tone="teal" tabular>
@@ -351,15 +246,4 @@ const useStyles = makeStyles((colors) => ({
   results: { gap: 0 },
   result: { flexDirection: "row", alignItems: "center", gap: spacing.md, paddingVertical: spacing.md },
   resultText: { flex: 1, gap: 2 },
-  arrived: { gap: spacing.base },
-  arrivedRow: { flexDirection: "row", alignItems: "flex-start", gap: spacing.md },
-  arrivedText: { flex: 1, gap: 2 },
-  tick: {
-    width: 28,
-    height: 28,
-    borderRadius: 14,
-    backgroundColor: colors.teal,
-    alignItems: "center",
-    justifyContent: "center",
-  },
 }));

@@ -63,15 +63,6 @@ def voucher_code() -> str:
     return f"SO-{_block()}-{_block()}"
 
 
-def member_code() -> str:
-    """SM-XXXX-XXXX — the patient's own code, shown as a QR at the desk.
-
-    The prefix differs from a voucher's so whoever is scanning, and the code
-    that reads it, can tell a check-in from a redemption at a glance.
-    """
-    return f"SM-{_block()}-{_block()}"
-
-
 def add_months(d: date, months: int) -> date:
     """Calendar-safe month arithmetic, clamping to the end of short months."""
     month_index = d.month - 1 + months

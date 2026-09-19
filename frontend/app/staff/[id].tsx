@@ -61,7 +61,7 @@ export default function PatientRecord() {
     );
   }
 
-  const { account: a, vouchers, activity, checkIns } = record.data;
+  const { account: a, vouchers, activity } = record.data;
   const available = vouchers.filter((v) => v.status === "available");
   const name = `${a.firstName} ${a.lastName}`.trim();
 
@@ -82,7 +82,6 @@ export default function PatientRecord() {
             </View>
             <Divider />
             <Detail label="Mobile" value={a.mobileDisplay} />
-            <Detail label="Membership code" value={a.memberCode} tabular />
             <Detail label="Date of birth" value={a.dateOfBirth ? dayMonthYear(a.dateOfBirth) : "—"} />
             <Detail label="Email" value={a.email || "—"} />
             <Detail label="Address" value={[a.address, a.postcode].filter(Boolean).join("\n") || "—"} />
@@ -197,39 +196,19 @@ export default function PatientRecord() {
           </View>
         </Card>
 
-        <Card testID="record-arrivals">
-          <View style={styles.cardBody}>
-            <SectionHeader title="Arrivals" />
-            {checkIns.length === 0 ? (
-              <Txt variant="caption">They have not been checked in yet.</Txt>
-            ) : (
-              checkIns.map((c, i) => (
-                <View key={c.id}>
-                  {i > 0 ? <Divider /> : null}
-                  <View style={styles.line}>
-                    <Txt variant="bodyStrong" tone="ink" style={styles.lineText}>
-                      {arrivalTime(c.at)}
-                    </Txt>
-                    <Txt variant="caption">{branchName(c.branchId)}</Txt>
-                  </View>
-                </View>
-              ))
-            )}
-          </View>
-        </Card>
       </View>
     </Screen>
   );
 }
 
-function Detail({ label, value, tabular }: { label: string; value: string; tabular?: boolean }) {
+function Detail({ label, value }: { label: string; value: string }) {
   const styles = useStyles();
   return (
     <View style={styles.detail}>
       <Txt variant="caption" style={styles.detailLabel}>
         {label}
       </Txt>
-      <Txt variant="bodyStrong" tone="ink" tabular={tabular} style={styles.detailValue}>
+      <Txt variant="bodyStrong" tone="ink" style={styles.detailValue}>
         {value}
       </Txt>
     </View>
@@ -350,13 +329,6 @@ function PurchaseForm({ mobile, memberId }: { mobile: string; memberId: string }
       </View>
     </Card>
   );
-}
-
-function arrivalTime(iso: string): string {
-  const d = new Date(iso);
-  if (Number.isNaN(d.getTime())) return iso;
-  const time = `${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
-  return `${dayMonthYear(iso.slice(0, 10))}, ${time}`;
 }
 
 const useStyles = makeStyles(() => ({

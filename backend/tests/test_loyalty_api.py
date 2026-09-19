@@ -407,74 +407,6 @@ async def test_the_welcome_voucher_can_be_redeemed(client):
     assert r.json()["voucher"]["status"] == "used"
 
 
-# --- Desk check-in ----------------------------------------------------------
-async def test_the_desk_checks_a_patient_in_from_their_qr(client):
-    headers, _ = await sign_in(client, MOBILE)
-    await client.patch("/api/me/account", json={"firstName": "Sarah", "lastName": "Whitfield"},
-                       headers=headers)
-    account = (await client.get("/api/me/account", headers=headers)).json()
-
-    code = account["memberCode"]
-    assert code.startswith("SM-"), "a membership code must not look like a voucher"
-
-    r = await client.post("/api/staff/check-in",
-                          json={"code": code, "branchId": "coulsdon"}, headers=STAFF)
-    assert r.status_code == 200
-
-    body = r.json()
-    assert body["firstName"] == "Sarah"
-    assert body["lastName"] == "Whitfield"
-    assert body["memberCode"] == code
-    assert body["checkIn"]["branchId"] == "coulsdon"
-    assert body["checkIn"]["at"]
-
-
-async def test_checking_in_awards_no_points(client):
-    headers, _ = await sign_in(client, MOBILE)
-    code = (await client.get("/api/me/account", headers=headers)).json()["memberCode"]
-
-    before = (await client.get("/api/me/account", headers=headers)).json()["totalEarned"]
-    await client.post("/api/staff/check-in", json={"code": code, "branchId": "coulsdon"}, headers=STAFF)
-    after = (await client.get("/api/me/account", headers=headers)).json()["totalEarned"]
-    assert before == after == 0
-
-
-async def test_a_patient_can_check_in_at_every_appointment(client, database):
-    headers, _ = await sign_in(client, MOBILE)
-    code = (await client.get("/api/me/account", headers=headers)).json()["memberCode"]
-
-    for branch in ("coulsdon", "banstead", "coulsdon"):
-        r = await client.post("/api/staff/check-in",
-                              json={"code": code, "branchId": branch}, headers=STAFF)
-        assert r.status_code == 200
-
-    member = await database.members.find_one({"mobile": MOBILE})
-    assert await database.checkins.count_documents({"memberId": member["_id"]}) == 3
-
-
-async def test_scanning_a_voucher_at_the_desk_says_so(client):
-    headers, _ = await sign_in(client, MOBILE)
-    voucher = (await client.get("/api/me/vouchers", headers=headers)).json()[0]
-
-    r = await client.post("/api/staff/check-in",
-                          json={"code": voucher["code"], "branchId": "coulsdon"}, headers=STAFF)
-    assert r.status_code == 422
-    assert "voucher" in r.json()["detail"].lower()
-
-
-async def test_an_unknown_code_is_refused(client):
-    r = await client.post("/api/staff/check-in",
-                          json={"code": "SM-ZZZZ-ZZZZ", "branchId": "coulsdon"}, headers=STAFF)
-    assert r.status_code == 404
-
-
-async def test_check_in_needs_the_staff_key(client):
-    headers, _ = await sign_in(client, MOBILE)
-    code = (await client.get("/api/me/account", headers=headers)).json()["memberCode"]
-    r = await client.post("/api/staff/check-in", json={"code": code, "branchId": "coulsdon"})
-    assert r.status_code == 401
-
-
 async def test_the_welcome_voucher_is_restricted_to_glasses(client):
     headers, _ = await sign_in(client, MOBILE)
     vouchers = (await client.get("/api/me/vouchers", headers=headers)).json()
@@ -489,25 +421,6 @@ async def test_the_welcome_voucher_is_restricted_to_glasses(client):
     assert reward["appliesTo"] == "any"
 
 
-async def test_the_desk_sees_a_waiting_reward(client):
-    await purchase(client, total=100)
-    headers, _ = await sign_in(client, MOBILE)
-    code = (await client.get("/api/me/account", headers=headers)).json()["memberCode"]
-
-    r = await client.post("/api/staff/check-in",
-                          json={"code": code, "branchId": "coulsdon"}, headers=STAFF)
-    # One earned reward plus the welcome voucher.
-    assert r.json()["vouchersAvailable"] == 2
-
-
-async def test_member_codes_are_distinct_per_member(client):
-    a, _ = await sign_in(client, "+447700900123")
-    b, _ = await sign_in(client, "+447700900456")
-    code_a = (await client.get("/api/me/account", headers=a)).json()["memberCode"]
-    code_b = (await client.get("/api/me/account", headers=b)).json()["memberCode"]
-    assert code_a != code_b
-
-
 # --- What the record holds -------------------------------------------------
 async def test_signing_in_saves_a_member_record(client, database):
     headers, _ = await sign_in(client, MOBILE)
@@ -516,7 +429,7 @@ async def test_signing_in_saves_a_member_record(client, database):
     assert doc, "signing in must create a record"
     # The fields the practice's own sign-up form asks for.
     for field in ("mobile", "firstName", "lastName", "email", "dateOfBirth",
-                  "address", "postcode", "homeBranchId", "memberSince", "memberCode"):
+                  "address", "postcode", "homeBranchId", "memberSince"):
         assert field in doc, field
     assert doc["createdAt"]
 

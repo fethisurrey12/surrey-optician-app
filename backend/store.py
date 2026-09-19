@@ -34,7 +34,6 @@ from phone import last_four
 from scheme import (
     add_months,
     iso_date,
-    member_code,
     points_for_spend,
     pounds_to_pence,
     private_pence,
@@ -96,7 +95,6 @@ async def create_member(mobile: str, first_name: str = "", last_name: str = "",
         # It is reissued once they tell us their name — see update_member — because
         # the join page reads the inviter's name back out of the code.
         "referralCodeAuto": not bool(first_name),
-        "memberCode": member_code(),
         "createdAt": datetime.now(timezone.utc),
     }
     try:
@@ -115,69 +113,6 @@ async def get_or_create_member(mobile: str) -> tuple[dict, bool]:
     if existing:
         return existing, False
     return await create_member(mobile), True
-
-
-async def ensure_member_code(member_id: str) -> dict:
-    """Give an older member record a code the first time it is needed."""
-    db = get_db()
-    doc = await db.members.find_one({"_id": member_id})
-    if not doc:
-        raise HTTPException(status.HTTP_404_NOT_FOUND, "Account not found")
-    if doc.get("memberCode"):
-        return doc
-
-    for _ in range(5):
-        try:
-            await db.members.update_one(
-                {"_id": member_id}, {"$set": {"memberCode": member_code()}}
-            )
-            return await db.members.find_one({"_id": member_id})
-        except DuplicateKeyError:
-            continue
-    raise HTTPException(status.HTTP_500_INTERNAL_SERVER_ERROR, "Could not allocate a member code")
-
-
-async def check_in(code: str, branch_id: str) -> tuple[dict, dict]:
-    """Record a patient arriving at the desk. Returns (member, check-in).
-
-    The desk scans the patient's membership QR; this says who they are and
-    notes the arrival. It does not touch points — checking in is not a purchase.
-    """
-    db = get_db()
-    code = (code or "").strip().upper()
-
-    member = await db.members.find_one({"memberCode": code})
-    if not member:
-        # A colleague scanning the wrong QR is the likeliest mistake, so say so.
-        if code.startswith("SO-"):
-            raise HTTPException(
-                status.HTTP_422_UNPROCESSABLE_ENTITY,
-                "That is a reward voucher, not a membership code. Ask for the check-in QR.",
-            )
-        raise HTTPException(status.HTTP_404_NOT_FOUND, "No member found for that code")
-
-    now = datetime.now(timezone.utc)
-    doc = {
-        "_id": _uid("c"),
-        "memberId": member["_id"],
-        "branchId": branch_id,
-        "at": now,
-        "date": iso_date(now.date()),
-    }
-    await db.checkins.insert_one(doc)
-    return member, doc
-
-
-async def recent_check_in(member_id: str, within_minutes: int = 60) -> Optional[dict]:
-    """The member's latest arrival, if it is recent enough to still be the one."""
-    db = get_db()
-    doc = await get_db().checkins.find_one({"memberId": member_id}, sort=[("at", -1)])
-    if not doc:
-        return None
-    at = doc["at"] if doc["at"].tzinfo else doc["at"].replace(tzinfo=timezone.utc)
-    if (datetime.now(timezone.utc) - at).total_seconds() > within_minutes * 60:
-        return None
-    return doc
 
 
 async def get_member(member_id: str) -> dict:
@@ -200,10 +135,10 @@ def _mobile_digits(query: str) -> str:
 
 
 async def search_members(query: str, limit: int = 20) -> list[dict]:
-    """Find a patient at the desk by name, number, email or membership code.
+    """Find a patient at the desk by name, number or email.
 
-    The desk knows one of four things about whoever is standing there, so all
-    four are tried at once rather than making the colleague choose a field.
+    The desk knows one of three things about whoever is standing there, so all
+    three are tried at once rather than making the colleague choose a field.
     """
     query = (query or "").strip()
     if len(query) < 2:
@@ -217,12 +152,6 @@ async def search_members(query: str, limit: int = 20) -> list[dict]:
         # Match the end of the number: enough of it to be distinctive, and the
         # last few digits are what a patient remembers when the front is wrong.
         clauses.append({"mobile": {"$regex": re.escape(digits) + "$"}})
-
-    code = query.upper().replace(" ", "")
-    # Every code begins "SM-", so two characters of it says nothing; wait until
-    # there is a digit of the code itself before matching on it.
-    if code.startswith("SM") and len(code) >= 4:
-        clauses.append({"memberCode": {"$regex": "^" + re.escape(code)}})
 
     words = [w for w in re.split(r"\s+", query) if w]
     if words:
@@ -248,11 +177,6 @@ async def search_members(query: str, limit: int = 20) -> list[dict]:
         return []
 
     cursor = db.members.find({"$or": clauses}).sort([("firstName", 1), ("lastName", 1)])
-    return await cursor.to_list(limit)
-
-
-async def list_check_ins(member_id: str, limit: int = 20) -> list[dict]:
-    cursor = get_db().checkins.find({"memberId": member_id}).sort("at", -1)
     return await cursor.to_list(limit)
 
 

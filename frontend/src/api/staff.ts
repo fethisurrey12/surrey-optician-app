@@ -20,32 +20,16 @@ export type StaffMemberRow = {
   firstName: string;
   lastName: string;
   mobileDisplay: string;
-  memberCode: string;
   homeBranchId: string;
   memberSince: string;
   points: number;
   totalEarned: number;
 };
 
-export type StaffCheckIn = { id: string; at: string; branchId: string };
-
 export type StaffMemberDetail = {
   account: Account;
   vouchers: Voucher[];
   activity: Txn[];
-  checkIns: StaffCheckIn[];
-};
-
-export type CheckInResult = {
-  checkIn: StaffCheckIn;
-  // So the desk can open the record straight after scanning them in.
-  memberId: string;
-  firstName: string;
-  lastName: string;
-  mobileDisplay: string;
-  memberCode: string;
-  homeBranchId: string;
-  vouchersAvailable: number;
 };
 
 export type PurchaseResult = {
@@ -124,12 +108,4 @@ export async function memberDetail(id: string): Promise<StaffMemberDetail> {
 export async function recordPurchase(input: PurchaseInput): Promise<PurchaseResult> {
   if (!hasBackend) return demo.recordPurchase(input);
   return deskRequest<PurchaseResult>("/api/staff/purchases", { method: "POST", body: input });
-}
-
-export async function deskCheckIn(code: string, branchId: string): Promise<CheckInResult> {
-  if (!hasBackend) return demo.deskCheckIn(code, branchId);
-  return deskRequest<CheckInResult>("/api/staff/check-in", {
-    method: "POST",
-    body: { code, branchId },
-  });
 }
