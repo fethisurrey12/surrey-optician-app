@@ -3,10 +3,11 @@ import { View } from "react-native";
 import { branchName } from "@/src/api/data";
 import { type EyeTestStatus } from "@/src/lib/eyeTest";
 import { dayMonthYear, monthYear } from "@/src/lib/points";
-import { radius, spacing } from "@/src/tokens";
+import { spacing } from "@/src/tokens";
 import { makeStyles, useTheme } from "@/src/theme";
 import { Card } from "@/src/ui/Card";
 import { BrandButton } from "@/src/ui/BrandButton";
+import { EyeChart } from "@/src/ui/art/EyeChart";
 import { Icon } from "@/src/ui/Icon";
 import { PressScale } from "@/src/ui/PressScale";
 import { Txt } from "@/src/ui/Txt";
@@ -37,9 +38,8 @@ export function EyeTestNudge({
   return (
     <Card contentStyle={styles.content} testID="eye-test-nudge">
       <View style={styles.head}>
-        <View style={styles.icon}>
-          <Icon name="eye" size={20} color={colors.teal} />
-        </View>
+        {/* The card is about a test, so it shows one rather than a generic eye. */}
+        <EyeChart width={38} />
         <View style={styles.texts}>
           <Txt variant="title">{overdue ? "Your eye test is overdue" : "Time for your eye test"}</Txt>
           <Txt variant="caption" tone="sage">
@@ -75,16 +75,6 @@ export function EyeTestNudge({
 const useStyles = makeStyles((colors) => ({
   content: { gap: spacing.md, padding: spacing.lg },
   head: { flexDirection: "row", alignItems: "flex-start", gap: spacing.md },
-  icon: {
-    width: 40,
-    height: 40,
-    borderRadius: radius.md,
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: colors.surfaceTertiary,
-    borderWidth: 1,
-    borderColor: colors.border,
-  },
   texts: { flex: 1, gap: 2 },
   dismiss: {
     width: 32,
