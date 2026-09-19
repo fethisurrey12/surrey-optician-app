@@ -14,6 +14,9 @@ Run from the backend directory with MONGO_URL and DB_NAME set.
 import argparse
 import asyncio
 from datetime import date, timedelta
+from pathlib import Path
+
+from dotenv import load_dotenv
 
 import db as dbmod
 from models import Account, Branch, Referral, Txn, Voucher
@@ -338,6 +341,9 @@ async def main() -> None:
         help="overwrite the demo member, discarding any redemptions made against it",
     )
     args = ap.parse_args()
+    # Read backend/.env the same way server.py does, so the script works from
+    # the same configuration rather than needing the vars exported by hand.
+    load_dotenv(Path(__file__).parent / ".env")
     try:
         counts = await seed(reset=args.reset)
         for name, n in counts.items():
