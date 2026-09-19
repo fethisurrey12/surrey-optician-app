@@ -8,6 +8,7 @@ import { Screen } from "@/src/ui/Screen";
 import { StaggerItem } from "@/src/ui/Stagger";
 import { Txt } from "@/src/ui/Txt";
 import { LOGO_ASPECT, LogoMark } from "@/src/ui/LogoMark";
+import { Spectacles } from "@/src/ui/art/Spectacles";
 
 export default function Welcome() {
   const styles = useStyles();
@@ -22,9 +23,11 @@ export default function Welcome() {
       <View style={styles.body}>
         <View style={styles.hero}>
           <StaggerItem index={0}>
-            {/* The practice's lockup, which carries the wordmark itself. */}
+            {/* The practice's lockup, which carries the wordmark itself, with a
+                quiet pair of frames set beneath it. */}
             <View style={styles.lockup}>
               <LogoMark height={mark} />
+              <Spectacles width={Math.min(148, width - 160)} tone="soft" style={styles.motif} />
             </View>
           </StaggerItem>
         </View>
@@ -49,6 +52,7 @@ const useStyles = makeStyles((colors) => ({
   body: { flex: 1, justifyContent: "center" },
   hero: { alignItems: "center" },
   lockup: { alignItems: "center", gap: spacing.base },
+  motif: { marginTop: spacing.md },
   actions: { gap: spacing.base, paddingBottom: spacing.sm },
   note: { textAlign: "center" },
 }));

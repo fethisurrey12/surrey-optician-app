@@ -28,6 +28,7 @@ import { QRCode } from "@/src/ui/QRCode";
 import { Screen } from "@/src/ui/Screen";
 import { Skeleton, SkeletonCard } from "@/src/ui/Skeleton";
 import { SectionHeader } from "@/src/ui/SectionHeader";
+import { Spectacles } from "@/src/ui/art/Spectacles";
 import { Sheet } from "@/src/ui/Sheet";
 import { StaggerItem } from "@/src/ui/Stagger";
 import { Txt } from "@/src/ui/Txt";
@@ -162,7 +163,7 @@ export default function Rewards() {
       ) : (
         <StaggerItem index={0}>
           <EmptyState
-            icon="gift"
+            art={<Spectacles width={124} />}
             title="No rewards waiting yet"
             body={`You are ${toNext} ${toNext === 1 ? "point" : "points"} from your next £10 reward. It lands here the moment you reach ten.`}
             actionLabel="See your activity"

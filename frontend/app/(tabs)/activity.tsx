@@ -9,6 +9,7 @@ import { radius, spacing } from "@/src/tokens";
 import { makeStyles } from "@/src/theme";
 import { Card } from "@/src/ui/Card";
 import { EmptyState } from "@/src/ui/EmptyState";
+import { EyeChart } from "@/src/ui/art/EyeChart";
 import { Skeleton, SkeletonRow } from "@/src/ui/Skeleton";
 import { Divider } from "@/src/ui/Divider";
 import { PressScale } from "@/src/ui/PressScale";
@@ -84,7 +85,7 @@ export default function Activity() {
           </View>
         ) : sections.length === 0 ? (
           <EmptyState
-            icon="activity"
+            art={<EyeChart width={64} />}
             title="Nothing here yet"
             body="Visits and rewards appear here as soon as they happen at the till."
             testID="activity-empty"

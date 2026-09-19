@@ -7,17 +7,22 @@ import { GhostButton } from "@/src/ui/GhostButton";
 import { Icon, type IconName } from "@/src/ui/Icon";
 import { Txt } from "@/src/ui/Txt";
 
-// One calm empty/error state: an icon in a soft circle, a short heading,
-// a sentence of support, and an optional single action.
+// One calm empty/error state: a short heading, a sentence of support, and an
+// optional single action, under either an icon in a soft circle or — where the
+// screen is a patient's own and has room to be warmer — a piece of the
+// practice's artwork.
 export function EmptyState({
   icon,
+  art,
   title,
   body,
   actionLabel,
   onAction,
   testID,
 }: {
-  icon: IconName;
+  icon?: IconName;
+  /** Artwork shown instead of the icon. See src/ui/art. */
+  art?: React.ReactNode;
   title: string;
   body: string;
   actionLabel?: string;
@@ -28,9 +33,13 @@ export function EmptyState({
   const { colors } = useTheme();
   return (
     <Card contentStyle={styles.content} testID={testID}>
-      <View style={styles.icon}>
-        <Icon name={icon} size={24} color={colors.sage} />
-      </View>
+      {art ? (
+        <View style={styles.art}>{art}</View>
+      ) : icon ? (
+        <View style={styles.icon}>
+          <Icon name={icon} size={24} color={colors.sage} />
+        </View>
+      ) : null}
       <Txt variant="h3" style={styles.center}>
         {title}
       </Txt>
@@ -57,6 +66,7 @@ const useStyles = makeStyles((colors) => ({
     justifyContent: "center",
     marginBottom: spacing.xs,
   },
+  art: { marginBottom: spacing.sm },
   center: { textAlign: "center" },
   action: { marginTop: spacing.sm, alignSelf: "stretch" },
 }));
