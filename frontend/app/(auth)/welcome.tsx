@@ -5,6 +5,7 @@ import { spacing } from "@/src/tokens";
 import { makeStyles } from "@/src/theme";
 import { GoldButton } from "@/src/ui/GoldButton";
 import { Screen } from "@/src/ui/Screen";
+import { Spectacles } from "@/src/ui/Spectacles";
 import { StaggerItem } from "@/src/ui/Stagger";
 import { Txt } from "@/src/ui/Txt";
 import { Wordmark } from "@/src/ui/Wordmark";
@@ -22,6 +23,7 @@ export default function Welcome() {
           <StaggerItem index={0}>
             <View style={[styles.lens, { width: lens, height: lens, borderRadius: lens / 2 }]}>
               <View style={[styles.lensInner, { width: lens - 50, height: lens - 50, borderRadius: (lens - 50) / 2 }]} />
+              <Spectacles width={lens * 0.45} />
               <Wordmark size={lens < 240 ? "md" : "lg"} />
             </View>
           </StaggerItem>
@@ -67,6 +69,7 @@ const useStyles = makeStyles((colors) => ({
     borderColor: "rgba(201,162,39,0.4)",
     alignItems: "center",
     justifyContent: "center",
+    gap: spacing.base,
   },
   lensInner: {
     position: "absolute",

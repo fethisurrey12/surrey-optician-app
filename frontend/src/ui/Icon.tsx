@@ -62,6 +62,12 @@ const ICONS: Record<string, Shape> = {
   users: { paths: ["M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2", "M23 21v-2a4 4 0 0 0-3-3.9", "M16 3.1a4 4 0 0 1 0 7.8"], circles: [[9, 7, 4]] },
   eye: { paths: ["M1.5 12s3.8-7 10.5-7 10.5 7 10.5 7-3.8 7-10.5 7S1.5 12 1.5 12z"], circles: [[12, 12, 3.2]] },
   lens: { circles: [[12, 12, 8.5], [12, 12, 3.6]], paths: ["M6.5 8.2c1.2-1.6 3-2.6 5-2.8"] },
+  // Lenses kept small with a wide bridge: at 20-24px a tighter pair closes up
+  // and the temples blur into the rims.
+  glasses: {
+    circles: [[6.6, 13, 3.6], [17.4, 13, 3.6]],
+    paths: ["M10.2 12.4c1.1-.9 2.5-.9 3.6 0", "M3.5 11.2 1 8.1", "M20.5 11.2 23 8.1"],
+  },
   scan: { paths: ["M4 8V6a2 2 0 0 1 2-2h2", "M16 4h2a2 2 0 0 1 2 2v2", "M20 16v2a2 2 0 0 1-2 2h-2", "M8 20H6a2 2 0 0 1-2-2v-2", "M4 12h16"] },
 };
 

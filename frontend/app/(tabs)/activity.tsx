@@ -84,7 +84,7 @@ export default function Activity() {
           </View>
         ) : sections.length === 0 ? (
           <EmptyState
-            icon="activity"
+            icon="glasses"
             title="Nothing here yet"
             body="Visits and rewards appear here as soon as they happen at the till."
             testID="activity-empty"
