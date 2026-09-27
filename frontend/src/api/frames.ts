@@ -29,10 +29,10 @@ export const FRAMES: Frame[] = [
   {
     id: "f-aven",
     name: "Aven Elite",
-    type: "Acetate square",
+    type: "Acetate cat-eye",
     price: 145,
     tag: "Trending",
-    shape: "square",
+    shape: "cateye",
   },
   {
     id: "f-verge",
