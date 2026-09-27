@@ -21,6 +21,8 @@ import { makeStyles, useTheme } from "@/src/theme";
 export function Screen({
   children,
   header,
+  headerBleed = false,
+  scrollRef,
   scroll = true,
   tabBar = false,
   center = false,
@@ -34,6 +36,9 @@ export function Screen({
 }: {
   children: React.ReactNode;
   header?: React.ReactNode;
+  /** Let the header run to the screen's edges and own its own safe-area inset. */
+  headerBleed?: boolean;
+  scrollRef?: React.RefObject<ScrollView | null>;
   scroll?: boolean;
   tabBar?: boolean;
   center?: boolean;
@@ -75,9 +80,13 @@ export function Screen({
       />
       <View style={[styles.column, { maxWidth }]}>
         {header ? (
-          <View style={[styles.header, { paddingTop: insets.top + spacing.sm, paddingHorizontal: pad }]}>
-            {header}
-          </View>
+          headerBleed ? (
+            header
+          ) : (
+            <View style={[styles.header, { paddingTop: insets.top + spacing.sm, paddingHorizontal: pad }]}>
+              {header}
+            </View>
+          )
         ) : null}
 
         {scroll ? (
@@ -93,6 +102,7 @@ export function Screen({
             </KeyboardAwareScrollView>
           ) : (
             <ScrollView
+              ref={scrollRef}
               style={styles.flex}
               showsVerticalScrollIndicator={false}
               keyboardShouldPersistTaps="handled"

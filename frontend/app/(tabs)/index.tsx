@@ -1,6 +1,7 @@
-import { useRouter } from "expo-router";
-import { useState } from "react";
-import { Linking, Platform, View, useWindowDimensions } from "react-native";
+import { useFocusEffect, useRouter } from "expo-router";
+import { useCallback, useRef, useState } from "react";
+import { Linking, Platform, ScrollView, View, useWindowDimensions } from "react-native";
+import { setStatusBarStyle } from "expo-status-bar";
 
 import { BRANCHES } from "@/src/api/data";
 import { useAccount, useActivity, useVouchers } from "@/src/api/hooks";
@@ -20,12 +21,12 @@ import { makeStyles } from "@/src/theme";
 import { Divider } from "@/src/ui/Divider";
 import { GradientText } from "@/src/ui/GradientText";
 import { PointsRing } from "@/src/ui/PointsRing";
+import { GreetingHeader } from "@/src/ui/GreetingHeader";
 import { Screen } from "@/src/ui/Screen";
 import { SECTION_GAP, Section } from "@/src/ui/Section";
 import { Skeleton, SkeletonCard } from "@/src/ui/Skeleton";
 import { StaggerItem } from "@/src/ui/Stagger";
 import { Txt } from "@/src/ui/Txt";
-import { LogoMark } from "@/src/ui/LogoMark";
 
 function greeting(): string {
   const h = new Date().getHours();
@@ -46,6 +47,19 @@ export default function Home() {
   const vouchers = useVouchers();
   const activity = useActivity();
   const [refreshing, setRefreshing] = useState(false);
+  // The bell scrolls to the reminders, so the screen keeps a handle on its own
+  // scroller and remembers where that section starts.
+  const scrollRef = useRef<ScrollView | null>(null);
+  const remindersY = useRef(0);
+
+  // The header band runs under the status bar, so its glyphs go light while
+  // this screen is the one on show, and back to dark when it is not.
+  useFocusEffect(
+    useCallback(() => {
+      setStatusBarStyle("light");
+      return () => setStatusBarStyle("dark");
+    }, []),
+  );
 
   const onRefresh = async () => {
     setRefreshing(true);
@@ -55,7 +69,12 @@ export default function Home() {
 
   if (!account.data) {
     return (
-      <Screen tabBar testID="home-screen" header={<View style={styles.header}><Skeleton width={120} height={28} /><Skeleton width={90} height={28} /></View>}>
+      <Screen
+        tabBar
+        testID="home-screen"
+        headerBleed
+        header={<GreetingHeader eyebrow={greeting()} name="" />}
+      >
         <View style={styles.stack}>
           <View style={styles.ringBlock}>
             <Skeleton width={ringSize} height={ringSize} round />
@@ -77,6 +96,15 @@ export default function Home() {
   const lenses = lensReorderDismissed || !prefs.remindLenses ? null : lensSupplyStatus(activity.data ?? []);
   const hasReminders = waiting.length > 0 || expiring.length > 0 || !!lenses || !!eyeTest;
 
+  // The bell takes them to what is waiting, and says so plainly when nothing is.
+  const onBell = () => {
+    if (!hasReminders) {
+      toast("Nothing needs your attention just now");
+      return;
+    }
+    scrollRef.current?.scrollTo({ y: Math.max(0, remindersY.current - 12), animated: true });
+  };
+
   // Reordering is a phone call to the branch the lenses came from; the web
   // preview can't dial, so it shows the branch details instead.
   const onReorder = () => {
@@ -91,16 +119,15 @@ export default function Home() {
       testID="home-screen"
       onRefresh={onRefresh}
       refreshing={refreshing}
+      headerBleed
+      scrollRef={scrollRef}
       header={
-        <View style={styles.header}>
-          <View style={styles.headerLeft}>
-            <Txt variant="caption" tone="sage">
-              {greeting()}
-            </Txt>
-            <Txt variant="h2">{a.firstName}</Txt>
-          </View>
-          <LogoMark height={34} />
-        </View>
+        <GreetingHeader
+          eyebrow={greeting()}
+          name={a.firstName}
+          unread={hasReminders}
+          onBell={onBell}
+        />
       }
     >
       <View style={styles.stack}>
@@ -160,37 +187,39 @@ export default function Home() {
         {/* Everything that wants their attention, gathered under one heading
             instead of scattered down the page. */}
         {hasReminders ? (
-          <StaggerItem index={1}>
-            <Section title="For you" gap={spacing.md} testID="home-reminders">
-              {waiting.length > 0 ? (
-                <RewardReadyCard onOpen={() => router.push("/(tabs)/rewards")} />
-              ) : null}
-              {expiring.length > 0 ? (
-                <ExpiryNudge vouchers={expiring} onPress={() => router.push("/(tabs)/rewards")} />
-              ) : null}
-              {lenses ? (
-                <LensReorderNudge
-                  status={lenses}
-                  onReorder={onReorder}
-                  onDismiss={() => {
-                    dismissLensReorderNudge();
-                    toast("We’ll remind you next time");
-                  }}
-                />
-              ) : null}
-              {eyeTest ? (
-                <EyeTestNudge
-                  status={eyeTest}
-                  homeBranchId={a.homeBranchId}
-                  onBook={() => void openBooking()}
-                  onDismiss={() => {
-                    dismissEyeTestNudge();
-                    toast("We’ll remind you next time");
-                  }}
-                />
-              ) : null}
-            </Section>
-          </StaggerItem>
+          <View onLayout={(e) => (remindersY.current = e.nativeEvent.layout.y)}>
+            <StaggerItem index={1}>
+              <Section title="For you" gap={spacing.md} testID="home-reminders">
+                {waiting.length > 0 ? (
+                  <RewardReadyCard onOpen={() => router.push("/(tabs)/rewards")} />
+                ) : null}
+                {expiring.length > 0 ? (
+                  <ExpiryNudge vouchers={expiring} onPress={() => router.push("/(tabs)/rewards")} />
+                ) : null}
+                {lenses ? (
+                  <LensReorderNudge
+                    status={lenses}
+                    onReorder={onReorder}
+                    onDismiss={() => {
+                      dismissLensReorderNudge();
+                      toast("We’ll remind you next time");
+                    }}
+                  />
+                ) : null}
+                {eyeTest ? (
+                  <EyeTestNudge
+                    status={eyeTest}
+                    homeBranchId={a.homeBranchId}
+                    onBook={() => void openBooking()}
+                    onDismiss={() => {
+                      dismissEyeTestNudge();
+                      toast("We’ll remind you next time");
+                    }}
+                  />
+                ) : null}
+              </Section>
+            </StaggerItem>
+          </View>
         ) : null}
 
         <StaggerItem index={2}>
