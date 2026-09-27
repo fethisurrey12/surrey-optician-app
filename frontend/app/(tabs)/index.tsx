@@ -1,23 +1,31 @@
 import { useFocusEffect, useRouter } from "expo-router";
 import { useCallback, useRef, useState } from "react";
-import { Linking, Platform, ScrollView, View, useWindowDimensions } from "react-native";
+import {
+  Linking,
+  Platform,
+  ScrollView,
+  View,
+  useWindowDimensions,
+} from "react-native";
 import { setStatusBarStyle } from "expo-status-bar";
 
 import { BRANCHES } from "@/src/api/data";
-import { FRAMES } from "@/src/api/frames";
 import { useAccount, useActivity, useVouchers } from "@/src/api/hooks";
 import { ExpiryNudge } from "@/src/components/ExpiryNudge";
 import { EyeTestNudge } from "@/src/components/EyeTestNudge";
-import { openBooking, openSite } from "@/src/lib/booking";
+import { openBooking } from "@/src/lib/booking";
 import { LensReorderNudge } from "@/src/components/LensReorderNudge";
 import { ReferCard } from "@/src/components/ReferCard";
 import { RewardReadyCard } from "@/src/components/RewardReadyCard";
-import { FramesShowcase } from "@/src/components/FramesShowcase";
 import { TxnRow } from "@/src/components/TxnRow";
 import { useApp } from "@/src/context/AppContext";
 import { eyeTestStatus } from "@/src/lib/eyeTest";
 import { useGreeting } from "@/src/lib/greeting";
-import { expiresSoon, ringProgress, pointsToNextReward } from "@/src/lib/points";
+import {
+  expiresSoon,
+  ringProgress,
+  pointsToNextReward,
+} from "@/src/lib/points";
 import { lensSupplyStatus } from "@/src/lib/supply";
 import { font, spacing } from "@/src/tokens";
 import { makeStyles } from "@/src/theme";
@@ -38,8 +46,14 @@ export default function Home() {
   const { width } = useWindowDimensions();
   // The ring shrinks on narrow phones.
   const ringSize = Math.max(160, Math.min(224, width - spacing.lg * 2 - 56));
-  const { eyeTestDismissed, dismissEyeTestNudge, lensReorderDismissed, dismissLensReorderNudge, prefs, toast } =
-    useApp();
+  const {
+    eyeTestDismissed,
+    dismissEyeTestNudge,
+    lensReorderDismissed,
+    dismissLensReorderNudge,
+    prefs,
+    toast,
+  } = useApp();
   const account = useAccount();
   const vouchers = useVouchers();
   const activity = useActivity();
@@ -60,7 +74,11 @@ export default function Home() {
 
   const onRefresh = async () => {
     setRefreshing(true);
-    await Promise.all([account.refetch(), vouchers.refetch(), activity.refetch()]);
+    await Promise.all([
+      account.refetch(),
+      vouchers.refetch(),
+      activity.refetch(),
+    ]);
     setRefreshing(false);
   };
 
@@ -89,9 +107,16 @@ export default function Home() {
   const toNext = pointsToNextReward(a.points);
   const recent = (activity.data ?? []).slice(0, 3);
   const expiring = waiting.filter((v) => expiresSoon(v.expires));
-  const eyeTest = eyeTestDismissed || !prefs.remindEyeTest ? null : eyeTestStatus(activity.data ?? []);
-  const lenses = lensReorderDismissed || !prefs.remindLenses ? null : lensSupplyStatus(activity.data ?? []);
-  const hasReminders = waiting.length > 0 || expiring.length > 0 || !!lenses || !!eyeTest;
+  const eyeTest =
+    eyeTestDismissed || !prefs.remindEyeTest
+      ? null
+      : eyeTestStatus(activity.data ?? []);
+  const lenses =
+    lensReorderDismissed || !prefs.remindLenses
+      ? null
+      : lensSupplyStatus(activity.data ?? []);
+  const hasReminders =
+    waiting.length > 0 || expiring.length > 0 || !!lenses || !!eyeTest;
 
   // The bell takes them to what is waiting, and says so plainly when nothing is.
   const onBell = () => {
@@ -99,7 +124,10 @@ export default function Home() {
       toast("Nothing needs your attention just now");
       return;
     }
-    scrollRef.current?.scrollTo({ y: Math.max(0, remindersY.current - 12), animated: true });
+    scrollRef.current?.scrollTo({
+      y: Math.max(0, remindersY.current - 12),
+      animated: true,
+    });
   };
 
   // Reordering is a phone call to the branch the lenses came from; the web
@@ -135,11 +163,28 @@ export default function Home() {
           <Section panel gap={spacing.base} testID="home-standing">
             <View style={styles.ringBlock}>
               <View
-                style={[styles.glow, { width: ringSize, height: ringSize, borderRadius: ringSize / 2 }]}
+                style={[
+                  styles.glow,
+                  {
+                    width: ringSize,
+                    height: ringSize,
+                    borderRadius: ringSize / 2,
+                  },
+                ]}
               />
-              <PointsRing size={ringSize} strokeWidth={ringSize < 200 ? 12 : 14} progress={ringProgress(a.points)}>
+              <PointsRing
+                size={ringSize}
+                strokeWidth={ringSize < 200 ? 12 : 14}
+                progress={ringProgress(a.points)}
+              >
                 <View style={styles.ringCenter}>
-                  <GradientText style={[styles.ringNumber, ringSize < 200 && styles.ringNumberSmall]} tabular>
+                  <GradientText
+                    style={[
+                      styles.ringNumber,
+                      ringSize < 200 && styles.ringNumberSmall,
+                    ]}
+                    tabular
+                  >
                     {String(a.points)}
                   </GradientText>
                   <Txt variant="label" tone="sage">
@@ -148,10 +193,12 @@ export default function Home() {
                 </View>
               </PointsRing>
               <Txt variant="body" tone="ink" style={styles.toNext}>
-                {toNext} {toNext === 1 ? "point" : "points"} to your next £10 reward
+                {toNext} {toNext === 1 ? "point" : "points"} to your next £10
+                reward
               </Txt>
               <Txt variant="caption" style={styles.scheme}>
-                You earn on the private amount you pay. NHS-funded care earns nothing.
+                You earn on the private amount you pay. NHS-funded care earns
+                nothing.
               </Txt>
             </View>
 
@@ -172,7 +219,13 @@ export default function Home() {
                 <Txt variant="label" tone="sage">
                   Rewards
                 </Txt>
-                <Txt style={[styles.statValue, waiting.length > 0 && styles.statValueLive]} tabular>
+                <Txt
+                  style={[
+                    styles.statValue,
+                    waiting.length > 0 && styles.statValueLive,
+                  ]}
+                  tabular
+                >
                   {waiting.length}
                 </Txt>
                 <Txt variant="caption">Ready to use</Txt>
@@ -188,10 +241,15 @@ export default function Home() {
             <StaggerItem index={1}>
               <Section title="For you" gap={spacing.md} testID="home-reminders">
                 {waiting.length > 0 ? (
-                  <RewardReadyCard onOpen={() => router.push("/(tabs)/rewards")} />
+                  <RewardReadyCard
+                    onOpen={() => router.push("/(tabs)/rewards")}
+                  />
                 ) : null}
                 {expiring.length > 0 ? (
-                  <ExpiryNudge vouchers={expiring} onPress={() => router.push("/(tabs)/rewards")} />
+                  <ExpiryNudge
+                    vouchers={expiring}
+                    onPress={() => router.push("/(tabs)/rewards")}
+                  />
                 ) : null}
                 {lenses ? (
                   <LensReorderNudge
@@ -219,21 +277,7 @@ export default function Home() {
           </View>
         ) : null}
 
-        {FRAMES.length > 0 ? (
-          <StaggerItem index={2}>
-            <Section
-              title="Trending frames"
-              actionLabel="View collection"
-              onAction={() => void openSite()}
-              actionTestID="home-view-collection"
-              testID="home-frames"
-            >
-              <FramesShowcase frames={FRAMES} onPressFrame={() => void openBooking()} />
-            </Section>
-          </StaggerItem>
-        ) : null}
-
-        <StaggerItem index={3}>
+        <StaggerItem index={2}>
           <Section
             title="Recent activity"
             actionLabel="See all"
@@ -253,21 +297,29 @@ export default function Home() {
           </Section>
         </StaggerItem>
 
-        <StaggerItem index={4}>
+        <StaggerItem index={3}>
           <Section>
             <ReferCard onPress={() => router.push("/refer")} />
           </Section>
         </StaggerItem>
       </View>
-
     </Screen>
   );
 }
 
 const useStyles = makeStyles((colors) => ({
-  header: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: spacing.md },
+  header: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    gap: spacing.md,
+  },
   headerLeft: { gap: 2, flex: 1, minWidth: 0 },
-  ringBlock: { alignItems: "center", gap: spacing.base, paddingVertical: spacing.sm },
+  ringBlock: {
+    alignItems: "center",
+    gap: spacing.base,
+    paddingVertical: spacing.sm,
+  },
   ringCenter: { alignItems: "center", gap: spacing.xs },
   glow: {
     position: "absolute",
@@ -278,14 +330,30 @@ const useStyles = makeStyles((colors) => ({
     shadowRadius: 48,
     shadowOffset: { width: 0, height: 0 },
   },
-  ringNumber: { fontFamily: font.light, fontSize: 72, lineHeight: 80, letterSpacing: -2.4 },
+  ringNumber: {
+    fontFamily: font.light,
+    fontSize: 72,
+    lineHeight: 80,
+    letterSpacing: -2.4,
+  },
   ringNumberSmall: { fontSize: 60, lineHeight: 64 },
   toNext: { textAlign: "center" },
   scheme: { textAlign: "center", maxWidth: 320 },
   stack: { gap: SECTION_GAP },
   stats: { flexDirection: "row", alignItems: "flex-start" },
   stat: { flex: 1, gap: 2, paddingHorizontal: spacing.xs },
-  statRule: { width: 1, alignSelf: "stretch", backgroundColor: colors.divider, marginHorizontal: spacing.md },
-  statValue: { fontFamily: font.bold, fontSize: 30, lineHeight: 38, letterSpacing: -0.6, color: colors.ink },
+  statRule: {
+    width: 1,
+    alignSelf: "stretch",
+    backgroundColor: colors.divider,
+    marginHorizontal: spacing.md,
+  },
+  statValue: {
+    fontFamily: font.bold,
+    fontSize: 30,
+    lineHeight: 38,
+    letterSpacing: -0.6,
+    color: colors.ink,
+  },
   statValueLive: { color: colors.teal },
 }));
