@@ -1,6 +1,7 @@
 import { type ReactNode } from "react";
 import { Pressable, type StyleProp, type ViewStyle } from "react-native";
 import Animated, {
+  Easing,
   useAnimatedStyle,
   useSharedValue,
   withTiming,
@@ -9,7 +10,11 @@ import Animated, {
 import { useReduceMotion } from "@/src/lib/motion";
 import { tapLight } from "@/src/lib/haptics";
 
-// A pressable whose contents scale down very slightly on press.
+// A pressable whose contents dip under the finger: 0.95 on press, eased over
+// 200ms, and a gentle dim on hover for the desk browser. Honoured everywhere
+// a card or a button can be tapped, so the whole app answers the same way.
+const EASE = Easing.inOut(Easing.ease);
+
 export function PressScale({
   children,
   onPress,
@@ -52,10 +57,10 @@ export function PressScale({
         dim.set(withTiming(1, { duration: 200 }));
       }}
       onPressIn={() => {
-        if (!reduce) scale.set(withTiming(0.975, { duration: 110 }));
+        if (!reduce) scale.set(withTiming(0.95, { duration: 200, easing: EASE }));
       }}
       onPressOut={() => {
-        if (!reduce) scale.set(withTiming(1, { duration: 180 }));
+        if (!reduce) scale.set(withTiming(1, { duration: 200, easing: EASE }));
       }}
       onPress={() => {
         if (disabled) return;
