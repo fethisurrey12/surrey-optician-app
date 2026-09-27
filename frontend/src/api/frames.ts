@@ -10,6 +10,8 @@
 // `FRAMES` for a fetch — the showcase takes an array and does not care where it
 // came from.
 
+import { type FrameShape } from "@/src/ui/art/Spectacles";
+
 export type Frame = {
   id: string;
   name: string;
@@ -19,9 +21,25 @@ export type Frame = {
   price: number;
   /** A word in the corner: "New", "Trending". Omit for most of them. */
   tag?: string;
+  /** Which silhouette the card draws. Match it to `type`. */
+  shape?: FrameShape;
 };
 
 export const FRAMES: Frame[] = [
-  { id: "f-aven", name: "Aven Elite", type: "Acetate square", price: 145, tag: "Trending" },
-  { id: "f-verge", name: "Verge Wire", type: "Titanium round", price: 185, tag: "New" },
+  {
+    id: "f-aven",
+    name: "Aven Elite",
+    type: "Acetate square",
+    price: 145,
+    tag: "Trending",
+    shape: "square",
+  },
+  {
+    id: "f-verge",
+    name: "Verge Wire",
+    type: "Titanium round",
+    price: 185,
+    tag: "New",
+    shape: "round",
+  },
 ];

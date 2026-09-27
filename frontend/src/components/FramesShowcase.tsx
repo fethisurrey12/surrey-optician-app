@@ -26,7 +26,11 @@ export function FramesShowcase({
   return (
     <View style={styles.grid}>
       {frames.map((frame) => (
-        <FrameCard key={frame.id} frame={frame} onPress={() => onPressFrame(frame)} />
+        <FrameCard
+          key={frame.id}
+          frame={frame}
+          onPress={() => onPressFrame(frame)}
+        />
       ))}
     </View>
   );
@@ -54,7 +58,7 @@ function FrameCard({ frame, onPress }: { frame: Frame; onPress: () => void }) {
         </View>
 
         <View style={styles.plate}>
-          <Spectacles width={104} />
+          <Spectacles width={104} shape={frame.shape} />
         </View>
 
         <View style={styles.info}>
