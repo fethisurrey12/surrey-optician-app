@@ -13,10 +13,10 @@ export const spacing = {
 } as const;
 
 export const radius = {
-  sm: 10,
-  md: 14,
-  lg: 20,
-  xl: 26,
+  sm: 8,
+  md: 12,   // buttons, fields, chips
+  lg: 16,   // cards and other containers
+  xl: 22,   // sheets and the largest surfaces
   pill: 999,
 } as const;
 

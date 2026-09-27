@@ -30,14 +30,20 @@ type Tone = keyof Pick<
 >;
 
 const VARIANTS: Record<Variant, TextStyle> = {
-  display: { fontFamily: font.serifLight, fontSize: 60, lineHeight: 66, letterSpacing: -1.5 },
-  h1: { fontFamily: font.serif, fontSize: 30, lineHeight: 36, letterSpacing: -0.5 },
-  h2: { fontFamily: font.serif, fontSize: 24, lineHeight: 30, letterSpacing: -0.4 },
-  h3: { fontFamily: font.serif, fontSize: 20, lineHeight: 26, letterSpacing: -0.2 },
-  title: { fontFamily: font.semibold, fontSize: 16, lineHeight: 22, letterSpacing: -0.1 },
+  // Headings are set in the geometric sans rather than a display serif: it is
+  // the nearer relative of the brand's own Gill Sans Nova, and it holds its
+  // shape at the sizes an older reader needs. Bold, with the letter-spacing
+  // opened rather than tightened, so a heading reads as a heading.
+  display: { fontFamily: font.light, fontSize: 56, lineHeight: 62, letterSpacing: -1 },
+  h1: { fontFamily: font.bold, fontSize: 28, lineHeight: 36, letterSpacing: 0.2 },
+  h2: { fontFamily: font.bold, fontSize: 23, lineHeight: 30, letterSpacing: 0.2 },
+  h3: { fontFamily: font.semibold, fontSize: 19, lineHeight: 26, letterSpacing: 0.15 },
+  title: { fontFamily: font.semibold, fontSize: 16, lineHeight: 24, letterSpacing: 0 },
   body: { fontFamily: font.regular, fontSize: 15, lineHeight: 24 },
   bodyStrong: { fontFamily: font.medium, fontSize: 15, lineHeight: 24 },
-  caption: { fontFamily: font.regular, fontSize: 13, lineHeight: 19 },
+  // 1.6, like body: this is read at arm's length by people who came in for
+  // an eye test, so the small type gets the same leading as the large.
+  caption: { fontFamily: font.regular, fontSize: 13, lineHeight: 21 },
   label: { fontFamily: font.medium, fontSize: 12.5, lineHeight: 18, letterSpacing: 0.4, textTransform: "uppercase" },
 };
 

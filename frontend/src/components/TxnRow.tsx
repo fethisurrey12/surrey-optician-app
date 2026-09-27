@@ -78,5 +78,5 @@ const useStyles = makeStyles((colors) => ({
   },
   nhsText: { color: colors.sage, fontFamily: font.medium, fontSize: 11, lineHeight: 14 },
   right: { alignItems: "flex-end", gap: 2 },
-  reward: { fontFamily: font.serifLight, fontSize: 20, letterSpacing: -0.4 },
+  reward: { fontFamily: font.semibold, fontSize: 19, letterSpacing: -0.2 },
 }));

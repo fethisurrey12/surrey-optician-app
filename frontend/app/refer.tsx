@@ -192,7 +192,7 @@ const useStyles = makeStyles((colors) => ({
     backgroundColor: colors.surfaceTertiary,
     marginTop: spacing.xs,
   },
-  code: { fontFamily: font.serifLight, fontSize: 30, letterSpacing: 2, lineHeight: 36 },
+  code: { fontFamily: font.bold, fontSize: 28, letterSpacing: 2.4, lineHeight: 36 },
   block: { marginTop: spacing.xl },
   steps: { gap: spacing.base, padding: spacing.lg },
   step: { flexDirection: "row", gap: spacing.md, alignItems: "flex-start" },

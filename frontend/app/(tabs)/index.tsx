@@ -220,7 +220,7 @@ const useStyles = makeStyles((colors) => ({
     shadowRadius: 48,
     shadowOffset: { width: 0, height: 0 },
   },
-  ringNumber: { fontFamily: font.serifLight, fontSize: 76, lineHeight: 80, letterSpacing: -3 },
+  ringNumber: { fontFamily: font.light, fontSize: 72, lineHeight: 80, letterSpacing: -2.4 },
   ringNumberSmall: { fontSize: 60, lineHeight: 64 },
   toNext: { textAlign: "center" },
   scheme: { textAlign: "center", maxWidth: 320 },

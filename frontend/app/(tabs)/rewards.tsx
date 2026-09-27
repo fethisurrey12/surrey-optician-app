@@ -373,7 +373,7 @@ const useStyles = makeStyles((colors) => ({
     flexWrap: "wrap",
     gap: spacing.sm,
   },
-  figure: { fontFamily: font.serifLight, fontSize: 52, letterSpacing: -2, lineHeight: 54 },
+  figure: { fontFamily: font.bold, fontSize: 50, letterSpacing: -1.8, lineHeight: 56 },
   figureNote: { marginBottom: spacing.sm },
   sheetFoot: { gap: spacing.md },
 }));

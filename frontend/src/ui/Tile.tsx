@@ -50,6 +50,6 @@ export function Tile({
 const useStyles = makeStyles((colors) => ({
   content: { padding: spacing.lg, gap: spacing.md, justifyContent: "space-between" },
   head: { flexDirection: "row", alignItems: "center", gap: spacing.sm, flexWrap: "wrap" },
-  value: { fontFamily: font.serifLight, fontSize: 34, letterSpacing: -0.8, lineHeight: 38 },
-  valuePlain: { fontFamily: font.serifLight, fontSize: 34, letterSpacing: -0.8, lineHeight: 38, color: colors.ink },
+  value: { fontFamily: font.bold, fontSize: 32, letterSpacing: -0.6, lineHeight: 38 },
+  valuePlain: { fontFamily: font.bold, fontSize: 32, letterSpacing: -0.6, lineHeight: 38, color: colors.ink },
 }));

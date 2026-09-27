@@ -79,7 +79,7 @@ const useStyles = makeStyles((colors) => ({
     borderColor: colors.border,
     backgroundColor: colors.surfaceTertiary,
     color: colors.ink,
-    fontFamily: font.serifLight,
+    fontFamily: font.semibold,
     fontSize: 32,
     // Wide tracking so six digits read in groups rather than as one number.
     letterSpacing: 10,
