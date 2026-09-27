@@ -14,6 +14,7 @@ import { RewardReadyCard } from "@/src/components/RewardReadyCard";
 import { TxnRow } from "@/src/components/TxnRow";
 import { useApp } from "@/src/context/AppContext";
 import { eyeTestStatus } from "@/src/lib/eyeTest";
+import { useGreeting } from "@/src/lib/greeting";
 import { expiresSoon, ringProgress, pointsToNextReward } from "@/src/lib/points";
 import { lensSupplyStatus } from "@/src/lib/supply";
 import { font, spacing } from "@/src/tokens";
@@ -28,15 +29,9 @@ import { Skeleton, SkeletonCard } from "@/src/ui/Skeleton";
 import { StaggerItem } from "@/src/ui/Stagger";
 import { Txt } from "@/src/ui/Txt";
 
-function greeting(): string {
-  const h = new Date().getHours();
-  if (h < 12) return "Good morning";
-  if (h < 18) return "Good afternoon";
-  return "Good evening";
-}
-
 export default function Home() {
   const styles = useStyles();
+  const greeting = useGreeting();
   const router = useRouter();
   const { width } = useWindowDimensions();
   // The ring shrinks on narrow phones.
@@ -73,7 +68,7 @@ export default function Home() {
         tabBar
         testID="home-screen"
         headerBleed
-        header={<GreetingHeader eyebrow={greeting()} name="" />}
+        header={<GreetingHeader eyebrow={greeting} name="" />}
       >
         <View style={styles.stack}>
           <View style={styles.ringBlock}>
@@ -123,7 +118,7 @@ export default function Home() {
       scrollRef={scrollRef}
       header={
         <GreetingHeader
-          eyebrow={greeting()}
+          eyebrow={greeting}
           name={a.firstName}
           unread={hasReminders}
           onBell={onBell}
