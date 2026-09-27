@@ -281,6 +281,23 @@ No code changes: `src/ui/LogoMark.tsx` renders `assets/images/logo-mark.png`
 and takes its proportions from the file. Running the script against
 `assets/logo-mark.svg` regenerates the placeholder set.
 
+## The frames showcase
+
+Home carries a two-up showcase of frames, on the reasoning that the scheme
+rewards private spend and frames are most of it. It is a shop window, not a
+shop: nothing is bought in the app, and each card ends at "Book a fitting",
+which opens the practice's own booking page.
+
+**The two frames in it are placeholders** — names, styles and prices from the
+sketch the section was built from, not the practice's stock. They live in
+`frontend/src/api/frames.ts` and nothing else reads them, so replacing the list
+is that one file. When the practice wants the window to change without an app
+release, swap `FRAMES` for a fetch; the showcase takes an array and does not
+care where it came from.
+
+"View collection" opens the practice's website. Point it at the actual eyewear
+page by changing `SITE_URL` in `frontend/src/lib/booking.ts`.
+
 ## Before going live
 
 - [ ] Set `JWT_SECRET` — an unset one is regenerated per boot and signs everyone out
@@ -291,5 +308,7 @@ and takes its proportions from the file. Running the script against
 - [ ] Set `SEED_DEMO_DATA=false` on the practice's deployment
 - [ ] Add the Apple and Google Wallet signing material — see `backend/WALLET_SETUP.md`
 - [ ] Add the SO device — `node frontend/scripts/install-logo.mjs "Surrey Opticians Logo-01.png"` (the wordmark is already theirs)
+- [ ] Replace the placeholder frames in `frontend/src/api/frames.ts`, or remove the showcase
+- [ ] Point `SITE_URL` at the practice's eyewear page
 - [ ] Confirm opening hours — the brand book does not state them
 - [ ] Change the bundle identifier from Emergent's `com.emergent.surreyopticians.xkx2pz`

@@ -4,13 +4,15 @@ import { Linking, Platform, ScrollView, View, useWindowDimensions } from "react-
 import { setStatusBarStyle } from "expo-status-bar";
 
 import { BRANCHES } from "@/src/api/data";
+import { FRAMES } from "@/src/api/frames";
 import { useAccount, useActivity, useVouchers } from "@/src/api/hooks";
 import { ExpiryNudge } from "@/src/components/ExpiryNudge";
 import { EyeTestNudge } from "@/src/components/EyeTestNudge";
-import { openBooking } from "@/src/lib/booking";
+import { openBooking, openSite } from "@/src/lib/booking";
 import { LensReorderNudge } from "@/src/components/LensReorderNudge";
 import { ReferCard } from "@/src/components/ReferCard";
 import { RewardReadyCard } from "@/src/components/RewardReadyCard";
+import { FramesShowcase } from "@/src/components/FramesShowcase";
 import { TxnRow } from "@/src/components/TxnRow";
 import { useApp } from "@/src/context/AppContext";
 import { eyeTestStatus } from "@/src/lib/eyeTest";
@@ -217,7 +219,21 @@ export default function Home() {
           </View>
         ) : null}
 
-        <StaggerItem index={2}>
+        {FRAMES.length > 0 ? (
+          <StaggerItem index={2}>
+            <Section
+              title="Trending frames"
+              actionLabel="View collection"
+              onAction={() => void openSite()}
+              actionTestID="home-view-collection"
+              testID="home-frames"
+            >
+              <FramesShowcase frames={FRAMES} onPressFrame={() => void openBooking()} />
+            </Section>
+          </StaggerItem>
+        ) : null}
+
+        <StaggerItem index={3}>
           <Section
             title="Recent activity"
             actionLabel="See all"
@@ -237,7 +253,7 @@ export default function Home() {
           </Section>
         </StaggerItem>
 
-        <StaggerItem index={3}>
+        <StaggerItem index={4}>
           <Section>
             <ReferCard onPress={() => router.push("/refer")} />
           </Section>

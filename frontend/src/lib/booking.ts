@@ -9,14 +9,25 @@ import { Platform, Linking } from "react-native";
 import * as WebBrowser from "expo-web-browser";
 
 export const BOOKING_URL = "https://www.surreyopticians.co.uk/book-appointment";
+// Where "view collection" goes. The practice's eyewear page, once they say
+// which it is; the site's front door until then.
+export const SITE_URL = "https://www.surreyopticians.co.uk";
 
-export async function openBooking(): Promise<void> {
+export function openBooking(): Promise<void> {
+  return openUrl(BOOKING_URL);
+}
+
+export function openSite(): Promise<void> {
+  return openUrl(SITE_URL);
+}
+
+async function openUrl(url: string): Promise<void> {
   try {
     if (Platform.OS === "web") {
-      await Linking.openURL(BOOKING_URL);
+      await Linking.openURL(url);
       return;
     }
-    await WebBrowser.openBrowserAsync(BOOKING_URL, {
+    await WebBrowser.openBrowserAsync(url, {
       // Sit the browser chrome in the practice's colours rather than the
       // system default, so the hand-off does not feel like leaving the app.
       toolbarColor: "#FFFFFF",
@@ -25,6 +36,6 @@ export async function openBooking(): Promise<void> {
     });
   } catch {
     // Last resort: let the system decide what can open it.
-    Linking.openURL(BOOKING_URL).catch(() => {});
+    Linking.openURL(url).catch(() => {});
   }
 }
