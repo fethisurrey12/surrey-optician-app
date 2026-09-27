@@ -78,9 +78,10 @@ All routes are under `/api`.
 | `POST /me/vouchers/{id}/redeem` | member | Mark a voucher used at the till |
 | `POST /me/vouchers/{id}/wallet` | member | Record an Apple/Google Wallet add |
 | `GET /staff/session` | desk | Confirm the practice key before the desk opens |
-| `GET /staff/members?q=` | desk | Find a patient by name, number or email |
+| `GET /staff/members?q=` | desk | Find a patient by name, number, email or code |
 | `GET /staff/members/{id}` | desk | One patient: details, points, vouchers, visits |
 | `POST /staff/purchases` | till | Record a purchase and award points |
+| `POST /staff/check-in` | desk | Check a patient in from their membership QR |
 | `GET /wallet/status` | public | What wallet signing material is missing |
 
 Members authenticate with a bearer token; the till and desk present `X-Staff-Key`.
@@ -99,6 +100,7 @@ form.
 | `dateOfBirth` | The member, as ISO `yyyy-mm-dd` |
 | `address`, `postcode` | The member |
 | `homeBranchId` | The member |
+| `memberCode` | Generated — the `SM-` code behind the check-in QR |
 | `referralCode` | Generated from their first name and mobile |
 | `points`, `totalEarned` | The till, through the loyalty engine |
 | `memberSince`, `createdAt` | Generated |
@@ -108,17 +110,17 @@ own privacy screen tells members exactly that, and it should stay true.
 
 ## Codes
 
-One kind of QR: a voucher. Every code reads `SO-XXXX-XXXX`, drawn from an
-alphabet with no 0/O or 1/I in it, so a code read aloud or typed at the till
-cannot be mistaken for another.
+Two kinds of QR, told apart by their prefix so whoever is scanning cannot
+confuse them:
 
 | Prefix | What it is | Where it is scanned |
 |---|---|---|
 | `SO-` | A voucher — a £10 reward, or the £25 welcome offer | The till, to apply the discount |
+| `SM-` | The patient's membership code | The desk, to check them in on arrival |
 
-There is no check-in: the app does not record arrivals, and a patient does not
-show anything on the way in. The practice's own appointment system owns who is
-in the building.
+Checking in records the arrival and tells the colleague who has arrived. It
+moves no points, because arriving is not a purchase. Presenting a voucher code
+at the desk is refused with a message saying so.
 
 ## The practice desk
 
@@ -131,8 +133,9 @@ on a desk computer.
 
 | On the desk | What it does |
 |---|---|
-| Find a patient | Name, mobile — however it is read out — or email |
-| Their record | Details, points, rewards and visits |
+| Check in | Scan the membership QR (a scanner types the code and presses enter) or type it. Says who has arrived and whether a reward is waiting. |
+| Find a patient | Name, mobile — however it is read out — email, or `SM-` code |
+| Their record | Details, points, rewards, visits and arrivals |
 | Record a purchase | Total paid and the NHS share; points and any reward follow automatically |
 
 The branch is chosen once on the device and remembered: everything the desk

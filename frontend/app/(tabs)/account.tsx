@@ -71,6 +71,18 @@ export default function Account() {
 
       <StaggerItem index={1} style={styles.block}>
         <Card contentStyle={styles.links}>
+          <Row
+            icon="scan"
+            title="Check in at the desk"
+            subtitle="Show your QR when you arrive"
+            onPress={() => router.push("/checkin")}
+            testID="link-checkin"
+          />
+        </Card>
+      </StaggerItem>
+
+      <StaggerItem index={2} style={styles.block}>
+        <Card contentStyle={styles.links}>
           <Row icon="user" title="Your details" subtitle="Name, email and home branch" onPress={() => router.push("/details")} testID="link-details" />
           <Divider inset={54} />
           <Row icon="users" title="Refer a friend" subtitle={`Your code · ${a.referralCode}`} onPress={() => router.push("/refer")} testID="link-refer" />
@@ -81,7 +93,7 @@ export default function Account() {
         </Card>
       </StaggerItem>
 
-      <StaggerItem index={2} style={styles.block}>
+      <StaggerItem index={3} style={styles.block}>
         <Card contentStyle={styles.privacy} testID="privacy-note">
           <View style={styles.privacyHead}>
             <Icon name="shield" size={18} color={colors.sage} />

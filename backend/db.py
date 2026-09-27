@@ -60,6 +60,13 @@ async def ensure_indexes() -> None:
 
     await db.members.create_index([("mobile", ASCENDING)], unique=True, name="member_mobile")
     await db.members.create_index([("referralCode", ASCENDING)], unique=True, name="member_referral")
+    await db.members.create_index(
+        [("memberCode", ASCENDING)], unique=True, sparse=True, name="member_code"
+    )
+
+    await db.checkins.create_index(
+        [("memberId", ASCENDING), ("at", DESCENDING)], name="checkin_member_at"
+    )
 
     await db.transactions.create_index(
         [("memberId", ASCENDING), ("date", DESCENDING)], name="txn_member_date"

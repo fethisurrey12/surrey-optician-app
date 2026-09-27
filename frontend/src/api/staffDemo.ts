@@ -8,8 +8,10 @@ import { ApiError } from "./client";
 import { ACCOUNT, TXNS, VOUCHERS, type Account, type Txn, type Voucher } from "./data";
 import { POINTS_PER_REWARD, pointsForSpend } from "@/src/lib/points";
 import type {
+  CheckInResult,
   PurchaseInput,
   PurchaseResult,
+  StaffCheckIn,
   StaffMemberDetail,
   StaffMemberRow,
 } from "./staff";
@@ -19,6 +21,7 @@ type Record_ = {
   account: Account;
   vouchers: Voucher[];
   activity: Txn[];
+  checkIns: StaffCheckIn[];
 };
 
 function iso(d: Date): string {
@@ -43,6 +46,7 @@ function person(
   homeBranchId: string,
   points: number,
   totalEarned: number,
+  memberCode: string,
   memberSince: string,
 ): Record_ {
   return {
@@ -59,9 +63,11 @@ function person(
       points,
       totalEarned,
       referralCode: `${firstName.toUpperCase()}-${mobile.slice(-4)}`,
+      memberCode,
     },
     vouchers: [],
     activity: [],
+    checkIns: [],
   };
 }
 
@@ -72,6 +78,7 @@ const sarah: Record_ = {
   account: { ...ACCOUNT },
   vouchers: VOUCHERS.map((v) => ({ ...v })),
   activity: TXNS.map((t) => ({ ...t })),
+  checkIns: [],
 };
 
 const directory: Record_[] = [
@@ -85,6 +92,7 @@ const directory: Record_[] = [
     "wallington",
     3,
     23,
+    "SM-8TQR-51KB",
     "2025-02-11",
   ),
   person(
@@ -96,6 +104,7 @@ const directory: Record_[] = [
     "banstead",
     0,
     0,
+    "SM-2VJD-77XN",
     "2026-05-28",
   ),
   person(
@@ -107,6 +116,7 @@ const directory: Record_[] = [
     "wallington-green",
     9,
     49,
+    "SM-6PLC-39RT",
     "2024-09-02",
   ),
 ];
@@ -127,6 +137,9 @@ function matches(record: Record_, query: string): boolean {
   const digits = digitsOf(query);
   if (digits.length >= 3 && a.mobile.endsWith(digits)) return true;
 
+  const code = query.toUpperCase().replace(/\s/g, "");
+  if (code.startsWith("SM") && code.length >= 4 && a.memberCode.startsWith(code)) return true;
+
   if (!words.length) return false;
   const first = lower(words[0]);
   const startsWith = (field: string) => !!field && lower(field).startsWith(first);
@@ -144,6 +157,7 @@ function row(record: Record_): StaffMemberRow {
     firstName: a.firstName,
     lastName: a.lastName,
     mobileDisplay: a.mobileDisplay,
+    memberCode: a.memberCode,
     homeBranchId: a.homeBranchId,
     memberSince: a.memberSince,
     points: a.points,
@@ -169,6 +183,7 @@ export async function memberDetail(id: string): Promise<StaffMemberDetail> {
     account: { ...found.account },
     vouchers: found.vouchers.map((v) => ({ ...v })),
     activity: found.activity.map((t) => ({ ...t })),
+    checkIns: found.checkIns.map((c) => ({ ...c })),
   };
 }
 
@@ -250,5 +265,43 @@ export async function recordPurchase(input: PurchaseInput): Promise<PurchaseResu
     transaction: txn,
     account: { ...record.account },
     vouchersIssued: issued,
+  };
+}
+
+export async function deskCheckIn(code: string, branchId: string): Promise<CheckInResult> {
+  await delay(380);
+  const wanted = code.trim().toUpperCase();
+  const record = directory.find((r) => r.account.memberCode === wanted);
+  if (!record) {
+    if (wanted.startsWith("SO-")) {
+      throw new ApiError(
+        422,
+        "That is a reward voucher, not a membership code. Ask for the check-in QR.",
+      );
+    }
+    throw new ApiError(404, "No member found for that code");
+  }
+
+  const entry: StaffCheckIn = {
+    id: `c-${Math.random().toString(36).slice(2, 10)}`,
+    at: new Date().toISOString(),
+    branchId,
+  };
+  record.checkIns = [entry, ...record.checkIns];
+
+  const stillToday = today();
+  const ready = record.vouchers.filter(
+    (v) => v.status === "available" && v.expires >= stillToday,
+  ).length;
+
+  return {
+    checkIn: entry,
+    memberId: record.id,
+    firstName: record.account.firstName,
+    lastName: record.account.lastName,
+    mobileDisplay: record.account.mobileDisplay,
+    memberCode: record.account.memberCode,
+    homeBranchId: record.account.homeBranchId,
+    vouchersAvailable: ready,
   };
 }
