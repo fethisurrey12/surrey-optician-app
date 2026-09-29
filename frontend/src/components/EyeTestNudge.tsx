@@ -1,6 +1,5 @@
 import { View } from "react-native";
 
-import { branchName } from "@/src/api/data";
 import { type EyeTestStatus } from "@/src/lib/eyeTest";
 import { dayMonthYear, monthYear } from "@/src/lib/points";
 import { spacing } from "@/src/tokens";
@@ -16,12 +15,10 @@ import { Txt } from "@/src/ui/Txt";
 // book on the practice's site, and a quiet way to put it away.
 export function EyeTestNudge({
   status,
-  homeBranchId,
   onBook,
   onDismiss,
 }: {
   status: EyeTestStatus;
-  homeBranchId: string;
   onBook: () => void;
   onDismiss: () => void;
 }) {
@@ -41,7 +38,9 @@ export function EyeTestNudge({
         {/* The card is about a test, so it shows one rather than a generic eye. */}
         <EyeChart width={38} />
         <View style={styles.texts}>
-          <Txt variant="title">{overdue ? "Your eye test is overdue" : "Time for your eye test"}</Txt>
+          <Txt variant="title">
+            {overdue ? "Your eye test is overdue" : "Time for your eye test"}
+          </Txt>
           <Txt variant="caption" tone="sage">
             Last examination {monthYear(status.last)} · next {when}
           </Txt>
@@ -58,15 +57,20 @@ export function EyeTestNudge({
       </View>
 
       <Txt variant="body">
-        Most adults are advised to have an eye examination every two years. Book at{" "}
-        {branchName(homeBranchId)} or any branch — it takes about half an hour.
+        Most adults are advised to have an eye examination every two years. Book
+        your eye test today.
       </Txt>
 
-      <BrandButton label="Book an eye test" icon="calendar" onPress={onBook} testID="eye-test-book-button" />
+      <BrandButton
+        label="Book an eye test"
+        icon="calendar"
+        onPress={onBook}
+        testID="eye-test-book-button"
+      />
 
       <Txt variant="caption" tone="dimSage">
-        Based on the date of your last eye examination purchase in this app. We hold no clinical
-        records.
+        Based on the date of your last eye examination purchase in this app. We
+        hold no clinical records.
       </Txt>
     </Card>
   );

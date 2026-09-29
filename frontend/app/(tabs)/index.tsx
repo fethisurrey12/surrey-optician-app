@@ -264,7 +264,6 @@ export default function Home() {
                 {eyeTest ? (
                   <EyeTestNudge
                     status={eyeTest}
-                    homeBranchId={a.homeBranchId}
                     onBook={() => void openBooking()}
                     onDismiss={() => {
                       dismissEyeTestNudge();
