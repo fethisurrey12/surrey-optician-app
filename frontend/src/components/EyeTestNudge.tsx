@@ -57,8 +57,7 @@ export function EyeTestNudge({
       </View>
 
       <Txt variant="body">
-        Most adults are advised to have an eye examination every two years. Book
-        your eye test today.
+        Book your eye test today.
       </Txt>
 
       <BrandButton
@@ -69,8 +68,7 @@ export function EyeTestNudge({
       />
 
       <Txt variant="caption" tone="dimSage">
-        Based on the date of your last eye examination purchase in this app. We
-        hold no clinical records.
+        From your purchases here. We hold no clinical records.
       </Txt>
     </Card>
   );

@@ -87,7 +87,7 @@ export default function Activity() {
           <EmptyState
             art={<EyeChart width={64} />}
             title="Nothing here yet"
-            body="Visits and rewards appear here as soon as they happen at the till."
+            body="Your visits and rewards appear here."
             testID="activity-empty"
           />
         ) : (

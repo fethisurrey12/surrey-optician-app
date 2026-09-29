@@ -53,7 +53,7 @@ export default function PatientRecord() {
         <EmptyState
           icon="info"
           title="We could not open that record"
-          body="It may have been removed. Search for the patient again from the desk."
+          body="Search for the patient again."
           actionLabel="Back to the desk"
           onAction={() => router.replace("/staff")}
         />
@@ -201,7 +201,7 @@ export default function PatientRecord() {
           <View style={styles.cardBody}>
             <SectionHeader title="Arrivals" />
             {checkIns.length === 0 ? (
-              <Txt variant="caption">They have not been checked in yet.</Txt>
+              <Txt variant="caption">Not checked in yet.</Txt>
             ) : (
               checkIns.map((c, i) => (
                 <View key={c.id}>
@@ -290,8 +290,7 @@ function PurchaseForm({ mobile, memberId }: { mobile: string; memberId: string }
       <View style={styles.cardBody}>
         <SectionHeader title="Record a purchase" />
         <Txt variant="caption">
-          One point per whole £10 they pay themselves. Put anything the NHS funds in the second box
-          so it is left out.
+          One point per whole £10 they pay. NHS-funded amounts go in the second box.
         </Txt>
         <Field
           label="What they bought"

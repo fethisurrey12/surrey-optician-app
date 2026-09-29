@@ -160,8 +160,7 @@ export default function Refer() {
       </StaggerItem>
 
       <Txt variant="caption" tone="dimSage" style={styles.terms}>
-        Bonus points count towards your next £10 reward like any other point. One bonus per new
-        member; the friend must not already hold a loyalty account.
+        One bonus per new member. They must not already have an account.
       </Txt>
     </Screen>
   );

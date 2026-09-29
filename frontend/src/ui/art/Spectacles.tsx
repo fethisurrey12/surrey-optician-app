@@ -1,70 +1,82 @@
 import { View, type StyleProp, type ViewStyle } from "react-native";
-import Svg, { G, Path } from "react-native-svg";
+import Svg, { Circle, G, Path, Rect } from "react-native-svg";
 
 import { useTheme } from "@/src/theme";
 
-// A cat-eye frame front, drawn in the practice's turquoise.
+// A frame outline, drawn in the practice's turquoise.
 //
 // Decoration, not an icon: it fills the quiet places — an empty rewards list,
-// the sign-in screen — where a bare paragraph would look unfinished. Every
-// colour comes from the palette.
+// the sign-in screen — where a bare paragraph would look unfinished.
 //
-// The front only: two lenses and the bridge, no temples. It is how a frame is
-// photographed on a display board, and without arms running off to the edges
-// the drawing fills its space instead of floating in the middle of it. The
-// viewBox is wrapped tight around the outline for the same reason.
+// The two shapes and their paths are the practice's own drawings, kept as
+// given: a thin open outline, no tinted lens, with the short flick of a
+// temple at each side. Drawn on their 24-unit canvas and cropped to the
+// outline, so the frame fills its space rather than floating in the middle.
 
 export type ArtTone = "brand" | "soft" | "paper";
+export type FrameShape = "round" | "square";
 
-const LENSES = [
-  "M56 19 C 46 13, 31 10, 19 10 C 19 16, 20 21, 23 27 C 27 34, 34 38, 41 38 C 50 38, 56 32, 56 25 Z",
-  "M76 19 C 86 13, 101 10, 113 10 C 113 16, 112 21, 109 27 C 105 34, 98 38, 91 38 C 82 38, 76 32, 76 25 Z",
-];
-const BRIDGE = "M56 21 C 60 18, 72 18, 76 21";
-const BOX = [17, 8, 98, 32] as const;
-const [, , BOX_W, BOX_H] = BOX;
+// [x, y, width, height] — wrapped tight around each outline, stroke included.
+const BOX: Record<FrameShape, [number, number, number, number]> = {
+  round: [1.3, 7.8, 21.4, 8.4],
+  square: [0.8, 6.3, 22.4, 8.3],
+};
 
 export function Spectacles({
   width = 120,
   tone = "brand",
+  shape = "round",
   style,
 }: {
   width?: number;
-  /** brand: turquoise on a tinted lens. soft: a watermark. paper: reversed. */
+  /** brand: turquoise. soft: a watermark. paper: reversed. */
   tone?: ArtTone;
+  shape?: FrameShape;
   style?: StyleProp<ViewStyle>;
 }) {
   const { colors } = useTheme();
-  const height = Math.round((width * BOX_H) / BOX_W);
+  const box = BOX[shape];
+  const [, , boxWidth, boxHeight] = box;
+  const height = Math.round((width * boxHeight) / boxWidth);
 
   const stroke =
     tone === "paper"
       ? colors.paper
-      : tone === "soft"
-        ? colors.brandTertiary
+      : tone === "brand"
+        ? colors.teal
         : colors.lightTeal;
-  // Only the full-strength pair carries a tinted lens; a watermark stays open.
-  const lens = tone === "brand" ? colors.brandTertiary : "none";
-  // The weight we want on screen: 3px reads correctly from about 90px wide up,
-  // below that it needs a little more or it dissolves into a hairline.
-  const onScreen = width >= 90 ? 3 : width >= 56 ? 3.4 : 3.9;
+  // A watermark is the same line, just faint — at this thinness a pale colour
+  // washes out altogether, where the brand turquoise held back does not.
+  const strokeOpacity = tone === "soft" ? 0.3 : 1;
+  // The weight we want on screen. The outline is thin by design, so it needs a
+  // little more below about 90px or it disappears.
+  const onScreen = width >= 90 ? 2 : 2.4;
   // The box is narrower than the width it is drawn at, so convert.
-  const strokeWidth = (onScreen * BOX_W) / width;
+  const strokeWidth = (onScreen * boxWidth) / width;
 
   return (
     <View style={style} pointerEvents="none">
-      <Svg width={width} height={height} viewBox={BOX.join(" ")}>
+      <Svg width={width} height={height} viewBox={box.join(" ")}>
         <G
           fill="none"
           stroke={stroke}
+          strokeOpacity={strokeOpacity}
           strokeWidth={strokeWidth}
           strokeLinecap="round"
-          strokeLinejoin="round"
         >
-          {LENSES.map((d) => (
-            <Path key={d} d={d} fill={lens} />
-          ))}
-          <Path d={BRIDGE} />
+          {shape === "round" ? (
+            <>
+              <Circle cx={7} cy={12} r={3.5} />
+              <Circle cx={17} cy={12} r={3.5} />
+              <Path d="M10.5 12h3M3.5 12C3.5 9 2 9 2 9M20.5 12c0-3 1.5-3 1.5-3" />
+            </>
+          ) : (
+            <>
+              <Rect x={3} y={8} width={7} height={6} rx={2} />
+              <Rect x={14} y={8} width={7} height={6} rx={2} />
+              <Path d="M10 11h4M3 9C2.5 7 1.5 7 1.5 7M21 9c.5-2 1.5-2 1.5-2" />
+            </>
+          )}
         </G>
       </Svg>
     </View>

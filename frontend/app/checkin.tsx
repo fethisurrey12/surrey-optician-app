@@ -57,8 +57,7 @@ export default function CheckIn() {
 
         <StaggerItem index={3}>
           <Txt variant="caption" style={[styles.center, styles.note]}>
-            The same code every visit — a colleague scans it when you arrive. It shows the
-            practice who you are and that you have arrived. It holds no clinical information.
+            The same code every visit. It holds no clinical information.
           </Txt>
         </StaggerItem>
       </View>

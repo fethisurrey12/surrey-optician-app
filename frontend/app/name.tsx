@@ -57,8 +57,7 @@ export default function NameStep() {
         <StaggerItem index={0}>
           <Txt variant="h1">Welcome to the scheme</Txt>
           <Txt variant="body" style={styles.lead}>
-            The same details the practice asks for in branch. Only your name is needed now —
-            the rest can wait.
+            Only your name is needed now.
           </Txt>
         </StaggerItem>
 

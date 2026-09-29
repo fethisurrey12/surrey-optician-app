@@ -1,10 +1,25 @@
 import { useState } from "react";
-import { Linking, Platform, ScrollView, View, useWindowDimensions } from "react-native";
+import {
+  Linking,
+  Platform,
+  ScrollView,
+  View,
+  useWindowDimensions,
+} from "react-native";
 import { useRouter } from "expo-router";
 
 import { type Voucher, type WalletProvider } from "@/src/api/data";
-import { useAccount, useAddToWallet, useMarkVoucherUsed, useVouchers } from "@/src/api/hooks";
-import { appleWalletUrl, googleWalletUrl, walletStatus } from "@/src/api/wallet";
+import {
+  useAccount,
+  useAddToWallet,
+  useMarkVoucherUsed,
+  useVouchers,
+} from "@/src/api/hooks";
+import {
+  appleWalletUrl,
+  googleWalletUrl,
+  walletStatus,
+} from "@/src/api/wallet";
 import { useApp } from "@/src/context/AppContext";
 import { VoucherCard } from "@/src/components/VoucherCard";
 import { WalletPassPreview } from "@/src/components/WalletPassPreview";
@@ -36,7 +51,11 @@ import { WalletBadge } from "@/src/ui/WalletBadge";
 
 // Which wallet badges to offer: the device's own wallet on a phone, both on web.
 const WALLET_PROVIDERS: WalletProvider[] =
-  Platform.OS === "ios" ? ["apple"] : Platform.OS === "android" ? ["google"] : ["apple", "google"];
+  Platform.OS === "ios"
+    ? ["apple"]
+    : Platform.OS === "android"
+      ? ["google"]
+      : ["apple", "google"];
 
 export default function Rewards() {
   const styles = useStyles();
@@ -45,19 +64,32 @@ export default function Rewards() {
   const router = useRouter();
   const { width } = useWindowDimensions();
   // QR fills the sheet on narrow phones without ever exceeding its width.
-  const qrSize = Math.max(160, Math.min(220, width - spacing.lg * 2 - spacing.base * 2 - 24));
+  const qrSize = Math.max(
+    160,
+    Math.min(220, width - spacing.lg * 2 - spacing.base * 2 - 24),
+  );
   const account = useAccount();
   const vouchers = useVouchers();
   const markUsed = useMarkVoucherUsed();
   const addToWallet = useAddToWallet();
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [mode, setMode] = useState<"qr" | "pass">("qr");
-  const [previewProvider, setPreviewProvider] = useState<WalletProvider>("apple");
+  const [previewProvider, setPreviewProvider] =
+    useState<WalletProvider>("apple");
   const [walletBusy, setWalletBusy] = useState<WalletProvider | null>(null);
 
   if (!vouchers.data || !account.data) {
     return (
-      <Screen tabBar testID="rewards-screen" header={<View><Skeleton width={140} height={30} /><Skeleton width={180} height={14} style={styles.sub} /></View>}>
+      <Screen
+        tabBar
+        testID="rewards-screen"
+        header={
+          <View>
+            <Skeleton width={140} height={30} />
+            <Skeleton width={180} height={14} style={styles.sub} />
+          </View>
+        }
+      >
         <Skeleton width={90} height={20} style={styles.skelTitle} />
         <View style={styles.list}>
           <SkeletonCard lines={2} />
@@ -73,7 +105,8 @@ export default function Rewards() {
   const used = vouchers.data.filter((v) => v.status !== "available");
   const anyExpired = used.some((v) => v.status === "expired");
   const toNext = pointsToNextReward(account.data.points);
-  const selected: Voucher | null = vouchers.data.find((v) => v.id === selectedId) ?? null;
+  const selected: Voucher | null =
+    vouchers.data.find((v) => v.id === selectedId) ?? null;
 
   const openVoucher = (v: Voucher) => {
     setMode("qr");
@@ -111,7 +144,11 @@ export default function Rewards() {
             : await googleWalletUrl(selected, account.data!);
         await Linking.openURL(url);
         addToWallet.mutate({ id: selected.id, provider });
-        toast(provider === "apple" ? "Opening Apple Wallet" : "Opening Google Wallet");
+        toast(
+          provider === "apple"
+            ? "Opening Apple Wallet"
+            : "Opening Google Wallet",
+        );
       } else {
         setPreviewProvider(provider);
         setMode("pass");
@@ -130,7 +167,9 @@ export default function Rewards() {
       {
         onSuccess: () => {
           setMode("qr");
-          toast(`Added to ${previewProvider === "apple" ? "Apple" : "Google"} Wallet`);
+          toast(
+            `Added to ${previewProvider === "apple" ? "Apple" : "Google"} Wallet`,
+          );
         },
       },
     );
@@ -156,7 +195,11 @@ export default function Rewards() {
           <SectionHeader title="Available" />
           <View style={styles.list}>
             {available.map((v) => (
-              <VoucherCard key={v.id} voucher={v} onPress={() => openVoucher(v)} />
+              <VoucherCard
+                key={v.id}
+                voucher={v}
+                onPress={() => openVoucher(v)}
+              />
             ))}
           </View>
         </StaggerItem>
@@ -184,7 +227,12 @@ export default function Rewards() {
         </StaggerItem>
       ) : null}
 
-      <Sheet visible={!!selected} onClose={closeSheet} fullScreen testID="voucher-sheet">
+      <Sheet
+        visible={!!selected}
+        onClose={closeSheet}
+        fullScreen
+        testID="voucher-sheet"
+      >
         {selected && mode === "pass" ? (
           <View style={styles.sheet}>
             <View style={styles.sheetTopRow}>
@@ -214,18 +262,23 @@ export default function Rewards() {
               showsVerticalScrollIndicator={false}
             >
               <Txt variant="label" tone="teal" style={styles.center}>
-                {previewProvider === "apple" ? "Apple Wallet pass" : "Google Wallet pass"}
+                {previewProvider === "apple"
+                  ? "Apple Wallet pass"
+                  : "Google Wallet pass"}
               </Txt>
               <Txt variant="body" style={styles.center}>
-                This is what lands on your lock screen — ready at the till without opening the app.
+                This is what lands on your lock screen.
               </Txt>
-              <WalletPassPreview provider={previewProvider} voucher={selected} account={account.data} />
+              <WalletPassPreview
+                provider={previewProvider}
+                voucher={selected}
+                account={account.data}
+              />
             </ScrollView>
 
             <View style={styles.sheetFoot}>
               <Txt variant="caption" style={styles.center}>
-                The practice’s wallet signing keys aren’t connected yet, so the pass can’t be issued
-                for real from this preview.
+                Wallet keys aren’t connected yet, so this is only a preview.
               </Txt>
               <BrandButton
                 label={`Simulate adding to ${previewProvider === "apple" ? "Apple" : "Google"} Wallet`}
@@ -235,7 +288,7 @@ export default function Rewards() {
                 testID="simulate-wallet-button"
               />
               <Txt variant="caption" tone="dimSage" style={styles.center}>
-                Prototype control — stands in for the phone’s wallet.
+                Prototype — stands in for the wallet.
               </Txt>
             </View>
           </View>
@@ -258,71 +311,83 @@ export default function Rewards() {
               contentContainerStyle={styles.qrScroll}
               showsVerticalScrollIndicator={false}
             >
-            <View style={styles.sheetBody}>
-              <Txt variant="label" tone="teal" style={styles.center}>
-                Show this at the till
-              </Txt>
-              <View style={styles.qrWrap}>
-                <QRCode code={selected.code} size={qrSize} />
-              </View>
-              <Txt variant="h3" tabular tone="ink" style={[styles.sheetCode, styles.center]}>
-                {selected.code}
-              </Txt>
-              <View style={styles.figureRow}>
-                <GradientText style={styles.figure}>{voucherLabel(selected)}</GradientText>
+              <View style={styles.sheetBody}>
+                <Txt variant="label" tone="teal" style={styles.center}>
+                  Show this at the till
+                </Txt>
+                <View style={styles.qrWrap}>
+                  <QRCode code={selected.code} size={qrSize} />
+                </View>
                 <Txt
-                  variant="body"
-                  tone={expiresSoon(selected.expires) ? "warning" : undefined}
-                  style={[styles.figureNote, styles.center]}
+                  variant="h3"
+                  tabular
+                  tone="ink"
+                  style={[styles.sheetCode, styles.center]}
                 >
-                  {voucherRestriction(selected)
-                    ? voucherRestriction(selected).toLowerCase()
-                    : selected.kind === "signup"
-                      ? "welcome offer"
-                      : "reward"}{" "}
-                  ·{" "}
-                  {expiresSoon(selected.expires)
-                    ? expiresInText(selected.expires)
-                    : `expires ${dayMonthYear(selected.expires)}`}
+                  {selected.code}
                 </Txt>
+                <View style={styles.figureRow}>
+                  <GradientText style={styles.figure}>
+                    {voucherLabel(selected)}
+                  </GradientText>
+                  <Txt
+                    variant="body"
+                    tone={expiresSoon(selected.expires) ? "warning" : undefined}
+                    style={[styles.figureNote, styles.center]}
+                  >
+                    {voucherRestriction(selected)
+                      ? voucherRestriction(selected).toLowerCase()
+                      : selected.kind === "signup"
+                        ? "welcome offer"
+                        : "reward"}{" "}
+                    ·{" "}
+                    {expiresSoon(selected.expires)
+                      ? expiresInText(selected.expires)
+                      : `expires ${dayMonthYear(selected.expires)}`}
+                  </Txt>
+                </View>
+                {expiresSoon(selected.expires) ? (
+                  <Txt
+                    variant="caption"
+                    tone="sage"
+                    style={styles.center}
+                    testID="voucher-sheet-expiry-note"
+                  >
+                    Use it before {dayMonthYear(selected.expires)}.
+                  </Txt>
+                ) : null}
               </View>
-              {expiresSoon(selected.expires) ? (
-                <Txt variant="caption" tone="sage" style={styles.center} testID="voucher-sheet-expiry-note">
-                  Use it before {dayMonthYear(selected.expires)} — after that it lapses.
+              <View style={styles.sheetFoot}>
+                <View style={styles.walletRow}>
+                  {WALLET_PROVIDERS.map((p) => (
+                    <WalletBadge
+                      key={p}
+                      provider={p}
+                      added={selected.wallet === p}
+                      loading={walletBusy === p}
+                      onPress={() => onWallet(p)}
+                      testID={`add-to-${p}-wallet`}
+                    />
+                  ))}
+                  <Txt variant="caption" tone="dimSage" style={styles.center}>
+                    Keep it on your lock screen.
+                  </Txt>
+                </View>
+                <Txt variant="caption" style={styles.center}>
+                  A colleague scans this and applies {voucherLabel(selected)} at
+                  the till.
                 </Txt>
-              ) : null}
-            </View>
-            <View style={styles.sheetFoot}>
-              <View style={styles.walletRow}>
-                {WALLET_PROVIDERS.map((p) => (
-                  <WalletBadge
-                    key={p}
-                    provider={p}
-                    added={selected.wallet === p}
-                    loading={walletBusy === p}
-                    onPress={() => onWallet(p)}
-                    testID={`add-to-${p}-wallet`}
-                  />
-                ))}
+                <GhostButton
+                  label="Simulate the till scan"
+                  icon="scan"
+                  onPress={onSimulate}
+                  disabled={markUsed.isPending}
+                  testID="simulate-till-scan-button"
+                />
                 <Txt variant="caption" tone="dimSage" style={styles.center}>
-                  Keep it on your lock screen so it’s ready at the till.
+                  Prototype — stands in for the colleague.
                 </Txt>
               </View>
-              <Txt variant="caption" style={styles.center}>
-                The app never applies the discount itself. A colleague scans this, applies{" "}
-                {voucherLabel(selected)} in the practice system, and marks it used.
-              </Txt>
-              <GhostButton
-                label="Simulate the till scan"
-                icon="scan"
-                onPress={onSimulate}
-                disabled={markUsed.isPending}
-                testID="simulate-till-scan-button"
-              />
-              <Txt variant="caption" tone="dimSage" style={styles.center}>
-                Prototype control — stands in for the colleague’s action.
-              </Txt>
-            </View>
             </ScrollView>
           </View>
         ) : null}
@@ -342,7 +407,12 @@ const useStyles = makeStyles((colors) => ({
   sheetTopRow: { flexDirection: "row", justifyContent: "space-between" },
   previewScroll: { flex: 1, marginVertical: spacing.base },
   previewBody: { gap: spacing.base, paddingBottom: spacing.base },
-  qrScroll: { flexGrow: 1, justifyContent: "space-between", gap: spacing.xl, paddingBottom: spacing.sm },
+  qrScroll: {
+    flexGrow: 1,
+    justifyContent: "space-between",
+    gap: spacing.xl,
+    paddingBottom: spacing.sm,
+  },
   walletRow: { gap: spacing.sm, marginBottom: spacing.xs },
   close: {
     width: 42,
@@ -354,7 +424,11 @@ const useStyles = makeStyles((colors) => ({
     alignItems: "center",
     justifyContent: "center",
   },
-  sheetBody: { alignItems: "center", gap: spacing.base, paddingVertical: spacing.sm },
+  sheetBody: {
+    alignItems: "center",
+    gap: spacing.base,
+    paddingVertical: spacing.sm,
+  },
   qrWrap: {
     padding: spacing.base,
     borderRadius: 24,
@@ -373,7 +447,12 @@ const useStyles = makeStyles((colors) => ({
     flexWrap: "wrap",
     gap: spacing.sm,
   },
-  figure: { fontFamily: font.bold, fontSize: 50, letterSpacing: -1.8, lineHeight: 56 },
+  figure: {
+    fontFamily: font.bold,
+    fontSize: 50,
+    letterSpacing: -1.8,
+    lineHeight: 56,
+  },
   figureNote: { marginBottom: spacing.sm },
   sheetFoot: { gap: spacing.md },
 }));

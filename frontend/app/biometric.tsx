@@ -14,7 +14,8 @@ import { Txt } from "@/src/ui/Txt";
 export default function Biometric() {
   const styles = useStyles();
   const { colors } = useTheme();
-  const { biometricSupport, enrollBiometric, dismissBiometricPrompt } = useApp();
+  const { biometricSupport, enrollBiometric, dismissBiometricPrompt } =
+    useApp();
   const label = biometricSupport?.label ?? "biometrics";
 
   const enable = () => {
@@ -27,7 +28,12 @@ export default function Biometric() {
       <View style={styles.body}>
         <StaggerItem index={0} style={styles.hero}>
           <View style={styles.ring}>
-            <Icon name="faceid" size={54} color={colors.teal} strokeWidth={1.4} />
+            <Icon
+              name="faceid"
+              size={54}
+              color={colors.teal}
+              strokeWidth={1.4}
+            />
           </View>
         </StaggerItem>
 
@@ -37,7 +43,7 @@ export default function Biometric() {
           </StaggerItem>
           <StaggerItem index={2}>
             <Txt variant="body" style={styles.lead}>
-              Unlock with {label} when you come back, instead of waiting for another code.
+              Unlock with {label} instead of waiting for a code.
             </Txt>
           </StaggerItem>
           <StaggerItem index={3}>
@@ -52,8 +58,16 @@ export default function Biometric() {
       </View>
 
       <StaggerItem index={4} style={styles.actions}>
-        <BrandButton label={`Turn on ${label}`} onPress={enable} testID="biometric-enable-button" />
-        <GhostButton label="Not now" onPress={dismissBiometricPrompt} testID="biometric-skip-button" />
+        <BrandButton
+          label={`Turn on ${label}`}
+          onPress={enable}
+          testID="biometric-enable-button"
+        />
+        <GhostButton
+          label="Not now"
+          onPress={dismissBiometricPrompt}
+          testID="biometric-skip-button"
+        />
       </StaggerItem>
     </Screen>
   );
@@ -74,7 +88,12 @@ const useStyles = makeStyles((colors) => ({
   },
   copy: { gap: spacing.md },
   lead: { maxWidth: 340 },
-  privacy: { flexDirection: "row", alignItems: "center", gap: spacing.sm, marginTop: spacing.xs },
+  privacy: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: spacing.sm,
+    marginTop: spacing.xs,
+  },
   privacyText: { flexShrink: 1 },
   actions: { gap: spacing.md, paddingBottom: spacing.sm },
 }));

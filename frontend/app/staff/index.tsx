@@ -103,8 +103,7 @@ export default function Desk() {
           />
         ) : (
           <Txt variant="caption" style={styles.note}>
-            Sample data — this device has no practice server configured, so nothing recorded here
-            is real.
+            Sample data — nothing recorded here is real.
           </Txt>
         )}
       </View>
@@ -142,7 +141,7 @@ function KeyGate({ onUnlocked }: { onUnlocked: () => void }) {
           Practice desk
         </Txt>
         <Txt variant="body" style={styles.center}>
-          This is the colleague&apos;s side of Surrey People. Enter the practice key to open it.
+          Enter the practice key to open the desk.
         </Txt>
         <Field
           label="Practice key"
@@ -207,8 +206,7 @@ function CheckInCard({
       <View style={styles.cardBody}>
         <SectionHeader title="Check in" />
         <Txt variant="caption">
-          Scan the patient&apos;s membership QR, or type the code beneath it. A scanner types the
-          code and presses enter for you.
+          Scan the membership QR, or type the code beneath it.
         </Txt>
         <Field
           label="Membership code"
@@ -290,7 +288,7 @@ function Search({ onOpen }: { onOpen: (id: string) => void }) {
       <View style={styles.cardBody}>
         <SectionHeader title="Find a patient" />
         <Field
-          label="Name, number, email or membership code"
+          label="Search"
           value={query}
           onChangeText={setQuery}
           placeholder="Sarah, 900123, SM-4H7P…"
@@ -303,8 +301,7 @@ function Search({ onOpen }: { onOpen: (id: string) => void }) {
           <Skeleton height={60} />
         ) : rows.length === 0 ? (
           <Txt variant="caption" testID="desk-search-none">
-            Nobody matches that. They may not have joined Surrey People yet — a record is created
-            the first time a purchase is recorded against their number.
+            Nobody matches that. A record is created at their first purchase.
           </Txt>
         ) : (
           <View style={styles.results}>

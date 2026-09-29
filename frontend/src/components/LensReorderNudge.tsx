@@ -1,6 +1,5 @@
 import { View } from "react-native";
 
-import { branchName } from "@/src/api/data";
 import { type LensSupplyStatus } from "@/src/lib/supply";
 import { dayMonthYear } from "@/src/lib/points";
 import { radius, spacing } from "@/src/tokens";
@@ -43,8 +42,7 @@ export function LensReorderNudge({
               {title}
             </Txt>
             <Txt variant="caption" tone="sage">
-              {status.months}-month supply from {dayMonthYear(status.last)} · reorder at{" "}
-              {branchName(status.branchId)} and earn points on it
+              {status.months}-month supply from {dayMonthYear(status.last)}
             </Txt>
           </View>
           <Icon name="chevronRight" size={18} color={colors.dimSage} />

@@ -55,8 +55,7 @@ export default function Phone() {
         <StaggerItem index={0}>
           <Txt variant="h1">Your mobile number</Txt>
           <Txt variant="body" style={styles.lead}>
-            This is how the practice finds your points at the till, so use the number you gave in
-            branch.
+            Use the number you gave in branch.
           </Txt>
           {pendingReferral ? (
             <View style={styles.inviteChip} testID="phone-invite-chip">

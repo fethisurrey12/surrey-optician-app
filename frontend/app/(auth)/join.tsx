@@ -5,7 +5,11 @@ import { View } from "react-native";
 import { REFERRAL_BONUS_POINTS } from "@/src/api/data";
 import { useApp } from "@/src/context/AppContext";
 import { tapWarn } from "@/src/lib/haptics";
-import { inviterName, normaliseReferralCode, validReferralCode } from "@/src/lib/referral";
+import {
+  inviterName,
+  normaliseReferralCode,
+  validReferralCode,
+} from "@/src/lib/referral";
 import { radius, spacing } from "@/src/tokens";
 import { makeStyles, useTheme } from "@/src/theme";
 import { Card } from "@/src/ui/Card";
@@ -30,7 +34,10 @@ export default function Join() {
   const [error, setError] = useState<string | null>(null);
 
   const friend = inviterName(code);
-  const bonus = REFERRAL_BONUS_POINTS === 1 ? "a bonus point" : `${REFERRAL_BONUS_POINTS} bonus points`;
+  const bonus =
+    REFERRAL_BONUS_POINTS === 1
+      ? "a bonus point"
+      : `${REFERRAL_BONUS_POINTS} bonus points`;
 
   const onContinue = () => {
     if (!validReferralCode(code)) {
@@ -59,11 +66,13 @@ export default function Join() {
             <View style={styles.heroIcon}>
               <Icon name="gift" size={22} color={colors.teal} />
             </View>
-            <Txt variant="h1">{friend ? `${friend} has invited you` : "You’ve been invited"}</Txt>
+            <Txt variant="h1">
+              {friend ? `${friend} has invited you` : "You’ve been invited"}
+            </Txt>
             <Txt variant="body">
-              Join the Surrey Opticians loyalty scheme. Earn a point for every £10 you spend
-              privately, and ten points become a £10 voucher. Quote this code at your first visit
-              and you’ll both earn {bonus}.
+              A point for every £10 you spend privately. Ten points make a £10
+              voucher. Quote this code on your first visit and you’ll both earn{" "}
+              {bonus}.
             </Txt>
           </Card>
         </StaggerItem>
@@ -79,7 +88,10 @@ export default function Join() {
             autoCapitalize="characters"
             placeholder="NAME-1234"
             testID="join-code-input"
-            note={error ?? "Pre-filled from your link — you can change it if needed."}
+            note={
+              error ??
+              "Pre-filled from your link — you can change it if needed."
+            }
           />
           {error ? (
             <Txt variant="caption" tone="error" style={styles.error}>
@@ -90,8 +102,8 @@ export default function Join() {
 
         <StaggerItem index={3} style={styles.steps}>
           {[
-            "Sign in with your mobile number — it’s how we find your points at the till.",
-            "Visit any branch: Coulsdon, Wallington or Banstead.",
+            "Sign in with your mobile number.",
+            "Visit any branch.",
             `Your bonus point lands with your first private purchase${friend ? `, and so does ${friend}’s` : ""}.`,
           ].map((t, i) => (
             <View key={i} style={styles.step}>
@@ -108,8 +120,17 @@ export default function Join() {
         </StaggerItem>
 
         <StaggerItem index={4} style={styles.actions}>
-          <BrandButton label="Continue with my mobile" onPress={onContinue} testID="join-continue-button" />
-          <GhostButton label="I already have an account" onPress={onSkip} tone="sage" testID="join-skip-button" />
+          <BrandButton
+            label="Continue with my mobile"
+            onPress={onContinue}
+            testID="join-continue-button"
+          />
+          <GhostButton
+            label="I already have an account"
+            onPress={onSkip}
+            tone="sage"
+            testID="join-skip-button"
+          />
         </StaggerItem>
       </View>
     </Screen>

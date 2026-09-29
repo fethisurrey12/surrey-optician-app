@@ -72,7 +72,7 @@ export function RewardReadyCard({ onOpen }: { onOpen: () => void }) {
         </View>
 
         <Txt variant="body" style={styles.body}>
-          Show it at the till and a colleague applies it for you.
+          Show it at the till.
         </Txt>
 
         <BrandButton label="Open wallet" icon="wallet" onPress={onOpen} testID="reward-open-wallet-button" />

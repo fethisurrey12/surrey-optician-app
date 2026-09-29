@@ -10,21 +10,34 @@ import { Txt } from "@/src/ui/Txt";
 
 // A calm, single-line reminder shown on Home when a voucher is inside the
 // 60-day expiry window. Tapping it opens the Rewards wallet.
-export function ExpiryNudge({ vouchers, onPress }: { vouchers: Voucher[]; onPress: () => void }) {
+export function ExpiryNudge({
+  vouchers,
+  onPress,
+}: {
+  vouchers: Voucher[];
+  onPress: () => void;
+}) {
   const styles = useStyles();
   const { colors } = useTheme();
   if (vouchers.length === 0) return null;
 
-  const soonest = vouchers.reduce((a, b) => (daysUntil(a.expires) <= daysUntil(b.expires) ? a : b));
+  const soonest = vouchers.reduce((a, b) =>
+    daysUntil(a.expires) <= daysUntil(b.expires) ? a : b,
+  );
   const days = daysUntil(soonest.expires);
-  const when = days <= 0 ? "today" : days === 1 ? "tomorrow" : `in ${days} days`;
+  const when =
+    days <= 0 ? "today" : days === 1 ? "tomorrow" : `in ${days} days`;
   const title =
     vouchers.length > 1
       ? `${vouchers.length} vouchers expire soon`
       : `Your ${voucherLabel(vouchers[0])} voucher expires ${when}`;
 
   return (
-    <PressScale onPress={onPress} testID="expiry-nudge" accessibilityLabel={title}>
+    <PressScale
+      onPress={onPress}
+      testID="expiry-nudge"
+      accessibilityLabel={title}
+    >
       <View style={styles.wrap}>
         <View style={styles.icon}>
           <Icon name="clock" size={18} color={colors.teal} />
@@ -34,7 +47,9 @@ export function ExpiryNudge({ vouchers, onPress }: { vouchers: Voucher[]; onPres
             {title}
           </Txt>
           <Txt variant="caption" tone="sage">
-            Use it at any branch, against your next private purchase.
+            {vouchers.length > 1
+              ? "Use them at any branch."
+              : "Use it at any branch."}
           </Txt>
         </View>
         <Icon name="chevronRight" size={18} color={colors.dimSage} />

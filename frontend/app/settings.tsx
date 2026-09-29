@@ -100,7 +100,7 @@ export default function Settings() {
             <ToggleRow
               icon="eye"
               title="Eye test due"
-              subtitle="A card when two years have nearly passed since your last examination."
+              subtitle="When your eye test is nearly due."
               value={prefs.remindEyeTest}
               onValueChange={(v) => setPref("remindEyeTest", v)}
               testID="settings-remind-eye-test"
@@ -109,14 +109,14 @@ export default function Settings() {
             <ToggleRow
               icon="lens"
               title="Contact lens reorder"
-              subtitle="A prompt when your last supply is about to run out."
+              subtitle="When your lenses are running low."
               value={prefs.remindLenses}
               onValueChange={(v) => setPref("remindLenses", v)}
               testID="settings-remind-lenses"
             />
           </Card>
           <Txt variant="caption" tone="dimSage" style={styles.groupNote}>
-            Both are worked out from your purchase history in this app. We hold no clinical records.
+            Worked out from your purchases. We hold no clinical records.
           </Txt>
         </StaggerItem>
 
@@ -137,7 +137,7 @@ export default function Settings() {
             <ToggleRow
               icon="clock"
               title="Eye test reminders"
-              subtitle="A nudge when your next test is due."
+              subtitle="When your eye test is due."
               value={prefs.notifyReminders}
               onValueChange={(v) => setPref("notifyReminders", v)}
               testID="settings-notify-reminders"
@@ -202,18 +202,18 @@ export default function Settings() {
 }
 
 const TERMS = [
-  "You earn one point for every whole £10 of eligible private spend at any Surrey Opticians branch. Amounts are rounded down.",
-  "NHS-funded amounts earn nothing. Points are worked out on the private balance you actually pay.",
-  "Ten points convert automatically into a £10 reward voucher, which appears in your wallet with a unique code and is valid for one year.",
-  "Vouchers are applied by a colleague at the till. Show the code and they apply £10 in the practice system. The app never applies the discount itself.",
-  "Points and vouchers work the same across Coulsdon, Wallington and Banstead. They have no cash value and cannot be transferred.",
+  "One point for every whole £10 of private spend. Amounts are rounded down.",
+  "NHS-funded amounts earn nothing.",
+  "Ten points become a £10 voucher, valid for one year.",
+  "A colleague applies the voucher at the till. The app never applies it itself.",
+  "Points work the same at all four branches. They have no cash value and cannot be transferred.",
 ];
 
 const PRIVACY = [
-  "This app holds loyalty data only: your name, mobile number, email, points balance and notification preferences.",
-  "It cannot see your prescription, appointments or any clinical records. Those stay in the practice systems.",
-  "Your mobile number is the key used to find your points at the till, so it can only be changed in branch with ID.",
-  "If you enable biometric unlock, the biometric stays on your device and is never shared with the practice.",
+  "We hold your name, number, email, points and notification settings.",
+  "Not your prescription, appointments or clinical records. Those stay in the practice systems.",
+  "Your number finds your points at the till, so it can only be changed in branch with ID.",
+  "Biometric unlock stays on your device. It is never shared with the practice.",
 ];
 
 const useStyles = makeStyles((colors) => ({

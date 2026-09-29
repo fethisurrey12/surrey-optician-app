@@ -197,8 +197,7 @@ export default function Home() {
                 reward
               </Txt>
               <Txt variant="caption" style={styles.scheme}>
-                You earn on the private amount you pay. NHS-funded care earns
-                nothing.
+                Points on private spend. NHS care earns nothing.
               </Txt>
             </View>
 

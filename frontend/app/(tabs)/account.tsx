@@ -24,7 +24,11 @@ export default function Account() {
 
   if (!a) {
     return (
-      <Screen tabBar testID="account-screen" header={<Txt variant="h1">Account</Txt>}>
+      <Screen
+        tabBar
+        testID="account-screen"
+        header={<Txt variant="h1">Account</Txt>}
+      >
         <SkeletonCard lines={3} />
         <SkeletonCard lines={2} style={styles.block} />
       </Screen>
@@ -32,7 +36,11 @@ export default function Account() {
   }
 
   return (
-    <Screen tabBar testID="account-screen" header={<Txt variant="h1">Account</Txt>}>
+    <Screen
+      tabBar
+      testID="account-screen"
+      header={<Txt variant="h1">Account</Txt>}
+    >
       <StaggerItem index={0}>
         <Card contentStyle={styles.member} testID="membership-card">
           <View pointerEvents="none" style={styles.lens} />
@@ -73,8 +81,8 @@ export default function Account() {
         <Card contentStyle={styles.links}>
           <Row
             icon="scan"
-            title="Check in at the desk"
-            subtitle="Show your QR when you arrive"
+            title="Check in"
+            subtitle="Show your QR at the desk"
             onPress={() => router.push("/checkin")}
             testID="link-checkin"
           />
@@ -83,13 +91,37 @@ export default function Account() {
 
       <StaggerItem index={2} style={styles.block}>
         <Card contentStyle={styles.links}>
-          <Row icon="user" title="Your details" subtitle="Name, email and home branch" onPress={() => router.push("/details")} testID="link-details" />
+          <Row
+            icon="user"
+            title="Your details"
+            subtitle="Name, email and home branch"
+            onPress={() => router.push("/details")}
+            testID="link-details"
+          />
           <Divider inset={54} />
-          <Row icon="users" title="Refer a friend" subtitle={`Your code · ${a.referralCode}`} onPress={() => router.push("/refer")} testID="link-refer" />
+          <Row
+            icon="users"
+            title="Refer a friend"
+            subtitle={`Your code · ${a.referralCode}`}
+            onPress={() => router.push("/refer")}
+            testID="link-refer"
+          />
           <Divider inset={54} />
-          <Row icon="pin" title="Branches and contact" subtitle="Coulsdon, Wallington, Banstead" onPress={() => router.push("/branches")} testID="link-branches" />
+          <Row
+            icon="pin"
+            title="Branches and contact"
+            subtitle="All four branches"
+            onPress={() => router.push("/branches")}
+            testID="link-branches"
+          />
           <Divider inset={54} />
-          <Row icon="sliders" title="Settings" subtitle="Unlock, notifications and terms" onPress={() => router.push("/settings")} testID="link-settings" />
+          <Row
+            icon="sliders"
+            title="Settings"
+            subtitle="Unlock, notifications and terms"
+            onPress={() => router.push("/settings")}
+            testID="link-settings"
+          />
         </Card>
       </StaggerItem>
 
@@ -102,9 +134,8 @@ export default function Account() {
             </Txt>
           </View>
           <Txt variant="body">
-            This app holds your name, mobile number, email, points and preferences. It cannot see
-            your prescription, appointments or any clinical records. Reminders, such as your
-            eye-test recall, are worked out from your purchase history alone.
+            We hold your name, number, email and points. Not your prescription,
+            appointments or any clinical records.
           </Txt>
         </Card>
       </StaggerItem>
@@ -124,9 +155,19 @@ const useStyles = makeStyles((colors) => ({
     borderWidth: 1,
     borderColor: colors.accentBorderSoft,
   },
-  memberTop: { flexDirection: "row", alignItems: "flex-start", justifyContent: "space-between" },
+  memberTop: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+    justifyContent: "space-between",
+  },
   name: { marginTop: spacing.sm },
-  metaRow: { flexDirection: "row", flexWrap: "wrap", gap: spacing.lg, rowGap: spacing.md, marginTop: spacing.xs },
+  metaRow: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: spacing.lg,
+    rowGap: spacing.md,
+    marginTop: spacing.xs,
+  },
   meta: { gap: 2 },
   branch: { marginTop: spacing.xs },
   block: { marginTop: spacing.lg },

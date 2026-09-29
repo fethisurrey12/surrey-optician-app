@@ -85,7 +85,7 @@ export default function Branches() {
                 Book an appointment
               </Txt>
               <Txt variant="caption">
-                Eye examinations and contact lens checks, at any branch.
+                Eye tests and lens checks, at any branch.
               </Txt>
             </View>
             <BrandButton

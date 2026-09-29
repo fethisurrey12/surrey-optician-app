@@ -41,7 +41,7 @@ export default function Welcome() {
           testID="welcome-signin-button"
         />
         <Txt variant="caption" style={styles.note}>
-          Sign in with your mobile number to start collecting.
+          Sign in with your mobile number.
         </Txt>
       </StaggerItem>
     </Screen>

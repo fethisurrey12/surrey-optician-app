@@ -50,7 +50,7 @@ function ErrorFallback({ error, resetError }: { error: Error; resetError: () => 
     <View style={styles.container} testID="error-fallback">
       <View style={styles.content}>
         <Text style={styles.title}>Something went wrong</Text>
-        <Text style={styles.message}>Please reload the app to continue.</Text>
+        <Text style={styles.message}>Please reload the app.</Text>
         {__DEV__ ? <Text style={styles.devMessage}>{error.message}</Text> : null}
         <Pressable
           onPress={handleReload}
