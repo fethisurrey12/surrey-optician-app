@@ -177,109 +177,96 @@ and not bundled here; swapping it is a font file plus one line in
 
 ### The logo
 
-The logo in the app is the practice's own artwork, not a lookalike. The
-letterforms are Gill Sans Nova outlines taken from page 1 of the **Surrey
-Opticians Brand Book 2026** — the Adobe InDesign publication in the SOMarketing
-SharePoint site, where the type is already converted to paths. They live in two
-places:
+The logo in the app is the practice's own artwork. `Surrey Opticians
+Logo-01.png` — the teal block with the SO device and the lowercase wordmark —
+came from the SOMarketing SharePoint site and lives in the repository at
+`frontend/assets/brand/`. Its turquoise is `#009DB1`, which is where the
+palette's brand colour comes from. (The logo master PDF quotes Pantone 320C,
+`#009CA6`, for print; the digital artwork is `#009DB1`.)
 
 | File | What it is |
 |---|---|
-| `frontend/src/ui/wordmarkPath.ts` | The wordmark on one line, drawn by `Wordmark.tsx` on the membership card, the lock screen and the join page |
-| `frontend/assets/logo-mark.svg` | The stacked lockup, white on the brand turquoise — the source for the in-app logo, splash and wallet passes |
-| `frontend/assets/logo-device.svg` | The SO device: the same two letters set as a monogram, for the square icons |
+| `frontend/assets/brand/surrey-opticians-logo-01.png` | The master artwork. Everything else is rendered from it |
+| `frontend/assets/brand/so-device.png` | The SO device alone, white on transparent, for the square icons |
+| `frontend/assets/brand/so-device-tile.png` | The device as the artwork draws it, on its own ground |
+| `frontend/src/ui/wordmarkPath.ts` | The uppercase wordmark as Gill Sans Nova outlines, from page 1 of the Brand Book 2026, drawn by `Wordmark.tsx` on the membership card, the lock screen and the join page |
 
-Because the outlines are drawn rather than set, the app needs no licensed font
-file for the wordmark, and it is exactly theirs at every size.
+The two device files are cut from the master by `scripts/extract-device.cjs`.
+Re-run it if the master is ever replaced.
 
-The **SO device** is the one part that is not lifted from their artwork. Their
-own device is a placed image inside the brand book rather than vector in the
-page, so it could not come across with the type. `logo-device.svg` stands in for
-it: their S and their O, in their typeface, set plainly side by side. Near, but
-not a copy of the device itself — and not a hand trace of it either, which is
-what earlier versions of this app shipped.
-
-To put their real device in, pass it to the same script:
+To regenerate every size from the artwork:
 
 ```bash
 cd frontend
 npm i -D playwright-core                       # once
-node scripts/install-logo.mjs assets/logo-mark.svg --device "Surrey Opticians Logo-01.png"
-```
-
-`--device` is for artwork that belongs only on the square icons; a full lockup
-given as the main file fills everything else. Passing one file and no `--device`
-uses it for all of them:
-
-```bash
-node scripts/install-logo.mjs "Surrey Opticians Logo-01.png"
+node scripts/extract-device.cjs                # refresh the device crops
+node scripts/install-logo.mjs assets/brand/surrey-opticians-logo-01.png \
+  --device assets/brand/so-device.png --pad 8
 ```
 
 That writes the in-app logo, the store icon, the Android adaptive icon, the
-favicon, the splash image and the three Apple Wallet pass logos. It takes PNG,
-JPEG or SVG (redrawing a vector source at full size rather than enlarging a
-small raster), crops the artwork to its ink so it sits centred rather than small
-and off to one side, and keeps whatever ground the artwork came on. `--ground`
-sets the colour behind the square icon, `--pad` its margin.
-
-No code changes either way: `src/ui/LogoMark.tsx` renders
-`assets/images/logo-mark.png` and takes its proportions from the file. Running
-the script against `assets/logo-mark.svg` regenerates the current set.
-
-## Booking
-
-"Book an eye test" on Home and "Book online" on Branches hand the patient to
-the practice's own booking page:
-
-    https://www.surreyopticians.co.uk/book-appointment
-
-It opens in an in-app browser on a phone and a new tab on web. The URL lives in
-`frontend/src/lib/booking.ts`. Because booking happens on that page, the app
-does not hold a diary and does not know which slots are free — whatever runs
-that page owns availability.
-
-## Brand
-
-Colours and type come from the practice's own **Surrey Opticians Lookbook**
-(2019), held in SharePoint under Marketing / SO Fonts and colours — not from a
-guess at the website:
-
-| | |
-|---|---|
-| Turquoise | `#009db1` — the primary, used for the ring, badges and fills |
-| Dark grey | `#3b3c43` — body type |
-| Dark blue | `#282460` |
-| Lilac | `#7087c3` |
-| Type | Gill Sans Nova (Light / Book / Semibold) |
-
-Two gaps. The app substitutes **Inter** for Gill Sans Nova, which is licensed
-and not bundled here; swapping it is a font file plus one line in
-`src/tokens.ts`.
-
-### The logo
-
-`frontend/assets/images/logo-mark.png` is a **hand trace**, not the practice's
-artwork — close, but not their letterform. Their own `Surrey Opticians
-Logo-01.png` lives in the SOMarketing SharePoint site.
-
-Replacing it is one command. The logo lives in exactly one file, and every
-other size is rendered from it:
-
-```bash
-cd frontend
-npm i -D playwright-core                       # once
-node scripts/install-logo.mjs "Surrey Opticians Logo-01.png"
-```
-
-That writes the in-app logo, the store icon, the Android adaptive icon, the
-favicon, the splash image and the three Apple Wallet pass logos. It takes PNG,
-JPEG or SVG, crops the artwork to its ink so it sits centred rather than small
-and off to one side, and keeps whatever ground the artwork came on. `--ground`
-sets the colour behind the square icon, `--pad` its margin.
+favicon, the splash image and the three Apple Wallet pass logos. `--device` is
+artwork for the square icons only — the wide lockup squeezed into a square tile
+reads as a stripe across an empty box. It takes PNG, JPEG or SVG (redrawing a
+vector source at full size rather than enlarging a small raster), crops to the
+ink so the mark sits centred, and keeps whatever ground the artwork came on.
+`--ground` sets the colour behind the square icon, `--pad` its margin.
 
 No code changes: `src/ui/LogoMark.tsx` renders `assets/images/logo-mark.png`
-and takes its proportions from the file. Running the script against
-`assets/logo-mark.svg` regenerates the placeholder set.
+and takes its proportions from the file.
+
+## Building the app
+
+Everything above runs the app in development. These are the builds.
+
+### A web build
+
+```bash
+cd frontend
+npx expo export --platform web --output-dir dist
+```
+
+`dist/` is a static site — put it behind any web server or static host. This is
+what the shared demo is.
+
+### iOS and Android
+
+Expo builds these in the cloud, so neither a Mac nor Android Studio is needed.
+
+```bash
+npm i -g eas-cli
+eas login                      # an Expo account, free to create
+cd frontend
+eas build:configure            # writes eas.json, once
+eas build --platform ios       # or android, or all
+```
+
+`eas build:configure` has not been run in this repository yet, so there is no
+`eas.json` — the first build creates one.
+
+Before the first build, two things in `frontend/app.json` need changing:
+
+- `ios.bundleIdentifier` and `android.package` are still Emergent's
+  `com.emergent.surreyopticians.xkx2pz`. They want to be the practice's own,
+  e.g. `uk.co.surreyopticians.people`. These cannot be changed after an app is
+  published, so get them right first.
+- `slug` is `frontend`. It is the project's name in Expo, not something
+  patients see, but `surrey-people` reads better in the dashboard.
+
+For the App Store you also need an Apple Developer account (£79/year) and for
+Google Play a Play Console account (one-off $25). `eas submit --platform ios`
+uploads the finished build to App Store Connect.
+
+### Installing it on a phone without the stores
+
+For showing colleagues before release:
+
+```bash
+eas build --platform android --profile preview
+```
+
+That produces an `.apk` that installs directly on any Android phone. iOS needs
+TestFlight, which needs the Apple Developer account.
 
 ## Before going live
 
@@ -290,6 +277,6 @@ and takes its proportions from the file. Running the script against
 - [ ] Set `STAFF_API_KEY` before the till can post purchases or the desk can open
 - [ ] Set `SEED_DEMO_DATA=false` on the practice's deployment
 - [ ] Add the Apple and Google Wallet signing material — see `backend/WALLET_SETUP.md`
-- [ ] Add the SO device — `node frontend/scripts/install-logo.mjs "Surrey Opticians Logo-01.png"` (the wordmark is already theirs)
 - [ ] Confirm opening hours — the brand book does not state them
-- [ ] Change the bundle identifier from Emergent's `com.emergent.surreyopticians.xkx2pz`
+- [ ] Change the bundle identifier and Android package from Emergent's `com.emergent.surreyopticians.xkx2pz`
+- [ ] Run `eas build:configure` and set up the Apple Developer and Play Console accounts
