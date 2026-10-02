@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "Surrey People",
-    "slug": "frontend",
+    "slug": "surrey-people",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
@@ -10,7 +10,7 @@
     "backgroundColor": "#FFFFFF",
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.emergent.surreyopticians.xkx2pz",
+      "bundleIdentifier": "uk.co.surreyopticians.people",
       "infoPlist": {
         "NSFaceIDUsageDescription": "Unlock your loyalty account with Face ID"
       }
@@ -20,7 +20,7 @@
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#14AFC1"
       },
-      "package": "com.emergent.surreyopticians.xkx2pz"
+      "package": "uk.co.surreyopticians.people"
     },
     "web": {
       "bundler": "metro",

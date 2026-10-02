@@ -237,21 +237,18 @@ Expo builds these in the cloud, so neither a Mac nor Android Studio is needed.
 npm i -g eas-cli
 eas login                      # an Expo account, free to create
 cd frontend
-eas build:configure            # writes eas.json, once
 eas build --platform ios       # or android, or all
 ```
 
-`eas build:configure` has not been run in this repository yet, so there is no
-`eas.json` — the first build creates one.
+`eas.json` is committed, so there is nothing to configure first. The three
+profiles in it are `development` (a dev client), `preview` (an installable
+`.apk` for showing colleagues) and `production` (store builds, with the build
+number incremented for you).
 
-Before the first build, two things in `frontend/app.json` need changing:
-
-- `ios.bundleIdentifier` and `android.package` are still Emergent's
-  `com.emergent.surreyopticians.xkx2pz`. They want to be the practice's own,
-  e.g. `uk.co.surreyopticians.people`. These cannot be changed after an app is
-  published, so get them right first.
-- `slug` is `frontend`. It is the project's name in Expo, not something
-  patients see, but `surrey-people` reads better in the dashboard.
+The bundle identifier and Android package are `uk.co.surreyopticians.people`
+and the Expo slug is `surrey-people`. **A published app's identifier can never
+be changed**, so if a different one is wanted, change it before the first
+submission, not after.
 
 For the App Store you also need an Apple Developer account (£79/year) and for
 Google Play a Play Console account (one-off $25). `eas submit --platform ios`
@@ -278,5 +275,5 @@ TestFlight, which needs the Apple Developer account.
 - [ ] Set `SEED_DEMO_DATA=false` on the practice's deployment
 - [ ] Add the Apple and Google Wallet signing material — see `backend/WALLET_SETUP.md`
 - [ ] Confirm opening hours — the brand book does not state them
-- [ ] Change the bundle identifier and Android package from Emergent's `com.emergent.surreyopticians.xkx2pz`
-- [ ] Run `eas build:configure` and set up the Apple Developer and Play Console accounts
+- [ ] Confirm `uk.co.surreyopticians.people` is the identifier wanted — it cannot change after publishing
+- [ ] Set up the Apple Developer and Play Console accounts
