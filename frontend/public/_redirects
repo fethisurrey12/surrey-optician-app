@@ -1,0 +1,5 @@
+# Surrey People is a single-page app: every route is served by index.html and
+# resolved in the browser. Without this, a static host returns 404 for any URL
+# other than "/" — so a refresh on /rewards, or a shared deep link, would break.
+# Netlify reads this file; most other static hosts have their own equivalent.
+/*  /index.html  200
