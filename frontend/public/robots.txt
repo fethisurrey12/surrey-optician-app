@@ -1,0 +1,6 @@
+# The hosted web build is a demo, not a public product. Keep it out of search
+# results: a shared link should reach the people it was sent to and nobody
+# else. This stops indexing, not access — anyone with the URL can still open
+# it, so the link itself is the only thing keeping it private.
+User-agent: *
+Disallow: /
